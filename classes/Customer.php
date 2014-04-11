@@ -207,6 +207,20 @@ class CustomerCore extends ObjectModel
 		$this->id_shop_group = ($this->id_shop_group) ? $this->id_shop_group : Context::getContext()->shop->id_shop_group;
 		$this->id_lang = ($this->id_lang) ? $this->id_lang : Context::getContext()->language->id;
 		$this->birthday = (empty($this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
+
+		if ( strtolower(Context::getContext()->language->iso_code) == 'fa' )
+		{
+			$birthday = explode('-', $this->birthday);
+			if (sizeof($birthday) == 3 AND $birthday[0] < 1900)
+			{
+				$j_to_g = Pdate::jalali_to_gregorian($birthday[0], $birthday[1], $birthday[2]);
+				$this->years = $j_to_g[0];
+				$this->months = $j_to_g[1];
+				$this->days = $j_to_g[2];
+				$this->birthday = (!@checkdate($this->months, $this->days, $this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
+			}
+		}
+
 		$this->secure_key = md5(uniqid(rand(), true));
 		$this->last_passwd_gen = date('Y-m-d H:i:s', strtotime('-'.Configuration::get('PS_PASSWD_TIME_FRONT').'minutes'));
 		
@@ -231,6 +245,18 @@ class CustomerCore extends ObjectModel
 	{
 		$this->birthday = (empty($this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
 
+		if ( strtolower(Context::getContext()->language->iso_code) == 'fa' )
+		{
+			$birthday = explode('-', $this->birthday);
+			if (sizeof($birthday) == 3 AND $birthday[0] < 1900)
+			{
+				$j_to_g = Pdate::jalali_to_gregorian($birthday[0], $birthday[1], $birthday[2]);
+				$this->years = $j_to_g[0];
+				$this->months = $j_to_g[1];
+				$this->days = $j_to_g[2];
+				$this->birthday = (!@checkdate($this->months, $this->days, $this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
+			}
+		}
 		if ($this->newsletter && !Validate::isDate($this->newsletter_date_add))
 			$this->newsletter_date_add = date('Y-m-d H:i:s');
 		if (isset(Context::getContext()->controller) && Context::getContext()->controller->controller_type == 'admin')

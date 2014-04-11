@@ -603,6 +603,26 @@ class AdminControllerCore extends Controller
 				{
 					$type = (array_key_exists('filter_type', $field) ? $field['filter_type'] : (array_key_exists('type', $field) ? $field['type'] : false));					if (($type == 'date' || $type == 'datetime') && is_string($value))
 						$value = Tools::unSerialize($value);
+					
+					//Added by presta-shop.ir to hack values sent by "fa" datepicker
+					//if lang = fa then convert persian jalali date to standard gregorian
+					//$ex = exploded date
+					if ( ($type == 'date' OR $type == 'datetime') AND (strtolower(Context::getContext()->language->iso_code) == 'fa'))
+					{	
+						$ex = explode('-',$value[0]);
+						if (isset($ex[2]) AND $ex[0] < 1800)
+						{
+							$ex = Pdate::jalali_to_gregorian($ex[0], $ex[1], $ex[2]);
+							$subvalue[0] = $ex[0].'-'.$ex[1].'-'.$ex[2];
+							$value[0] = substr_replace($value[0],$subvalue[0],0,10);
+							$ex = explode('-',$value[1]);
+							$ex = Pdate::jalali_to_gregorian($ex[0], $ex[1], $ex[2]);
+							$subvalue[1] = $ex[0].'-'.$ex[1].'-'.$ex[2];
+							$value[1] = substr_replace($value[1],$subvalue[1],0,10);
+						}
+					}
+					// End of Add
+					
 					$key = isset($tmp_tab[1]) ? $tmp_tab[0].'.`'.$tmp_tab[1].'`' : '`'.$tmp_tab[0].'`';
 
 					// Assignement by reference
@@ -1617,6 +1637,7 @@ class AdminControllerCore extends Controller
 					unset($sub_tabs[$index2]);
 			}
 
+
 			$tabs[$index]['sub_tabs'] = $sub_tabs;
 		}
 
@@ -1870,6 +1891,17 @@ class AdminControllerCore extends Controller
 	 */
 	public function initFooter()
 	{
+		//RTL Support
+		//rtl.js overrides inline styles
+		//rtl.css overrides css styles
+		//iso_code.css overrides default fonts for every language (optional)
+		if ($this->context->language->is_rtl)
+		{
+			$this->addJS(_PS_JS_DIR_.'rtl.js');
+			$this->addCSS(__PS_BASE_URI__.$this->admin_webpath.'/themes/'.$this->bo_theme.'/css/rtl.css', 'all', false);
+			$this->addCSS(__PS_BASE_URI__.$this->admin_webpath.'/themes/'.$this->bo_theme.'/css/'.$this->context->language->iso_code.'.css', 'all', false);
+		}
+
 		// We assign js and css files on the last step before display template, because controller can add many js and css files
 		$this->context->smarty->assign('css_files', $this->css_files);
 		$this->context->smarty->assign('js_files', array_unique($this->js_files));
@@ -2149,13 +2181,12 @@ class AdminControllerCore extends Controller
 		//Bootstrap + Specific Admin Theme
 		$this->addCSS(__PS_BASE_URI__.$this->admin_webpath.'/themes/'.$this->bo_theme.'/css/'.$this->bo_css, 'all', 0);
 
+
 		//Deprecated stylesheets + reset bootstrap style for the #nobootstrap field - Backward compatibility
 		if (!$this->bootstrap)
 			$this->setDeprecatedMedia();
 		
-		//@Todo: css for rtl support
-		if ($this->context->language->is_rtl)
-			$this->addCSS(_THEME_CSS_DIR_.'rtl.css');
+		//RTL Support moved to footer
 
 		$this->addJquery();
 		$this->addjQueryPlugin(array('scrollTo', 'alerts', 'chosen', 'autosize'));

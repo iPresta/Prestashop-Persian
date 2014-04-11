@@ -664,6 +664,11 @@ class ToolsCore
 
 		$context = Context::getContext();
 		$date_format = ($full ? $context->language->date_format_full : $context->language->date_format_lite);
+
+		if ($context->language->iso_code == 'fa')
+		{
+			return Pdate::pdate($date_format, $time);
+		}
 		return date($date_format, $time);
 	}
 
@@ -1434,7 +1439,15 @@ class ToolsCore
 	*/
 	public static function dateYears()
 	{
+
 		$tab = array();
+		if (strtolower(Context::getContext()->language->iso_code) == 'fa')
+		{
+			$tab = array();
+			for ($i = Pdate::pdate('Y'); $i >= 1300; $i--)
+				$tab[] = $i;
+		}
+
 		for ($i = date('Y'); $i >= 1900; $i--)
 			$tab[] = $i;
 		return $tab;

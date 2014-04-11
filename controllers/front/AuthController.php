@@ -514,7 +514,10 @@ class AuthControllerCore extends FrontController
 			}
 		}
 
-		if (!@checkdate(Tools::getValue('months'), Tools::getValue('days'), Tools::getValue('years')) && !(Tools::getValue('months') == '' && Tools::getValue('days') == '' && Tools::getValue('years') == ''))
+
+		if (strtolower($this->context->language->iso_code) == 'fa' && !@Pdate::pcheckdate(Tools::getValue('months'), Tools::getValue('days'), Tools::getValue('years')) && !(Tools::getValue('months') == '' && Tools::getValue('days') == '' && Tools::getValue('years') == ''))
+			$this->errors[] = Tools::displayError('Invalid date of birth');
+		elseif (!@checkdate(Tools::getValue('months'), Tools::getValue('days'), Tools::getValue('years')) && !(Tools::getValue('months') == '' && Tools::getValue('days') == '' && Tools::getValue('years') == ''))
 			$this->errors[] = Tools::displayError('Invalid date of birth');
 
 		if (!count($this->errors))

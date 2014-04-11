@@ -222,6 +222,25 @@ abstract class AdminStatsTabControllerCore extends AdminPreferencesControllerCor
 
 	public function postProcess()
 	{
+		//Added by presta-shop.ir to hack values sent by "fa" datepicker
+		//if lang = fa then convert persian jalali date to standard gregorian
+		//$ex = exploded date
+		if ( Tools::getValue('persiandatepicker') && count(Tools::getValue('persiandatepicker')) > 0 && strtolower(Context::getContext()->language->iso_code == 'fa'))
+		{	
+			foreach(Tools::getValue('persiandatepicker') as $datefield)
+			{
+				$datetime = Tools::getValue($datefield);
+				$date_time = explode(' ', $datetime);
+				$date = explode('-', $date_time[0] );
+				if(count($date) == 3 && $date[0] < 1600)
+				{
+					$gdate = Pdate::jalali_to_gregorian($date[0], $date[1], $date[2]);
+					$_POST[$datefield] = $gdate[0].'-'.$gdate[1].'-'.$gdate[2].(isset($date_time[1]) ? ' '.$date_time[1] : '');
+				}
+			}
+		}
+		// End of Add
+		
 		$this->context = Context::getContext();
 		
 		$this->processDateRange();
