@@ -1,12 +1,11 @@
 /*
  * dmartl.js
  * DM Auto RTL - Auto RTL all inline style in page using jquery
- * Author: Danoosh Miralayi
+ * Autor: Danoosh Miralayi
  * Website: presta-shop.ir
  * License: MIT
  * Find it here: https://github.com/Danoosh/DM-Auto-RTL
 */
-
 $(document).ready(function () {
     $('[style]').each(function (index) {
         var styles_old = $(this).attr('style');
@@ -42,6 +41,3 @@ function makeValueRTL(property, value) {
     return value;
 }
 /* end of file dmartl.js */
-
-/* Add any JS change nedded for RTL here*/
-

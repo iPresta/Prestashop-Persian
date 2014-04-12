@@ -35,7 +35,7 @@ class BlockBestSellers extends Module
 	{
 		$this->name = 'blockbestsellers';
 		$this->tab = 'front_office_features';
-		$this->version = '1.5.1';
+		$this->version = '1.5.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->bootstrap = true;
@@ -44,6 +44,7 @@ class BlockBestSellers extends Module
 
 		$this->displayName = $this->l('Top-sellers block');
 		$this->description = $this->l('Adds a block displaying your store\'s top-selling products.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

@@ -724,17 +724,22 @@ class ToolsCore
 			if ($files = scandir($dirname))
 			{
 				foreach ($files as $file)
-
     				if ($file != '.' && $file != '..' && $file != '.svn')
     				{
     					if (is_dir($dirname.$file))
     						Tools::deleteDirectory($dirname.$file, true);
     					elseif (file_exists($dirname.$file))
-    						unlink($dirname.$file);
+						{
+							@chmod($dirname.$file, 0777); // NT ?
+							unlink($dirname.$file);
+						}
     				}
-				if ($delete_self)
+				if ($delete_self && file_exists($dirname))
 					if (!rmdir($dirname))
+					{
+						@chmod($dirname, 0777); // NT ?
                         return false;
+					}
                 return true;                    
 			}
         return false;
@@ -752,21 +757,12 @@ class ToolsCore
 			$exclude_files = array($exclude_files);
 
 		if (file_exists($file) && is_file($file) && array_search(basename($file), $exclude_files) === FALSE)
+		{
+			@chmod($dirname.$file, 0777); // NT ?
 			unlink($file);
+		}
     }
-    
-	/**
-	* Clear smarty cache folders
- 	*/
-	public static function clearSmartyCache()
-	{
-		foreach (array(_PS_CACHE_DIR_.'smarty/cache', _PS_CACHE_DIR_.'smarty/compile') as $dir)
-			if (file_exists($dir))
-				foreach (scandir($dir) as $file)
-					if ($file[0] != '.' && $file != 'index.php')
-						self::deleteDirectory($dir.DIRECTORY_SEPARATOR.$file);
-	}
-    
+        
 	/**
 	* Clear XML cache folder
  	*/
@@ -1824,7 +1820,7 @@ class ToolsCore
 		$protocol_link = Tools::getCurrentUrlProtocolPrefix();
 		if (array_key_exists(1, $matches) && array_key_exists(2, $matches))
 		{
-			if (!preg_match('/^https?:\/\//iUs', $matches[2]))
+			if (!preg_match('/^(?:https?:)?\/\//iUs', $matches[2]))
 			{
 				$tmp = dirname($current_css_file).'/'.$matches[2];
 				return $matches[1].$protocol_link.Tools::getMediaServer($tmp).$tmp;
@@ -1882,7 +1878,7 @@ class ToolsCore
 
 	public static function getMediaServer($filename)
 	{
-		if (self::$_cache_nb_media_servers === null)
+		if (self::$_cache_nb_media_servers === null && defined('_MEDIA_SERVER_1_') && defined('_MEDIA_SERVER_2_') && defined('_MEDIA_SERVER_3_'))
 		{
 			if (_MEDIA_SERVER_1_ == '')
 				self::$_cache_nb_media_servers = 0;
@@ -1989,7 +1985,7 @@ class ToolsCore
 
 		fwrite($write_fd, "RewriteEngine on\n");
 	
-		if (!$medias)
+		if (!$medias && defined('_MEDIA_SERVER_1_') && defined('_MEDIA_SERVER_2_') && defined('_MEDIA_SERVER_3_'))
 			$medias = array(_MEDIA_SERVER_1_, _MEDIA_SERVER_2_, _MEDIA_SERVER_3_);
 		
 		$media_domains = '';
@@ -2157,8 +2153,9 @@ FileETag INode MTime Size
 		if ($specific_after)
 			fwrite($write_fd, "\n\n".trim($specific_after));
 		fclose($write_fd);
-
-		Hook::exec('actionHtaccessCreate');
+		
+		if (!defined('PS_INSTALLATION_IN_PROGRESS'))
+			Hook::exec('actionHtaccessCreate');
 
 		return true;
 	}
@@ -2600,6 +2597,30 @@ exit;
 			return $smarty->clearAllCache();
 
 		return $smarty->clearCache($tpl, $cache_id, $compile_id);
+	}
+
+	/**
+	 * Clear compile for Smarty
+ 	*/
+	public static function clearCompile($smarty = null)
+	{
+		if ($smarty === null)
+			$smarty = Context::getContext()->smarty;
+
+		if ($smarty === null)
+			return;
+
+		return $smarty->clearCompiledTemplate();
+	}
+
+	/**
+	* Clear Smarty cache and compile folders
+ 	*/
+	public static function clearSmartyCache()
+	{
+		$smarty = Context::getContext()->smarty;
+		Tools::clearCache($smarty);
+		Tools::clearCompile($smarty);
 	}
 
 	/**

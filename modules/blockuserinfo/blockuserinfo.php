@@ -33,7 +33,7 @@ class BlockUserInfo extends Module
 	{
 		$this->name = 'blockuserinfo';
 		$this->tab = 'front_office_features';
-		$this->version = 0.2;
+		$this->version = 0.3;
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -41,6 +41,7 @@ class BlockUserInfo extends Module
 
 		$this->displayName = $this->l('User info block');
 		$this->description = $this->l('Adds a block that displays information about the customer.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

@@ -36,7 +36,7 @@ class BlockSpecials extends Module
     {
         $this->name = 'blockspecials';
         $this->tab = 'pricing_promotion';
-        $this->version = '1.0';
+        $this->version = '1.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -45,6 +45,7 @@ class BlockSpecials extends Module
 
 		$this->displayName = $this->l('Specials block');
 		$this->description = $this->l('Adds a block displaying your current discounted products.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

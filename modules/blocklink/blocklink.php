@@ -36,7 +36,7 @@ class BlockLink extends Module
 	{
 		$this->name = 'blocklink';
 		$this->tab = 'front_office_features';
-		$this->version = '1.5.1';
+		$this->version = '1.5.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -46,6 +46,7 @@ class BlockLink extends Module
 		$this->displayName = $this->l('Link block');
 		$this->description = $this->l('Adds a block with additional links.');
 		$this->confirmUninstall = $this->l('Are you sure you want to delete all your links?');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -216,7 +217,7 @@ class BlockLink extends Module
 			foreach ($languages as $language)
 				if (!empty($_POST['text_'.$language['id_lang']]))
 				{
-					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)$id_link.', '.(int)($language['id_lang']).', \''.pSQL($_POST['text_'.$language['id_lang']]).'\')'))
+					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang (`id_blocklink`, `id_lang`, `text`) VALUES ('.(int)$id_link.', '.(int)($language['id_lang']).', \''.pSQL($_POST['text_'.$language['id_lang']]).'\')'))
 						return false;
 				}
 				else
@@ -225,7 +226,7 @@ class BlockLink extends Module
 		}
 		else
 		{
-			if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink 
+			if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink (`id_blocklink`, `url`, `new_window`) 
 														VALUES (NULL, \''.pSQL(Tools::getValue('url')).'\', '.((isset($_POST['newWindow']) && Tools::getValue('newWindow')) == 'on' ? 1 : 0).')') ||
 				!$id_link = Db::getInstance()->Insert_ID()
 			)
@@ -234,13 +235,13 @@ class BlockLink extends Module
 			foreach ($languages as $language)
 				if (!empty($_POST['text_'.$language['id_lang']]))
 				{
-					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang 
+					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang (`id_blocklink`, `id_lang`, `text`) 
 																VALUES ('.(int)$id_link.', '.(int)$language['id_lang'].', \''.pSQL(Tools::getValue('text_'.$language['id_lang'])).'\')')
 					)
 						return false;
 				}
 				else
-					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang VALUES ('.(int)$id_link.', '.(int)($language['id_lang']).', \''.pSQL($_POST['text_'.$id_lang_default]).'\')'))
+					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang (`id_blocklink`, `id_lang`, `text`) VALUES ('.(int)$id_link.', '.(int)($language['id_lang']).', \''.pSQL($_POST['text_'.$id_lang_default]).'\')'))
 						return false;
 		}
 
@@ -472,7 +473,7 @@ class BlockLink extends Module
 		$helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
 		$links = $this->getLinks();
 		if (is_array($links) && count($links))
-			return $helper->generateList($this->getLinks(), $fields_list);
+			return $helper->generateList($links, $fields_list);
 		else
 			return false;
 	}

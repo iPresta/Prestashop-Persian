@@ -33,14 +33,15 @@ class TrackingFront extends Module
 	{
 		$this->name = 'trackingfront';
 		$this->tab = 'shipping_logistics';
-		$this->version = 1.2;
+		$this->version = '1.5';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		parent::__construct();
 
 		$this->displayName = $this->l('Tracking - Front office');
-		$this->description = $this->l('Enable your affiliates to access their own statistics. See Stats/Referers.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
+		$this->description = $this->l('Enables your affiliates to access their own statistics. See Stats/Referrers.');
 	}
 
 	public function postProcess()

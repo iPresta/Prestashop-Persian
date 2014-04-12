@@ -37,7 +37,7 @@ class StatsSearch extends ModuleGraph
 	{
 		$this->name = 'statssearch';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -55,6 +55,7 @@ class StatsSearch extends ModuleGraph
 
 		$this->displayName = $this->l('Shop search');
 		$this->description = $this->l('Adds a tab showing which keywords have been searched by your store\'s visitors.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

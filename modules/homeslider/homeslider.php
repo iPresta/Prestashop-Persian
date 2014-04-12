@@ -42,7 +42,7 @@ class HomeSlider extends Module
 	{
 		$this->name = 'homeslider';
 		$this->tab = 'front_office_features';
-		$this->version = '1.2.7';
+		$this->version = '1.3.6';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->secure_key = Tools::encrypt($this->name);
@@ -52,6 +52,7 @@ class HomeSlider extends Module
 
 		$this->displayName = $this->l('Image slider for your homepage');
 		$this->description = $this->l('Adds an image slider to your homepage.');
+		$this->ps_versions_compliancy = array('min' => '1.6.0.4', 'max' => _PS_VERSION_);
 	}
 
 	/**
@@ -211,6 +212,7 @@ class HomeSlider extends Module
 			else
 				$this->_html .= $this->renderAddForm();
 
+			$this->clearCache();
 		}
 		elseif (Tools::isSubmit('addSlide') || (Tools::isSubmit('id_slide') && $this->slideExists((int)Tools::getValue('id_slide'))))
 			$this->_html .= $this->renderAddForm();
@@ -265,7 +267,7 @@ class HomeSlider extends Module
 				if (Tools::strlen(Tools::getValue('title_'.$language['id_lang'])) > 255)
 					$errors[] = $this->l('The title is too long.');
 				if (Tools::strlen(Tools::getValue('legend_'.$language['id_lang'])) > 255)
-					$errors[] = $this->l('The legend is too long.');
+					$errors[] = $this->l('The caption is too long.');
 				if (Tools::strlen(Tools::getValue('url_'.$language['id_lang'])) > 255)
 					$errors[] = $this->l('The URL is too long.');
 				if (Tools::strlen(Tools::getValue('description_'.$language['id_lang'])) > 4000)
@@ -283,7 +285,7 @@ class HomeSlider extends Module
 			if (Tools::strlen(Tools::getValue('title_'.$id_lang_default)) == 0)
 				$errors[] = $this->l('The title is not set.');
 			if (Tools::strlen(Tools::getValue('legend_'.$id_lang_default)) == 0)
-				$errors[] = $this->l('The legend is not set.');
+				$errors[] = $this->l('The caption is not set.');
 			if (Tools::strlen(Tools::getValue('url_'.$id_lang_default)) == 0)
 				$errors[] = $this->l('The URL is not set.');
 			if (!Tools::isSubmit('has_picture') && (!isset($_FILES['image_'.$id_lang_default]) || empty($_FILES['image_'.$id_lang_default]['tmp_name'])))
@@ -450,7 +452,7 @@ class HomeSlider extends Module
 			if (!$slides)
 				return false;
 
-			$this->smarty->assign('homeslider_slides', $slides);
+			$this->smarty->assign(array('homeslider_slides' => $slides));
 		}
 
 		return true;
@@ -468,11 +470,11 @@ class HomeSlider extends Module
 			'width' => Configuration::get('HOMESLIDER_WIDTH'),
 			'speed' => Configuration::get('HOMESLIDER_SPEED'),
 			'pause' => Configuration::get('HOMESLIDER_PAUSE'),
-			'loop' => Configuration::get('HOMESLIDER_LOOP'),
+			'loop' => (bool)Configuration::get('HOMESLIDER_LOOP'),
 		);
 
 		$this->smarty->assign('homeslider', $slider);
-		return $this->display(__FILE__, 'header.tpl', $this->getCacheId());
+		return $this->display(__FILE__, 'header.tpl');
 	}
 
 	public function hookdisplayTop($params)
@@ -501,8 +503,7 @@ class HomeSlider extends Module
 
 	public function clearCache()
 	{
-		$this->_clearCache('header.tpl', $this->getCacheId());
-		$this->_clearCache('homeslider.tpl', $this->getCacheId());
+		$this->_clearCache('homeslider.tpl');
 	}
 
 	public function hookActionShopDataDuplication($params)
@@ -653,6 +654,7 @@ class HomeSlider extends Module
 						'label' => $this->l('Select a file'),
 						'name' => 'image',
 						'lang' => true,
+						'desc' => $this->l(sprintf('Max image size %s', ini_get('upload_max_filesize')))
 					),
 					array(
 						'type' => 'text',
@@ -668,7 +670,7 @@ class HomeSlider extends Module
 					),
 					array(
 						'type' => 'text',
-						'label' => $this->l('Legend'),
+						'label' => $this->l('Caption'),
 						'name' => 'legend',
 						'lang' => true,
 					),

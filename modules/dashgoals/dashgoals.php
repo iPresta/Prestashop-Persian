@@ -41,10 +41,11 @@ class DashGoals extends Module
 		$this->name = 'dashgoals';
 		$this->displayName = 'Dashboard Goals';
 		$this->tab = 'dashboard';
-		$this->version = '0.1';
+		$this->version = '0.4';
 		$this->author = 'PrestaShop';
 
 		parent::__construct();
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
 		Dashgoals::$month_labels = array(
 			'01' => $this->l('January'),
@@ -180,9 +181,9 @@ class DashGoals extends Module
 		// There are stream types (different charts) and for each types there are 3 available zones (one color for the goal, one if you over perform and one if you under perfom)
 		$stream_types = array(
 			array('type' => 'traffic', 'title' => $this->l('Traffic'), 'unit_text' => $this->l('visits')),
-			array('type' => 'conversion', 'title' => $this->l('Conversion')),
-			array('type' => 'avg_cart_value', 'title' => $this->l('Average cart value')),
-			array('type' => 'sales', 'title' => $this->l('Sales'))
+			array('type' => 'conversion', 'title' => $this->l('Conversion'), 'unit_text' => ''),
+			array('type' => 'avg_cart_value', 'title' => $this->l('Average cart value'), 'unit_text' => ''),
+			array('type' => 'sales', 'title' => $this->l('Sales'), 'unit_text' => '')
 		);
 		$stream_zones = array(
 			array('zone' => 'real', 'text' => ''),
@@ -208,7 +209,7 @@ class DashGoals extends Module
 					'disabled' => $stream_type['type'] == 'sales' ? false : true
 				);
 
-			$average_goals[$stream_type] = 0;
+			$average_goals[$stream_type['type']] = 0;
 		}
 
 		if (Configuration::get('PS_DASHBOARD_SIMULATION'))
@@ -295,13 +296,13 @@ class DashGoals extends Module
 				$value = ((isset($orders[$timestamp]) && $orders[$timestamp] && isset($sales[$timestamp]) && $sales[$timestamp]) ? ($sales[$timestamp] / $orders[$timestamp]) : 0);
 				$stream_values = $this->getValuesFromGoals($average_goals['avg_cart_value'], $month_goal, $value, Dashgoals::$month_labels[$i]);
 				$goal_diff = $value - $month_goal;
-				$stream_values['real']['sales'] = $value;
+				$stream_values['real']['avg_cart_value'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
 					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
 
-				$stream_values['less']['sales'] = $value;
-				$stream_values['more']['sales'] = $value;
+				$stream_values['less']['avg_cart_value'] = $value;
+				$stream_values['more']['avg_cart_value'] = $value;
 
 				if ($value > 0 && $value < $month_goal)
 					$stream_values['less']['goal_diff'] = $goal_diff;
@@ -424,13 +425,13 @@ class DashGoals extends Module
 				$value = ((isset($orders[$timestamp]) && $orders[$timestamp] && isset($sales[$timestamp]) && $sales[$timestamp]) ? ($sales[$timestamp] / $orders[$timestamp]) : 0);
 				$stream_values = $this->getValuesFromGoals($average_goals['avg_cart_value'], $month_goal, $value, Dashgoals::$month_labels[$i]);
 				$goal_diff = $value - $month_goal;
-				$stream_values['real']['sales'] = $value;
+				$stream_values['real']['avg_cart_value'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
 					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
 
-				$stream_values['less']['sales'] = $value;
-				$stream_values['more']['sales'] = $value;
+				$stream_values['less']['avg_cart_value'] = $value;
+				$stream_values['more']['avg_cart_value'] = $value;
 
 				if ($value > 0 && $value < $month_goal)
 					$stream_values['less']['goal_diff'] = $goal_diff;

@@ -30,5 +30,8 @@
 		{if $facebook_url != ''}<li class="facebook"><a href="{$facebook_url|escape:html:'UTF-8'}">{l s='Facebook' mod='blocksocial'}</a></li>{/if}
 		{if $twitter_url != ''}<li class="twitter"><a href="{$twitter_url|escape:html:'UTF-8'}">{l s='Twitter' mod='blocksocial'}</a></li>{/if}
 		{if $rss_url != ''}<li class="rss"><a href="{$rss_url|escape:html:'UTF-8'}">{l s='RSS' mod='blocksocial'}</a></li>{/if}
+		{if $youtube_url != ''}<li class="youtube"><a href="{$youtube_url|escape:html:'UTF-8'}">{l s='YouTube' mod='blocksocial'}</a></li>{/if}
+		{if $google_plus_url != ''}<li class="google_plus"><a href="{$google_plus_url|escape:html:'UTF-8'}">{l s='Google+' mod='blocksocial'}</a></li>{/if}
+		{if $pinterest_url != ''}<li class="pinterest"><a href="{$pinterest_url|escape:html:'UTF-8'}">{l s='Pinterest' mod='blocksocial'}</a></li>{/if}
 	</ul>
 </div>

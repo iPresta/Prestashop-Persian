@@ -39,7 +39,7 @@ class Blockreinsurance extends Module
 			$this->tab = 'front_office_features';
 		else
 			$this->tab = 'Blocks';
-		$this->version = '2.0';
+		$this->version = '2.1';
 		$this->author = 'PrestaShop';
 
 		$this->bootstrap = true;
@@ -47,6 +47,7 @@ class Blockreinsurance extends Module
 
 		$this->displayName = $this->l('Customer reassurance block');
 		$this->description = $this->l('Adds an information block aimed at offering helpful information to reassure customers that your store is trustworthy.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -295,12 +296,15 @@ class Blockreinsurance extends Module
 				'title' => $this->l('ID'),
 				'width' => 120,
 				'type' => 'text',
+				'search' => false,
+				'orderby' => false
 			),
 			'text' => array(
 				'title' => $this->l('Text'),
 				'width' => 140,
 				'type' => 'text',
-				'filter_key' => 'a!lastname'
+				'search' => false,
+				'orderby' => false
 			),
 		);
 
@@ -309,7 +313,7 @@ class Blockreinsurance extends Module
 
 		$helper = new HelperList();
 		$helper->shopLinkType = '';
-		$helper->simple_header = true;
+		$helper->simple_header = false;
 		$helper->identifier = 'id_reinsurance';
 		$helper->actions = array('edit', 'delete');
 		$helper->show_toolbar = true;

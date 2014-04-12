@@ -36,7 +36,7 @@ class Blockcustomerprivacy extends Module
 			$this->tab = 'front_office_features';
 		else
 			$this->tab = 'Blocks';
-		$this->version = '1.0';
+		$this->version = '1.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 			
@@ -45,6 +45,7 @@ class Blockcustomerprivacy extends Module
 
 		$this->displayName = $this->l('Customer data privacy block');
 		$this->description = $this->l('Adds a block displaying a message about a customer\'s privacy data.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 	
 	public function install()

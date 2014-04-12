@@ -38,13 +38,14 @@ class Blockcontactinfos extends Module
 			$this->tab = 'front_office_features';
 		else
 			$this->tab = 'Blocks';
-		$this->version = '1.0';
+		$this->version = '1.1';
 
 		$this->bootstrap = true;
 		parent::__construct();	
 
 		$this->displayName = $this->l('Contact information block');
 		$this->description = $this->l('This module will allow you to display your e-store\'s contact information in a customizable block.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 	
 	public function install()

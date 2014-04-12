@@ -33,7 +33,7 @@ class BlockSupplier extends Module
     {
         $this->name = 'blocksupplier';
         $this->tab = 'front_office_features';
-        $this->version = 1.0;
+        $this->version = 1.1;
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -42,6 +42,7 @@ class BlockSupplier extends Module
 
 		$this->displayName = $this->l('Suppliers block');
         $this->description = $this->l('Adds a block displaying your product suppliers.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
     }
 
 	function install()

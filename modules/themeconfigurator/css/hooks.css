@@ -19,11 +19,12 @@
           width: 100%; } }
 
 /* Top hook CSS */
-#htmlcontent_top {
-  float: left;
-  width: 33.4%;
-  max-width: 391px;
-  padding-left: 10px; }
+  #htmlcontent_top {
+    float: right;
+    width: 33%;
+    max-width: 391px;
+    padding-left: 4px;
+}
   @media (max-width: 767px) {
     #htmlcontent_top {
       width: 100%;
