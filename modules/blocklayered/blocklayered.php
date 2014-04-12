@@ -30,24 +30,23 @@ if (!defined('_PS_VERSION_'))
 class BlockLayered extends Module
 {
 	private $products;
-	private $nbr_products;
-	
+	private $nbr_products;	
 	private $page = 1;
 
 	public function __construct()
 	{
 		$this->name = 'blocklayered';
 		$this->tab = 'front_office_features';
-		$this->version = '1.10.5';
+		$this->version = '1.10.8';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->bootstrap = true;
 
 		parent::__construct();
 
-		$this->ps_versions_compliancy = array('min' => '1.5', 'max' => _PS_VERSION_);
 		$this->displayName = $this->l('Layered navigation block');
 		$this->description = $this->l('Displays a block with layered navigation filters.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 		
 		if ((int)Tools::getValue('p'))
 			$this->page = (int)Tools::getValue('p');
@@ -285,7 +284,7 @@ class BlockLayered extends Module
 		);
 
 		Db::getInstance()->execute(
-			'INSERT INTO '._DB_PREFIX_.'layered_indexable_attribute_group 
+			'INSERT INTO '._DB_PREFIX_.'layered_indexable_attribute_group (`id_attribute_group`, `indexable`) 
 			VALUES ('.(int)$params['id_attribute_group'].', '.(int)Tools::getValue('layered_indexable').')'
 		);
 
@@ -298,7 +297,8 @@ class BlockLayered extends Module
 				$seo_url = Tools::getValue('name_'.(int)$language['id_lang']);
 
 			Db::getInstance()->execute(
-				'INSERT INTO '._DB_PREFIX_.'layered_indexable_attribute_group_lang_value
+				'INSERT INTO '._DB_PREFIX_.'layered_indexable_attribute_group_lang_value 
+				(`id_attribute_group`, `id_lang`, `url_name`, `meta_title`) 
 				VALUES (
 					'.(int)$params['id_attribute_group'].', '.(int)$language['id_lang'].',
 					\''.pSQL(Tools::link_rewrite($seo_url)).'\',
@@ -390,6 +390,7 @@ class BlockLayered extends Module
 
 			Db::getInstance()->execute(
 				'INSERT INTO '._DB_PREFIX_.'layered_indexable_attribute_lang_value
+				(`id_attribute`, `id_lang`, `url_name`, `meta_title`)
 				VALUES (
 					'.(int)$params['id_attribute'].', '.(int)$language['id_lang'].',
 					\''.pSQL(Tools::link_rewrite($seo_url)).'\',
@@ -466,6 +467,7 @@ class BlockLayered extends Module
 
 		Db::getInstance()->execute(
 			'INSERT INTO '._DB_PREFIX_.'layered_indexable_feature 
+			(`id_feature`, `indexable`) 
 			VALUES ('.(int)$params['id_feature'].', '.(int)Tools::getValue('layered_indexable').')'
 		);
 
@@ -477,7 +479,8 @@ class BlockLayered extends Module
 				$seo_url = Tools::getValue('name_'.(int)$language['id_lang']);
 
 			Db::getInstance()->execute(
-				'INSERT INTO '._DB_PREFIX_.'layered_indexable_feature_lang_value
+				'INSERT INTO '._DB_PREFIX_.'layered_indexable_feature_lang_value 
+				(`id_feature`, `id_lang`, `url_name`, `meta_title`) 
 				VALUES (
 					'.(int)$params['id_feature'].', '.(int)$language['id_lang'].',
 					\''.pSQL(Tools::link_rewrite($seo_url)).'\',
@@ -565,7 +568,8 @@ class BlockLayered extends Module
 				$seo_url = Tools::getValue('name_'.(int)$language['id_lang']);
 
 			Db::getInstance()->execute(
-				'INSERT INTO '._DB_PREFIX_.'layered_indexable_feature_value_lang_value
+				'INSERT INTO '._DB_PREFIX_.'layered_indexable_feature_value_lang_value 
+				(`id_feature_value`, `id_lang`, `url_name`, `meta_title`) 
 				VALUES (
 					'.(int)$params['id_feature_value'].', '.(int)$language['id_lang'].',
 					\''.pSQL(Tools::link_rewrite($seo_url)).'\',
@@ -627,6 +631,10 @@ class BlockLayered extends Module
 
 	public function hookProductListAssign($params)
 	{
+		if ((isset($this->context->controller->display_column_left) && !$this->context->controller->display_column_left)
+			&& (isset($this->context->controller->display_column_right) && !$this->context->controller->display_column_right))
+			return false;
+
 		global $smarty;
 		if (!Configuration::getGlobalValue('PS_LAYERED_INDEXED'))
 			return;
@@ -680,6 +688,10 @@ class BlockLayered extends Module
 
 	public function hookHeader($params)
 	{
+		if ((isset($this->context->controller->display_column_left) && !$this->context->controller->display_column_left)
+			&& (isset($this->context->controller->display_column_right) && !$this->context->controller->display_column_right))
+			return false;
+
 		global $smarty, $cookie;
 		
 		// No filters => module disable
@@ -804,6 +816,10 @@ class BlockLayered extends Module
 
 	public function hookFooter($params)
 	{
+		if ((isset($this->context->controller->display_column_left) && !$this->context->controller->display_column_left)
+			&& (isset($this->context->controller->display_column_right) && !$this->context->controller->display_column_right))
+			return false;
+
 		// No filters => module disable
 		if ($filter_block = $this->getFilterBlock($this->getSelectedFilters()))
 			if ($filter_block['nbr_filterBlocks'] == 0)

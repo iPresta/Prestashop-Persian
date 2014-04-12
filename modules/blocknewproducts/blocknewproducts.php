@@ -35,7 +35,7 @@ class BlockNewProducts extends Module
 	{
 		$this->name = 'blocknewproducts';
 		$this->tab = 'front_office_features';
-		$this->version = '1.7';
+		$this->version = '1.8';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -44,6 +44,7 @@ class BlockNewProducts extends Module
 
 		$this->displayName = $this->l('New products block');
 		$this->description = $this->l('Displays a block featuring your store\'s newest products.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

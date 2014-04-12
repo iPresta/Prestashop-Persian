@@ -35,7 +35,7 @@ class CrossSelling extends Module
 	{
 		$this->name = 'crossselling';
 		$this->tab = 'front_office_features';
-		$this->version = 0.8;
+		$this->version = 0.9;
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -44,6 +44,7 @@ class CrossSelling extends Module
 
 		$this->displayName = $this->l('Cross-selling');
 		$this->description = $this->l('Adds a "Customers who bought this product also bought..." section to every product page.');
+		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -111,7 +112,7 @@ class CrossSelling extends Module
 			return;
 		if (in_array($this->context->controller->php_self, array('order')) && Tools::getValue('step'))
 			return;
-		$this->context->controller->addCSS(($this->_path).'crossselling.css', 'all');
+		$this->context->controller->addCSS(($this->_path).'css/crossselling.css', 'all');
 		$this->context->controller->addJS(($this->_path).'js/crossselling.js');
 		$this->context->controller->addJqueryPlugin(array('scrollTo', 'serialScroll', 'bxslider'));
 	}

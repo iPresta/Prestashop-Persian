@@ -36,14 +36,15 @@ class StatsVisits extends ModuleGraph
 	{
 		$this->name = 'statsvisits';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		parent::__construct();
 
 		$this->displayName = $this->l('Visits and Visitors');
-		$this->description = $this->l('Adds statistics about your visits and visitors tot the Stats dashboard.');
+		$this->description = $this->l('Adds statistics about your visits and visitors to the Stats dashboard.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

@@ -33,7 +33,7 @@ class blocksocial extends Module
 	{
 		$this->name = 'blocksocial';
 		$this->tab = 'front_office_features';
-		$this->version = '1.0';
+		$this->version = '1.1';
 		$this->author = 'PrestaShop';
 
 		$this->bootstrap = true;
@@ -41,6 +41,7 @@ class blocksocial extends Module
 
 		$this->displayName = $this->l('Social networking block');
 		$this->description = $this->l('Allows you to add information about your brand\'s social networking accounts.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 	
 	public function install()
@@ -48,6 +49,9 @@ class blocksocial extends Module
 		return (parent::install() AND Configuration::updateValue('BLOCKSOCIAL_FACEBOOK', '') && 
 			Configuration::updateValue('BLOCKSOCIAL_TWITTER', '') && 
 			Configuration::updateValue('BLOCKSOCIAL_RSS', '') && 
+			Configuration::updateValue('BLOCKSOCIAL_YOUTUBE', '') && 
+			Configuration::updateValue('BLOCKSOCIAL_GOOGLE_PLUS', '') && 
+			Configuration::updateValue('BLOCKSOCIAL_PINTEREST', '') && 
 			$this->registerHook('displayHeader') && 
 			$this->registerHook('displayFooter'));
 	}
@@ -58,6 +62,9 @@ class blocksocial extends Module
 		return (Configuration::deleteByName('BLOCKSOCIAL_FACEBOOK') AND 
 			Configuration::deleteByName('BLOCKSOCIAL_TWITTER') AND 
 			Configuration::deleteByName('BLOCKSOCIAL_RSS') AND 
+			Configuration::deleteByName('BLOCKSOCIAL_YOUTUBE') AND 
+			Configuration::deleteByName('BLOCKSOCIAL_GOOGLE_PLUS') AND 
+			Configuration::deleteByName('BLOCKSOCIAL_PINTEREST') AND 
 			parent::uninstall());
 	}
 	

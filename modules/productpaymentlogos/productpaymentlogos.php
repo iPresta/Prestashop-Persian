@@ -33,7 +33,7 @@ class ProductPaymentLogos extends Module
 	{
 		$this->name = 'productpaymentlogos';
 		$this->tab = 'front_office_features';
-		$this->version = 1.1;
+		$this->version = 1.3;
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -42,6 +42,7 @@ class ProductPaymentLogos extends Module
 
 		$this->displayName = $this->l('Product payment logos block');
 		$this->description = $this->l('Displays the logos of the available payment systems on the product page.');
+		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -155,7 +156,6 @@ class ProductPaymentLogos extends Module
 						'type' => 'file',
 						'label' => $this->l('Block image'),
 						'name' => 'PRODUCTPAYMENTLOGOS_IMG',
-						'desc' => $this->l('If your shop\'s payment methods differ from the ones presented in the default image, then you must create your own image with the necessary logos.'),
 						'thumb' => '../modules/'.$this->name.'/img/'.Configuration::get('PRODUCTPAYMENTLOGOS_IMG'),
 					),
 					array(

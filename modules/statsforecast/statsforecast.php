@@ -43,7 +43,7 @@ class StatsForecast extends Module
 	{
 		$this->name = 'statsforecast';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -51,6 +51,7 @@ class StatsForecast extends Module
 
 		$this->displayName = $this->l('Stats Dashboard');
 		$this->description = $this->l('This is the main module for the Stats dashboard. It displays a summary of all your current statistics.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

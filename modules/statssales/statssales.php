@@ -39,7 +39,7 @@ class StatsSales extends ModuleGraph
 	{
 		$this->name = 'statssales';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -47,6 +47,7 @@ class StatsSales extends ModuleGraph
 
 		$this->displayName = $this->l('Sales and orders');
 		$this->description = $this->l('Adds sales evolution and orders by status.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -193,7 +194,7 @@ class StatsSales extends ModuleGraph
 
 	public function setOption($options, $layers = 1)
 	{
-		list($this->_option, $this->id_country) = explode('-', $options);
+		list($this->option, $this->id_country) = explode('-', $options);
 		switch ($this->option)
 		{
 			case 1:

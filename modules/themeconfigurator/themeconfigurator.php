@@ -37,7 +37,7 @@ class ThemeConfigurator extends Module
 	{
 		$this->name = 'themeconfigurator';
 		$this->tab = 'front_office_features';
-		$this->version = '0.3';
+		$this->version = '0.8';
 		$this->bootstrap = true;
 		$this->secure_key = Tools::encrypt($this->name);
 		$this->default_language = Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'));
@@ -46,6 +46,7 @@ class ThemeConfigurator extends Module
 		parent::__construct();
 		$this->displayName = $this->l('Theme configurator');
 		$this->description = $this->l('Configure the main elements of your theme.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 		$this->module_path = _PS_MODULE_DIR_.$this->name.'/';
 		$this->uploads_path = _PS_MODULE_DIR_.$this->name.'/img/';
 		$this->admin_tpl_path = _PS_MODULE_DIR_.$this->name.'/views/templates/admin/';
@@ -113,7 +114,7 @@ class ThemeConfigurator extends Module
 					`title` VARCHAR(100),
 					`title_use` tinyint(1) unsigned NOT NULL DEFAULT \'0\',
 					`hook` VARCHAR(100),
-					`url` VARCHAR(100),
+					`url` TEXT,
 					`target` tinyint(1) unsigned NOT NULL DEFAULT \'0\',
 					`image` VARCHAR(100),
 					`image_w` VARCHAR(10),
@@ -225,7 +226,7 @@ class ThemeConfigurator extends Module
 	
 	public function hookActionObjectLanguageAddAfter($params)
 	{
-		return $this->installFixtures(array((int)$params['object']->id));
+		return $this->installFixtures(array(array('id_lang' => (int)$params['object']->id)));
 	}
 
 	public function hookdisplayTopColumn()
@@ -235,6 +236,8 @@ class ThemeConfigurator extends Module
 
 	public function hookdisplayTop()
 	{
+		if (!isset($this->context->controller->php_self) || $this->context->controller->php_self != 'index')
+			return;
 		$this->context->smarty->assign(array(
 			'htmlitems' => $this->getItemsFromHook('top'),
 			'hook' => 'top'
@@ -357,8 +360,7 @@ class ThemeConfigurator extends Module
 					id_shop = '.(int)$this->context->shop->id.' AND
 					hook = \''.pSQL(Tools::getValue('item_hook')).'\')'
 			);
-
-			$this->context->smarty->assign('confirmation', $this->l('Successful deletion.'));
+			Tools::redirectAdmin('index.php?tab=AdminModules&configure='.$this->name.'&conf=6&token='.Tools::getAdminTokenLite('AdminModules'));
 		}
 		else
 			$this->context->smarty->assign('error', $this->l('Can\'t delete the slide.'));
@@ -542,7 +544,7 @@ class ThemeConfigurator extends Module
 					\''.pSQL($image).'\',
 					\''.pSQL($image_w).'\',
 					\''.pSQL($image_h).'\',
-					\''.pSQL($content).'\',
+					\''.pSQL($content, true).'\',
 					1)
 			')
 		)
@@ -686,6 +688,26 @@ class ThemeConfigurator extends Module
 
 	protected function getConfigurableModules()
 	{
+		// Construct the description for the 'Enable Live Configurator' switch
+		if ($this->context->shop->getBaseURL())
+		{
+			$desc = $this->l('Only you can see this [1]on your Front-Office[/1] - your visitors will not see this tool.');
+
+			$url = $this->context->shop->getBaseURL()
+				.((Configuration::get('PS_REWRITING_SETTINGS') && count(Language::getLanguages(true)) > 1) ? Language::getIsoById($this->context->employee->id_lang).'/' : '')
+				.(Configuration::get('PS_REWRITING_SETTINGS') ? '' : 'index.php')
+				.'?live_configurator_token='.$this->getLiveConfiguratorToken()
+				.'&id_employee='.(int)$this->context->employee->id
+				.'&id_shop='.(int)$this->context->shop->id
+				.(Configuration::get('PS_TC_THEME') != '' ? '&theme='.Configuration::get('PS_TC_THEME') : '')
+				.(Configuration::get('PS_TC_FONT') != '' ? '&theme_font='.Configuration::get('PS_TC_FONT') : '');
+
+			$link = '<a href="'.$url.'" onclick="return !window.open($(this).attr(\'href\'));">';
+			$desc = Translate::smartyPostProcessTranslation($desc, array('tags' => array($link)));
+		}
+		else
+			$desc = $this->l('Only you can see this on your Front-Office - your visitors will not see this tool.');
+
 		return array(
 			array(
 				'label' => $this->l('Display links to your store\'s social accounts (Twitter, Facebook, etc.)'),
@@ -739,14 +761,7 @@ class ThemeConfigurator extends Module
 				'name' => 'live_conf',
 				'value' => (int)Tools::getValue('PS_TC_ACTIVE', Configuration::get('PS_TC_ACTIVE')),
 				'hint' => $this->l('The customization tool allows you to make color and font changes in your theme.'),
-				'desc' => sprintf($this->l('Only you can see this %s - your visitors will not see this tool.'), $this->context->shop->getBaseURL() ? '<a href="'.$this->context->shop->getBaseURL()
-						.((Configuration::get('PS_REWRITING_SETTINGS') && count(Language::getLanguages(true)) > 1) ? Language::getIsoById($this->context->employee->id_lang).'/' : '')
-						.'?live_configurator_token='.$this->getLiveConfiguratorToken()
-						.'&id_employee='.(int)$this->context->employee->id
-						.'&id_shop='.(int)$this->context->shop->id
-						.(Configuration::get('PS_TC_THEME') != '' ? '&theme='.Configuration::get('PS_TC_THEME') : '')
-						.(Configuration::get('PS_TC_FONT') != '' ? '&theme_font='.Configuration::get('PS_TC_FONT') : '')
-						.'" onclick="return !window.open($(this).attr(\'href\'));">on your front office</a>' : 'on your front office')
+				'desc' => $desc
 			)
 		);
 	}
