@@ -41,7 +41,7 @@ class StatsBestManufacturers extends ModuleGrid
 	{
 		$this->name = 'statsbestmanufacturers';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.0';
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -78,6 +78,7 @@ class StatsBestManufacturers extends ModuleGrid
 
 		$this->displayName = $this->l('Best manufacturers');
 		$this->description = $this->l('Adds a list of the best manufacturers to the Stats dashboard.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

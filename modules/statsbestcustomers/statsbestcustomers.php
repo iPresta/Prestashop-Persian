@@ -41,7 +41,7 @@ class StatsBestCustomers extends ModuleGrid
 	{
 		$this->name = 'statsbestcustomers';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -95,6 +95,7 @@ class StatsBestCustomers extends ModuleGrid
 
 		$this->displayName = $this->l('Best customers');
 		$this->description = $this->l('Adds a list of the best customers to the Stats dashboard.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -130,7 +131,7 @@ class StatsBestCustomers extends ModuleGrid
 						<li>'.$this->l('Punctual operations: commercial rewards (personalized special offers, product or service offered), non commercial rewards (priority handling of an order or a product), pecuniary rewards (bonds, discount coupons, payback).').'</li>
 						<li>'.$this->l('Sustainable operations: loyalty points or cards, which not only justify communication between merchant and client, but also offer advantages to clients (private offers, discounts).').'</li>
 					</ul>
-					'.$this->l('These operations encourage clients to buy products and visit your oneline store more regularly.').'
+					'.$this->l('These operations encourage clients to buy products and visit your online store more regularly.').'
 				</p>
 			</div>
 		'.$this->engine($engine_params).'

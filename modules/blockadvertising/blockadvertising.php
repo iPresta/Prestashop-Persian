@@ -45,7 +45,7 @@ class BlockAdvertising extends Module
 	{
 		$this->name = 'blockadvertising';
 		$this->tab = 'advertising_marketing';
-		$this->version = '0.7';
+		$this->version = '0.8';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -54,6 +54,7 @@ class BlockAdvertising extends Module
 
 		$this->displayName = $this->l('Advertising block');
 		$this->description = $this->l('Adds an advertisement block to selected sections of your e-commerce website.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
 		$this->initialize();
 	}

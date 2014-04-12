@@ -38,7 +38,7 @@ class StatsNewsletter extends ModuleGraph
 	{
 		$this->name = 'statsnewsletter';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -46,6 +46,7 @@ class StatsNewsletter extends ModuleGraph
 
 		$this->displayName = $this->l('Newsletter');
 		$this->description = $this->l('Adds a tab with a graph showing newsletter registrations to the Stats dashboard.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

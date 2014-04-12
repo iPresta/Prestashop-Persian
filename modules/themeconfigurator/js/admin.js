@@ -22,7 +22,6 @@
  *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
-
 jQuery(document).ready(function() {
 
 	//show new item panel
@@ -46,15 +45,6 @@ jQuery(document).ready(function() {
 		$(this).closest('form').find('.button-edit .button-edit-edit').toggleClass('hide');
 		$(this).closest('form').find('.button-edit .button-edit-close').toggleClass('hide');
 		$(this).closest('form').find('.item-container').slideToggle();
-	})
-
-	//delete item
-	$('.link-item-delete').on('click',function(e){
-		e.preventDefault();
-		var $form = $(this).closest('form');
-		var $hiddenField = $("<input type='hidden' name='removeItem'/>");
-		$hiddenField.appendTo($form);
-		$form.submit();
 	});
 
 	// set language for new item

@@ -33,7 +33,7 @@ class Blockmyaccountfooter extends Module
 	{
 		$this->name = 'blockmyaccountfooter';
 		$this->tab = 'front_office_features';
-		$this->version = '1.3';
+		$this->version = '1.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -41,6 +41,7 @@ class Blockmyaccountfooter extends Module
 
 		$this->displayName = $this->l('My account block for your website\'s footer');
 		$this->description = $this->l('Displays a block with links relative to user accounts.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

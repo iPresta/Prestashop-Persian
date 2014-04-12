@@ -41,7 +41,7 @@ class StatsBestSuppliers extends ModuleGrid
 	{
 		$this->name = 'statsbestsuppliers';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.0;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -75,6 +75,7 @@ class StatsBestSuppliers extends ModuleGrid
 
 		$this->displayName = $this->l('Best suppliers');
 		$this->description = $this->l('Adds a list of the best suppliers to the Stats dashboard.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

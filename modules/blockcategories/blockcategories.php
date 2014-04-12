@@ -33,7 +33,7 @@ class BlockCategories extends Module
 	{
 		$this->name = 'blockcategories';
 		$this->tab = 'front_office_features';
-		$this->version = '2.5';
+		$this->version = '2.8';
 		$this->author = 'PrestaShop';
 
 		$this->bootstrap = true;
@@ -41,6 +41,7 @@ class BlockCategories extends Module
 
 		$this->displayName = $this->l('Categories block');
 		$this->description = $this->l('Adds a block featuring product categories.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -232,8 +233,12 @@ class BlockCategories extends Module
 			$blockCategTree = $this->getTree($resultParents, $resultIds, $maxdepth, ($category ? $category->id : null));
 			$this->smarty->assign('blockCategTree', $blockCategTree);
 
-			if ($category)
-				$this->smarty->assign(array('currentCategory' => $category, 'currentCategoryId' => $category->id));
+			if ((Tools::getValue('id_product') || Tools::getValue('id_category')) && isset($this->context->cookie->last_visited_category) && $this->context->cookie->last_visited_category)
+			{
+				$category = new Category($this->context->cookie->last_visited_category, $this->context->language->id);
+				if (Validate::isLoadedObject($category))
+					$this->smarty->assign(array('currentCategory' => $category, 'currentCategoryId' => $category->id));
+			}
 
 			$this->smarty->assign('isDhtml', Configuration::get('BLOCK_CATEG_DHTML'));
 			if (file_exists(_PS_THEME_DIR_.'modules/blockcategories/blockcategories.tpl'))
@@ -250,6 +255,9 @@ class BlockCategories extends Module
 
 		if ($name !== null)
 			$cache_id .= '|'.$name;
+
+		if ((Tools::getValue('id_product') || Tools::getValue('id_category')) && isset($this->context->cookie->last_visited_category) && $this->context->cookie->last_visited_category)
+			$cache_id .= '|'.(int)$this->context->cookie->last_visited_category;
 
 		return $cache_id.'|'.implode('-', Customer::getGroupsStatic($this->context->customer->id));
 	}

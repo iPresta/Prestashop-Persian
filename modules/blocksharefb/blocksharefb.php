@@ -37,13 +37,14 @@ class blocksharefb extends Module
 			$this->tab = 'front_office_features';
 		else
 			$this->tab = 'Blocks';
-		$this->version = '1.1';
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 
 		parent::__construct();
 
 		$this->displayName = $this->l('Facebook sharing block');
 		$this->description = $this->l('Allows customers to share your products or content on Facebook.');
+		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 	
 	public function install()

@@ -34,7 +34,7 @@ class ProductsCategory extends Module
 	public function __construct()
 	{
 		$this->name = 'productscategory';
-		$this->version = '1.5';
+		$this->version = '1.6';
 		$this->author = 'PrestaShop';
 		$this->tab = 'front_office_features';
 		$this->need_instance = 0;
@@ -44,6 +44,7 @@ class ProductsCategory extends Module
 
 		$this->displayName = $this->l('Products category');
 		$this->description = $this->l('Displays products of the same category on the product page.');
+		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()

@@ -40,7 +40,7 @@ class GridHtml extends ModuleGridEngine
 		{
 			$this->name = 'gridhtml';
 			$this->tab = 'administration';
-			$this->version = 1.0;
+			$this->version = 1.1;
 			$this->author = 'PrestaShop';
 			$this->need_instance = 0;
 			
@@ -48,6 +48,7 @@ class GridHtml extends ModuleGridEngine
 			
 			$this->displayName = $this->l('Simple HTML table display');
 			$this->description = 'Allows the statistics system to display data in a grid.';
+			$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 		}
 	}
 	

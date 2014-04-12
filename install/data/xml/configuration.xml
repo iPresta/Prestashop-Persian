@@ -701,7 +701,7 @@ Country</value>
       <value>localhost</value>
     </configuration>
     <configuration id="PS_INSTALL_VERSION" name="PS_INSTALL_VERSION">
-      <value>1.6.0.5</value>
+      <value>1.6.0.6</value>
     </configuration>
     <configuration id="PS_SHOP_NAME" name="PS_SHOP_NAME">
       <value>PrestaShop</value>
