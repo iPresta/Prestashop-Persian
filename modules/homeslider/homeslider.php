@@ -106,7 +106,7 @@ class HomeSlider extends Module
 				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tristique in tortor et dignissim. Quisque non tempor leo. Maecenas egestas sem elit</p>
 				<p><button class="btn btn-default" type="button">Shop now !</button></p>';
 				$slide->legend[$language['id_lang']] = 'sample-'.$i;
-				$slide->url[$language['id_lang']] = 'http://www.prestashop.com/?utm_source=v16_homeslider';
+				$slide->url[$language['id_lang']] = 'http://www.presta-shop/?utm_source=v16_homeslider';
 				$slide->image[$language['id_lang']] = 'sample-'.$i.'.jpg';
 			}
 			$slide->add();

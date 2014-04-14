@@ -766,6 +766,11 @@ class FrontControllerCore extends Controller
 			foreach (scandir($this->getThemeDir().'css/autoload', 0) as $file)
 				if (preg_match('/^[^.].*\.css$/', $file))
 					$this->addCSS($this->getThemeDir().'css/autoload/'.$file);
+		// Auto load css files only for rtl languages
+		if(Context::getContext()->language->is_rtl && @filemtime($this->getThemeDir().'css/autoload/rtl/'))
+			foreach (scandir($this->getThemeDir().'css/autoload/rtl', 0) as $file)
+				if (preg_match('/^[^.].*\.css$/', $file))
+					$this->addCSS($this->getThemeDir().'css/autoload/rtl/'.$file);
 
 		if (Tools::isSubmit('live_edit') && Tools::getValue('ad') && Tools::getAdminToken('AdminModulesPositions'.(int)Tab::getIdFromClassName('AdminModulesPositions').(int)Tools::getValue('id_employee')))
 		{

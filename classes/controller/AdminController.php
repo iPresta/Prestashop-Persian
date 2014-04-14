@@ -606,6 +606,26 @@ class AdminControllerCore extends Controller
 				{
 					$type = (array_key_exists('filter_type', $field) ? $field['filter_type'] : (array_key_exists('type', $field) ? $field['type'] : false));					if (($type == 'date' || $type == 'datetime') && is_string($value))
 						$value = Tools::unSerialize($value);
+					
+					//Added by presta-shop.ir to hack values sent by "fa" datepicker
+					//if lang = fa then convert persian jalali date to standard gregorian
+					//$ex = exploded date
+					if ( ($type == 'date' OR $type == 'datetime') AND (strtolower(Context::getContext()->language->iso_code) == 'fa'))
+					{	
+						$ex = explode('-',$value[0]);
+						if (isset($ex[2]) AND $ex[0] < 1800)
+						{
+							$ex = Pdate::jalali_to_gregorian($ex[0], $ex[1], $ex[2]);
+							$subvalue[0] = $ex[0].'-'.$ex[1].'-'.$ex[2];
+							$value[0] = substr_replace($value[0],$subvalue[0],0,10);
+							$ex = explode('-',$value[1]);
+							$ex = Pdate::jalali_to_gregorian($ex[0], $ex[1], $ex[2]);
+							$subvalue[1] = $ex[0].'-'.$ex[1].'-'.$ex[2];
+							$value[1] = substr_replace($value[1],$subvalue[1],0,10);
+						}
+					}
+					// End of Add
+					
 					$key = isset($tmp_tab[1]) ? $tmp_tab[0].'.`'.$tmp_tab[1].'`' : '`'.$tmp_tab[0].'`';
 
 					// Assignement by reference

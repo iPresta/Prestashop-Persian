@@ -61,7 +61,7 @@ $(document).ready(function()
 });
 
 function psinstall_twitter_click(message) {
-	window.open('https://twitter.com/intent/tweet?button_hashtag=PrestaShop&text=' + message, 'sharertwt', 'toolbar=0,status=0,width=640,height=445');
+	window.open('https://twitter.com/intent/tweet?button_hashtag=پرستاشاپ&text=' + message, 'sharertwt', 'toolbar=0,status=0,width=640,height=445');
 }
 
 function psinstall_facebook_click() {

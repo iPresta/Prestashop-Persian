@@ -116,11 +116,11 @@
 					</dl>
 					<dl>
 						<dt>{l s="Use the forum & discover a great community"}</dt>
-						<dd><a href="http://www.prestashop.com/forums?utm_source=backoffice_dashboard" target="_blank">{l s="Go to forums.prestashop.com"}</a></dd>
+						<dd><a href="http://www.presta-shop.ir/forums?utm_source=backoffice_dashboard" target="_blank">{l s="Go to forums.presta-shop.ir"}</a></dd>
 					</dl>
 					<dl>
 						<dt>{l s="Enhance your Shop with new templates & modules"}</dt>
-						<dd><a href="http://addons.prestashop.com?utm_source=backoffice_dashboard" target="_blank">{l s="Go to addons.prestashop.com"}</a></dd>
+						<dd><a href="http://bazaar.presta-shop.ir?utm_source=backoffice_dashboard" target="_blank">{l s="Go to bazaar.presta-shop.ir"}</a></dd>
 					</dl>
 					<dl>
 						<dt>{l s="Report issues in the Bug Tracker"}</dt>
@@ -128,7 +128,7 @@
 					</dl>
 					<dl>
 						<dt>{l s="Contact Us"}</dt>
-						<dd><a href="http://www.prestashop.com/en/contact-us?utm_source=backoffice_dashboard" target="_blank">{l s="Go to prestashop.com"}</a></dd>
+						<dd><a href="http://bazaar.presta-shop.ir/contact-us?utm_source=backoffice_dashboard" target="_blank">{l s="Go to prestashop.com"}</a></dd>
 					</dl>
 			</section>
 

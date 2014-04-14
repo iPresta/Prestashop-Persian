@@ -2,9 +2,195 @@
 			Right to Left Styles
 ********************************************************/
 * {
-  direction: rtl !important; }
+  direction: rtl }
 
 #page {
-  text-align: right !important; }
+  font-family: tahoma;}
 .bx-viewport {
-  direction: ltr !important;}
+  direction: ltr}
+
+/* reverse font awesome icon directions */
+
+.icon-step-forward:before { content: "\f048"; }
+
+.icon-fast-forward:before { content: "\f049"; }
+
+.icon-forward:before { content: "\f04a"; }
+
+.icon-backward:before { content: "\f04e"; }
+
+.icon-fast-backward:before { content: "\f050"; }
+
+.icon-step-backward:before { content: "\f051"; }
+
+.icon-chevron-right:before { content: "\f053"; }
+
+.icon-chevron-left:before { content: "\f054"; }
+
+.icon-arrow-right:before { content: "\f060"; }
+
+.icon-arrow-left:before { content: "\f061"; }
+
+.icon-hand-o-left:before, .icon-hand-right:before { content: "\f0a4"; }
+
+.icon-hand-o-right:before, .icon-hand-left:before { content: "\f0a5"; }
+
+.icon-caret-right:before { content: "\f0d9"; }
+
+.icon-caret-left:before { content: "\f0da"; }
+
+.icon-angle-double-right:before, .icon-double-angle-right:before { content: "\f100"; }
+
+.icon-angle-double-left:before, .icon-double-angle-left:before { content: "\f101"; }
+
+.icon-angle-right:before { content: "\f104"; }
+
+.icon-angle-left:before { content: "\f105"; }
+
+.icon-quote-right:before { content: "\f10d"; }
+
+.icon-quote-left:before { content: "\f10e"; }
+
+.icon-chevron-circle-right:before, .icon-chevron-sign-right:before { content: "\f137"; }
+
+.icon-chevron-circle-left:before, .icon-chevron-sign-left:before { content: "\f138"; }
+
+.icon-toggle-left:before, .icon-caret-square-o-left:before { content: "\f152"; }
+
+.icon-long-arrow-right:before { content: "\f177"; }
+
+.icon-long-arrow-left:before { content: "\f178"; }
+
+.icon-arrow-circle-o-left:before { content: "\f18e"; }
+
+.icon-arrow-circle-o-right:before { content: "\f190"; }
+
+.icon-toggle-right:before, .icon-caret-square-o-right:before { content: "\f191"; }
+
+/**** ../autoload/responsive-tables.css ****/
+table td, table th {text-align: right}
+@media only screen and (max-width: 767px) {
+	.pinned {left: auto; right: 0; border-left: 1px solid #ccc; border-right: 1px solid #ccc}
+	div.table-wrapper {border-left: 1px solid #ccc; border-right: none;}
+	div.table-wrapper div.scrollable {margin-right: 35%; margin-left: auto;}
+}
+
+/**** ../autoload/uniform.default.css *****/
+textarea.uniform ,div.selector select,div.button span{font-family: tahoma,"Helvetica Neue", Arial, Helvetica, sans-serif}
+
+/**** css/addresses.css ****/
+.address li.address_update {margin: 14px 0 6px 0}
+  .address li.address_update a {margin: 0 0 0 10px}
+  
+/**** css/authenticaton.css ****/
+    #create-account_form .form-group {margin: 0 0 20px 0}
+	#login_form .form-group{margin: 0 0 3px 0}
+    #login_form .form-group.lost_password{margin: 14px 0 15px 0}
+	
+/**** css/category.css ****/
+.content_scene_cat .content_scene_cat_bg {padding: 18px 42px 10px 10px}
+@media (max-width: 1199px) {
+	.content_scene_cat .content_scene_cat_bg {padding: 10px 15px 10px 10px}
+	.content_scene_cat span.category-name {font: 600 42px/51px "byekan", sans-serif}
+}
+#subcategories ul {margin: 0 -20px 0 0}
+#subcategories ul li {float: right; margin: 0 20px 13px 0;}
+#subcategories ul li .subcategory-name {font: 600 18px/22px "byekan", sans-serif;}
+
+/**** css/cms.css ****/
+#cms #center_column .list-1 li em {padding-left: 15px; padding-right: 0}
+#cms #center_column .testimonials .inner {background: -webkit-gradient(linear, right top, right bottom, color-stop(0%, #fbfbfb), color-stop(100%, #fefefe))}
+#cms #center_column .testimonials .inner span.before {margin-left: 8px; margin-right: auto;}
+#cms #center_column .testimonials .inner span.after {margin-right: 8px; margin-left: auto}
+#cms #center_column .testimonials:after {left: auto; right: 21px}
+#cms #center_column .testimonials + p {padding-right: 45px; padding-left: auto;}
+#cms #center_column #admin-action-cms {background: none repeat 100% 0 #F6F6F6}
+#cms #center_column #admin-action-cms p .button {font: 700 17px/21px bhoma,arial, Helvetica, sans-serif}
+#cms #center_column #admin-action-cms p .button.publish_button {background: -webkit-gradient(linear, right top, right bottom, color-stop(0%, #009ad0), color-stop(100%, #007ab7))}
+#cms #center_column #admin-action-cms p .button.lnk_view {background: -webkit-gradient(linear, right top, right bottom, color-stop(0%, #f7f7f7), color-stop(100%, #ededed))}
+
+/**** css/comparator.css ****/
+table#product_comparison tbody tr td.td_empty > span {font: 600 18px/22px "byekan", sans-serif}
+table#product_comparison .remove {text-align: left}
+table#product_comparison .comparison_unit_price {font-family: "byekan", sans-serif}
+@media (max-width: 767px) {
+	#product_comparison thead tr {left: auto; right: -9999px}
+	#product_comparison td {float: right}
+}
+@media (max-width: 480px) {
+	#product_comparison .comparison_feature td {float: right}
+	#product_comparison .comparison_feature .product-name {float: right}
+}
+
+/**** css/contact-form.css ****/
+.contact-title i {padding: 0 0 0 8px}
+.contact-form-box .page-subheading {padding-right: 0px; padding-left: 0}
+
+/**** css/history.css ****/
+#order-detail-content table .return_quantity_buttons a {float: right}
+#order-detail-content table .return_quantity_buttons a + a {margin-right: 3px; margin-left: auto;}
+.table td.history_detail a + a {margin-right: 14px; margin-left: auto;}
+
+/**** css/maintenance.css ****/
+@media (min-width: 1200px) {
+    #maintenance {padding: 91px 297px 365px 48px; background: url(../../img/bg_maintenance_rtl.png) no-repeat} 
+}
+#maintenance h1 {font: 600 28px/34px "byekan", sans-serif}
+#maintenance #message {font: 600 16px/31px "byekan", sans-serif; padding: 0 18px 0 0}
+
+/**** css/my-account.css ****/
+#my-account ul.myaccount-link-list li a {font: 600 16px/20px "byekan", sans-serif}
+#my-account ul.myaccount-link-list li a i {left: auto; right: 0;
+      -webkit-border-top-right-radius: 4px;
+      border-top-right-radius: 4px;
+      -webkit-border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 4px; }
+#my-account ul.myaccount-link-list li a span {
+      padding: 13px 17px 15px 15px;
+      margin-right: 52px;
+	  margin-left: auto;
+      border-color: white #c8c8c8 white white;
+      -webkit-border-top-left-radius: 5px;
+      border-top-left-radius: 5px;
+      -webkit-border-bottom-left-radius: 5px;
+      border-bottom-left-radius: 5px; }
+	  
+/**** css/order-opc.css ****/
+#order-opc .page-heading.step-num {padding-right: 45px; padding-left: 0}
+#order-opc .page-heading.step-num span {left: auto; right: 10px}
+
+/**** css/print.css ****/
+@media only print {
+	#footer .row > div#block_contact_infos, #footer .row > section#block_contact_infos {border-right: none}
+}
+
+/**** css/scenes.css ****/
+.thumbs_banner .space-keeper {float: right}
+.thumbs_banner .space-keeper a.prev:before {padding-right: 5px;  padding-left: 0}
+.thumbs_banner .space-keeper a.next {float: right}
+.thumbs_banner .space-keeper a.next:before {padding-right: 5px; padding-left: 0}
+#scenes_list {float: right}
+#scenes_list li {float: right}
+
+/**** css/sitemap.css ****/
+#sitemap .sitemap_block li a:before {padding-left: 10px; padding-right: 0}
+#listpage_content div.tree_top {padding: 5px 27px 0 0}
+.categTree ul.tree {padding-right: 24px; padding-left: 0}
+.categTree ul.tree li {
+    margin: 0 21px 0 0;
+    padding: 5px 33px 0 0;
+    border-right: 1px solid #d6d4d4;
+	border-left: none;
+    background: url(../../img/sitemap-horizontal.png) no-repeat right 15px transparent;
+}
+.categTree ul.tree > li {margin: 0 11px 0 0}
+.categTree ul.tree li.last {background: url(../../img/sitemap-last.png) no-repeat 100% -4px transparent}
+
+/**** css/stores.css ****/
+#stores .address-input {float: right; margin-left: 19px;  margin-right: auto;}
+#stores .address-input label {margin-left: 5px;  margin-right: auto;}
+#stores .radius-input {float: right; margin-left: 20px;  margin-right: auto;}
+#stores .radius-input label, #stores .radius-input .selector {float: right}
+#stores .radius-input label {margin-left: 10px;  margin-right: auto;}
+#stores #stores_loader {margin-right: 5px;  margin-left: auto;}
+#stores #stores-table tbody td.name span {padding-right: 15px; padding-left: 0}

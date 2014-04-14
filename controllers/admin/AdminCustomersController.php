@@ -551,6 +551,12 @@ class AdminCustomersControllerCore extends AdminController
 
 		$birthday = explode('-', $this->getFieldValue($obj, 'birthday'));
 
+		if (sizeof($birthday) == 3 AND strtolower($this->context->language->iso_code) == 'fa')
+		{
+			//require_once (dirname(__FILE__).'/../../classes/pdate.php');
+			$g_to_j = Pdate::gregorian_to_jalali($birthday[0], $birthday[1], $birthday[2]);
+			$birthday = array($g_to_j[0],$g_to_j[1],$g_to_j[2]);
+		}
 		$this->fields_value = array(
 			'years' => $this->getFieldValue($obj, 'birthday') ? $birthday[0] : 0,
 			'months' => $this->getFieldValue($obj, 'birthday') ? $birthday[1] : 0,

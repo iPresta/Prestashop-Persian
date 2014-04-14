@@ -219,7 +219,7 @@ class AdminDashboardControllerCore extends AdminController
 			//'translations' => $translations,
 			'action' => '#',
 			'warning' => $this->getWarningDomainName(),
-			'new_version_url' => Tools::getCurrentUrlProtocolPrefix().'api.prestashop.com/version/check_version.php?v='._PS_VERSION_.'&lang='.$this->context->language->iso_code,
+			'new_version_url' => Tools::getCurrentUrlProtocolPrefix().'api.presta-shop.ir/version/check_version.php?v='._PS_VERSION_.'&lang='.$this->context->language->iso_code,
 			'dashboard_use_push' => Configuration::get('PS_DASHBOARD_USE_PUSH'),
 			'calendar' => $calendar_helper->generate(),
 			'PS_DASHBOARD_SIMULATION' => Configuration::get('PS_DASHBOARD_SIMULATION'),
@@ -323,7 +323,7 @@ class AdminDashboardControllerCore extends AdminController
 	{
 		$return = array('has_errors' => false, 'rss' => array());
 		if (!$this->isFresh('/config/xml/blog-'.$this->context->language->iso_code.'.xml', 86400))
-			if (!$this->refresh('/config/xml/blog-'.$this->context->language->iso_code.'.xml', 'https://api.prestashop.com/rss/blog/blog-'.$this->context->language->iso_code.'.xml'))
+			if (!$this->refresh('/config/xml/blog-'.$this->context->language->iso_code.'.xml', 'https://api.presta-shop.ir/rss/blog/blog-'.$this->context->language->iso_code.'.xml'))
 				$return['has_errors'] = true;
 		
 		if (!$return['has_errors'])
