@@ -2479,6 +2479,16 @@
     'path' => 'classes/PaymentModule.php',
     'type' => 'abstract class',
   ),
+  'Pdate' => 
+  array (
+    'path' => '',
+    'type' => 'class',
+  ),
+  'PdateCore' => 
+  array (
+    'path' => 'classes/Pdate.php',
+    'type' => 'class',
+  ),
   'PdfInvoiceController' => 
   array (
     'path' => '',
