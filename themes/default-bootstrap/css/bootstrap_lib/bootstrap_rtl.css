@@ -371,7 +371,7 @@ html {
 
 /* line 22, ../../sass/bootstrap_lib/_scaffolding.scss */
 body {
-  font-family: tahoma,arial, Helvetica, sans-serif;
+  font-family: bhoma,arial, Helvetica, sans-serif;
   font-size: 13px;
   line-height: 1.42857;
   color: #777777;
@@ -546,7 +546,7 @@ cite {
 /* line 51, ../../sass/bootstrap_lib/_type.scss */
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: tahoma,arial, Helvetica, sans-serif;
+  font-family: bhoma,arial, Helvetica, sans-serif;
   font-weight: 500;
   line-height: 1.1;
 }

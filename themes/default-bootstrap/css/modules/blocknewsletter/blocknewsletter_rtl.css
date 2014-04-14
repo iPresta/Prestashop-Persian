@@ -64,10 +64,10 @@
       color: #908f8f;
       padding: 8px; }
       #footer #newsletter_block_left .form-group .button-small:before {
-        content: "\f137";
+        content: "\f138";
         font-family: "FontAwesome";
         font-size: 28px;
-        line-height: 28px;}
+        line-height: 28px; }
       #footer #newsletter_block_left .form-group .button-small:hover {
         color: white !important; }
       #footer #newsletter_block_left .form-group .button-small span {

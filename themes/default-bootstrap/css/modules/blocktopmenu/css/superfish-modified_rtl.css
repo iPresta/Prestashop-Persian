@@ -82,13 +82,7 @@
     content: "\f105";
     display: inline-block;
     font-family: "FontAwesome";
-    padding-right: 10px; 
-	transform: rotate(180deg);
-	-webkit-transform: rotate(180deg);
-	-moz-transform: rotate(180deg);
-	ms-transform: rotate(180deg);
-	-o-transform: rotate(180deg);
-}
+    padding-left: 10px; }
   .sf-menu li li li a:hover {
     color: #333333; }
 
