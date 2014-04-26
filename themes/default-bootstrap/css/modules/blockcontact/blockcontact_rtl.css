@@ -1,7 +1,8 @@
 .shop-phone {
   float: right;
   padding: 5px 0 10px;
-  line-height: 18px; }
+  line-height: 18px;
+  width: 270px;}
   @media (max-width: 767px) {
     .shop-phone {
       display: none; } }

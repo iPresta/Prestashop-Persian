@@ -46,21 +46,7 @@ a img {
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
   display: block; }
 
-@font-face {
-	font-family: 'byekan';
-	src: url('fonts/BYekan.eot');
-	src: local('?'),url('fonts/BYekan.ttf') format('truetype'), url('fonts/BYekan.woff') format('woff');
-	font-weight: normal;
-	font-style: normal;
-}
 
-@font-face {
-	font-family: 'bhoma';
-	src: url('fonts/BHoma.eot');
-	src: local('?'),url('fonts/BHoma.ttf') format('truetype'), url('fonts/BHoma.woff') format('woff');
-	font-style: normal;
-	font-weight: normal;
-}
 /*!
  * Bootstrap v3.0.0
  *
@@ -249,7 +235,7 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
 
 body {
-  font-family: bhoma,arial, Helvetica, sans-serif;
+  font-family: arial, Helvetica, sans-serif;
   font-size: 13px;
   line-height: 1.42857;
   color: #777777;
@@ -369,7 +355,7 @@ cite {
 
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: bhoma,arial, Helvetica, sans-serif;
+  font-family: arial, Helvetica, sans-serif;
   font-weight: 500;
   line-height: 1.1; }
   h1 small, h2 small, h3 small, h4 small, h5 small, h6 small,
@@ -4072,35 +4058,35 @@ a .icon-spin {
     -moz-transform: rotate(0deg); }
 
   100% {
-    -moz-transform: rotate(359deg); } }
+    -moz-transform: rotate(-359deg); } }
 
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg); }
 
   100% {
-    -webkit-transform: rotate(359deg); } }
+    -webkit-transform: rotate(-359deg); } }
 
 @-o-keyframes spin {
   0% {
     -o-transform: rotate(0deg); }
 
   100% {
-    -o-transform: rotate(359deg); } }
+    -o-transform: rotate(-359deg); } }
 
 @-ms-keyframes spin {
   0% {
     -ms-transform: rotate(0deg); }
 
   100% {
-    -ms-transform: rotate(359deg); } }
+    -ms-transform: rotate(-359deg); } }
 
 @keyframes spin {
   0% {
     transform: rotate(0deg); }
 
   100% {
-    transform: rotate(359deg); } }
+    transform: rotate(-359deg); } }
 
 /* Icon rotations and mirroring */
 .icon-rotate-90:before {
@@ -5321,7 +5307,7 @@ header {
 #center_column .page_product_box h3 {
   color: #555454;
   text-transform: uppercase;
-  font-family: "byekan", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   font-size: 18px;
   line-height: 20px;
@@ -5511,7 +5497,7 @@ span.exclusive {
   opacity: 0.3; }
 
 .button.button-small {
-  font: bold 13px/17px bhoma,arial, Helvetica, sans-serif;
+  font: bold 13px/17px arial, Helvetica, sans-serif;
   color: white;
   background: #6f6f6f;
   border: 1px solid;
@@ -5698,7 +5684,7 @@ span.exclusive {
         filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e7e7e7', endColorstr='#e7e7e7',GradientType=0); }
 
 .button.ajax_add_to_cart_button {
-  font: 700 17px/21px bhoma,arial, Helvetica, sans-serif;
+  font: 700 17px/21px arial, Helvetica, sans-serif;
   color: white;
   text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
   padding: 0;
@@ -5724,7 +5710,7 @@ span.exclusive {
       background: #0084bf; }
 
 .button.lnk_view {
-  font: 700 17px/21px bhoma,arial, Helvetica, sans-serif;
+  font: 700 17px/21px arial, Helvetica, sans-serif;
   color: #333333;
   text-shadow: 1px 1px white;
   padding: 0;
@@ -5827,7 +5813,7 @@ table.table_block td {
   white-space: nowrap; }
 
 .price.product-price {
-  font: 600 21px/26px "byekan", sans-serif;
+  font: 600 21px/26px "Open Sans", sans-serif;
   color: #333333; }
 
 .old-price {
@@ -5843,12 +5829,12 @@ table.table_block td {
 .price-percent-reduction {
   background: #f13340;
   border: 1px solid #d02a2c;
-  font: 600 21px/24px "byekan", sans-serif;
+  font: 600 21px/24px "Open Sans", sans-serif;
   color: white;
   padding: 0 3px 0 5px;
   display: inline-block; }
   .price-percent-reduction.small {
-    font: 700 14px/17px bhoma,arial, Helvetica, sans-serif;
+    font: 700 14px/17px arial, Helvetica, sans-serif;
     padding: 1px 6px; }
 
 .new-box,
@@ -5868,7 +5854,7 @@ table.table_block td {
   left: -5px; }
 
 .new-label {
-  font: 700 14px/12px bhoma,arial, Helvetica, sans-serif;
+  font: 700 14px/12px arial, Helvetica, sans-serif;
   color: white;
   background: #6ad4ff;
   text-transform: uppercase;
@@ -5881,9 +5867,9 @@ table.table_block td {
   right: -33px;
   top: 16px;
   z-index: 1;
-  -webkit-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  transform: rotate(-45deg); }
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg); }
   .new-label:before {
     position: absolute;
     bottom: -3px;
@@ -5895,9 +5881,9 @@ table.table_block td {
     border-color: #21a3d8 transparent transparent transparent;
     content: ".";
     text-indent: -5000px;
-    -webkit-transform: rotate(225deg);
-    -ms-transform: rotate(225deg);
-    transform: rotate(225deg); }
+    -webkit-transform: rotate(-225deg);
+    -ms-transform: rotate(-225deg);
+    transform: rotate(-225deg); }
   .new-label:after {
     position: absolute;
     bottom: -3px;
@@ -5909,12 +5895,12 @@ table.table_block td {
     border-color: #21a3d8 transparent transparent transparent;
     content: ".";
     text-indent: -5000px;
-    -webkit-transform: rotate(135deg);
-    -ms-transform: rotate(135deg);
-    transform: rotate(135deg); }
+    -webkit-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    transform: rotate(-135deg); }
 
 .sale-label {
-  font: 700 14px/12px bhoma,arial, Helvetica, sans-serif;
+  font: 700 14px/12px arial, Helvetica, sans-serif;
   color: white;
   background: #f13340;
   text-transform: uppercase;
@@ -5927,9 +5913,9 @@ table.table_block td {
   left: -33px;
   top: 16px;
   z-index: 1;
-  -webkit-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  transform: rotate(-45deg); }
+  -webkit-transform: rotate(+45deg);
+  -ms-transform: rotate(+45deg);
+  transform: rotate(+45deg); }
   .sale-label:before {
     position: absolute;
     bottom: -3px;
@@ -5941,9 +5927,9 @@ table.table_block td {
     border-color: #ad2b34 transparent transparent transparent;
     content: ".";
     text-indent: -5000px;
-    -webkit-transform: rotate(225deg);
-    -ms-transform: rotate(225deg);
-    transform: rotate(225deg); }
+    -webkit-transform: rotate(-225deg);
+    -ms-transform: rotate(-225deg);
+    transform: rotate(-225deg); }
   .sale-label:after {
     position: absolute;
     bottom: -3px;
@@ -5955,9 +5941,9 @@ table.table_block td {
     border-color: #ad2b34 transparent transparent transparent;
     content: ".";
     text-indent: -5000px;
-    -webkit-transform: rotate(135deg);
-    -ms-transform: rotate(135deg);
-    transform: rotate(135deg); }
+    -webkit-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    transform: rotate(-135deg); }
 
 .ie8 .new-label {
   right: 0px;
@@ -6038,7 +6024,7 @@ table.table_block td {
       #home-page-tabs > li {
         width: 100%; } }
     #home-page-tabs > li a {
-      font: 600 21px/24px "byekan", sans-serif;
+      font: 600 21px/24px "Open Sans", sans-serif;
       color: #555454;
       text-transform: uppercase;
       border: none;
@@ -6071,7 +6057,7 @@ table.table_block td {
 
 .block .title_block,
 .block h4 {
-  font: 600 18px/22px "byekan", sans-serif;
+  font: 600 18px/22px "Open Sans", sans-serif;
   color: #555454;
   background: #f6f6f6;
   border-top: 5px solid #333333;
@@ -6163,11 +6149,11 @@ table.table_block td {
 .block .products-block .product-description {
   margin-bottom: 14px; }
 .block .products-block .price-percent-reduction {
-  font: 700 14px/17px bhoma,arial, Helvetica, sans-serif;
+  font: 700 14px/17px arial, Helvetica, sans-serif;
   padding: 1px 6px; }
 
 .page-heading {
-  font: 600 18px/22px "byekan", sans-serif;
+  font: 600 18px/22px "Open Sans", sans-serif;
   color: #555454;
   text-transform: uppercase;
   padding: 0px 0px 17px 0px;
@@ -6175,7 +6161,7 @@ table.table_block td {
   border-bottom: 1px solid #d6d4d4;
   overflow: hidden; }
   .page-heading span.heading-counter {
-    font: bold 13px/22px bhoma,arial, Helvetica, sans-serif;
+    font: bold 13px/22px arial, Helvetica, sans-serif;
     float: left;
     color: #333333;
     text-transform: none;
@@ -6194,7 +6180,7 @@ table.table_block td {
     margin-bottom: 0; }
 
 .page-subheading {
-  font-family: "byekan", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   text-transform: uppercase;
   color: #555454;
@@ -6207,7 +6193,7 @@ table.table_block td {
 h3.page-product-heading {
   color: #555454;
   text-transform: uppercase;
-  font-family: "byekan", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   font-size: 18px;
   line-height: 20px;
@@ -6757,9 +6743,9 @@ div.star a:hover {
       border-radius: 2px;
       text-indent: -5000px;
       z-index: -1;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg); }
+      -webkit-transform: rotate(-45deg);
+      -ms-transform: rotate(-45deg);
+      transform: rotate(-45deg); }
     .breadcrumb a:before {
       display: inline-block;
       content: ".";
@@ -6774,9 +6760,9 @@ div.star a:hover {
       border-radius: 2px;
       text-indent: -5000px;
       z-index: -1;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg); }
+      -webkit-transform: rotate(-45deg);
+      -ms-transform: rotate(-45deg);
+      transform: rotate(-45deg); }
     .breadcrumb a:hover {
       color: #777777; }
 
@@ -6808,7 +6794,7 @@ div.star a:hover {
       .footer-container #footer a:hover {
         color: white; }
     .footer-container #footer h4 {
-      font: 600 18px/22px "byekan", sans-serif;
+      font: 600 18px/22px "Open Sans", sans-serif;
       color: white;
       margin: 0 0 13px 0; }
       @media (max-width: 767px) {
@@ -7058,11 +7044,11 @@ a.price_discount_delete {
 #cart_summary tfoot td.price {
   text-align: left; }
 #cart_summary tfoot td.total_price_container span {
-  font: 600 18px/22px "byekan", sans-serif;
+  font: 600 18px/22px "Open Sans", sans-serif;
   color: #555454;
   text-transform: uppercase; }
 #cart_summary tfoot td#total_price_container {
-  font: 600 21px/25px "byekan", sans-serif;
+  font: 600 21px/25px "Open Sans", sans-serif;
   color: #333333;
   background: white; }
 
@@ -7121,7 +7107,7 @@ a.price_discount_delete {
 .cart_voucher {
   vertical-align: top !important; }
   .cart_voucher h4 {
-    font: 600 18px/22px "byekan", sans-serif;
+    font: 600 18px/22px "Open Sans", sans-serif;
     color: #555454;
     text-transform: uppercase;
     padding: 7px 0 10px 0; }
@@ -7541,7 +7527,7 @@ p.cheque-indent {
   opacity: 1;
   line-height: inherit;
   text-transform: none;
-  font-family: bhoma,arial, Helvetica, sans-serif; }
+  font-family: arial, Helvetica, sans-serif; }
   #instant_search_results a.close:hover {
     color: #515151; }
 
@@ -7690,12 +7676,12 @@ table.discount i {
     #pagenotfound .pagenotfound .img-404 img {
       max-width: 100%; }
   #pagenotfound .pagenotfound h1 {
-    font: 600 28px/34px "byekan", sans-serif;
+    font: 600 28px/34px "Open Sans", sans-serif;
     color: #333333;
     text-transform: uppercase;
     margin-bottom: 7px; }
   #pagenotfound .pagenotfound p {
-    font: 600 16px/20px "byekan", sans-serif;
+    font: 600 16px/20px "Open Sans", sans-serif;
     color: #555454;
     text-transform: uppercase;
     border-bottom: 1px solid #d6d4d4;
@@ -7901,7 +7887,7 @@ div.star.star_hover:after {
 #facebook_block h4 {
   padding: 35px 0 0 0;
   margin: 0 0 12px 0;
-  font: 300 21px/25px "byekan", sans-serif;
+  font: 300 21px/25px "Open Sans", sans-serif;
   color: #6f6d6d; }
   @media (max-width: 991px) {
     #facebook_block h4 {
@@ -7965,7 +7951,7 @@ div.star.star_hover:after {
     overflow: hidden; }
   #cmsinfo_block h3 {
     margin: 0 0 5px 0;
-    font: 300 21px/25px "byekan", sans-serif;
+    font: 300 21px/25px "Open Sans", sans-serif;
     color: #6f6d6d; }
     @media (max-width: 1199px) {
       #cmsinfo_block h3 {

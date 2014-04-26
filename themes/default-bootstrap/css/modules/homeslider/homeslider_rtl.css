@@ -121,11 +121,11 @@
 #homepage-slider .bx-wrapper .bx-prev {
   left: 60px; }
   #homepage-slider .bx-wrapper .bx-prev:after {
-    content: "\f053"; }
+    content: "\f054"; }
 #homepage-slider .bx-wrapper .bx-next {
   left: 10px; }
   #homepage-slider .bx-wrapper .bx-next:after {
-    content: "\f054"; }
+    content: "\f053"; }
 #homepage-slider .bx-wrapper .bx-controls-direction a {
   position: absolute;
   bottom: 10px;

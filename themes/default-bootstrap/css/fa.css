@@ -1,0 +1,91 @@
+/* change 'arial' font with another local font */
+@font-face {
+	font-family: 'arial';
+	src: local('Tahoma'),local('Arial');
+}
+@font-face {
+  font-family: 'Droid Naskh';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Regular.eot);
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Regular.woff2) format('woff2'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Regular.woff) format('woff'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Droid Naskh';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Bold.eot);
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Bold.woff2) format('woff2'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Bold.woff) format('woff'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabicnaskh/v4/DroidNaskh-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Droid Kufi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Regular.eot);
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Regular.woff2) format('woff2'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Regular.woff) format('woff'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Droid Kufi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Bold.eot);
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Bold.eot?#iefix) format('embedded-opentype'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Bold.woff2) format('woff2'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Bold.woff) format('woff'),
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/droidarabickufi/v3/DroidKufi-Bold.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: 'byekan';
+	src: url('../persian_fonts/BYekan.eot');
+	src: local('b yekan'), url('fonts/BYekan.ttf') format('truetype'), url('fonts/BYekan.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'bhoma';
+	src: url('../persian_fonts/BHoma.eot');
+	src: local('b yekan'), url('fonts/BHoma.ttf') format('truetype'), url('fonts/BHoma.woff') format('woff');
+	font-style: normal;
+	font-weight: normal;
+}
+
+body {
+	font-family: 'droid naskh' , 'arial';
+	font-size: 12px;
+}
+
+#center_column .page_product_box h3, .price.product-price, .price-percent-reduction,
+#home-page-tabs > li a, .block .title_block, .block h4, .page-heading, .page-subheading,
+h3.page-product-heading, .footer-container #footer h4, #cart_summary tfoot td.total_price_container span,
+#cart_summary tfoot td#total_price_container, .cart_voucher h4, #pagenotfound .pagenotfound h1,
+#pagenotfound .pagenotfound p, #facebook_block h4, #cmsinfo_block h3 {
+
+	font-family: 'Bhoma', 'Droid Naskh', 'Arial';
+}
+
+#instant_search_results a.close, .page-heading span.heading-counter,
+.block .products-block .price-percent-reduction, .sale-label, .new-label,
+.price-percent-reduction.small, .button.lnk_view, .button.ajax_add_to_cart_button,
+.button.button-small {
+
+	font-family: 'Droid Naskh', 'arial';
+	
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+	font-family: 'Droid Kufi', 'arial' !important;
+	zoom: 85%;
+}

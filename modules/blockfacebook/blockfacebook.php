@@ -47,7 +47,7 @@ class BlockFacebook extends Module
 	public function install()
 	{
 		return parent::install() &&
-			Configuration::updateValue('blockfacebook_url', 'https://www.facebook.com/prestashop') &&
+			Configuration::updateValue('blockfacebook_url', 'https://www.facebook.com/persianpresta') &&
 			$this->registerHook('displayHome') &&
 			$this->registerHook('displayHeader');
 	}

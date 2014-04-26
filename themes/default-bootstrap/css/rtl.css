@@ -1,11 +1,11 @@
 /********************************************************
 			Right to Left Styles
 ********************************************************/
-* {
-  direction: rtl }
+body {
+  direction: rtl;}
 
 #page {
-  font-family: tahoma;}
+  }
 .bx-viewport {
   direction: ltr}
 

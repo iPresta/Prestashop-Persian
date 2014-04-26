@@ -79,7 +79,7 @@
   font-weight: bold;
   padding-bottom: 10px; }
   .sf-menu li li li a:before {
-    content: "\f105";
+    content: "\f104";
     display: inline-block;
     font-family: "FontAwesome";
     padding-left: 10px; }
