@@ -178,10 +178,11 @@ class AdminProductsControllerCore extends AdminController
 		$this->_join .= ' JOIN `'._DB_PREFIX_.'product_shop` sa ON (a.`id_product` = sa.`id_product` AND sa.id_shop = '.$id_shop.')
 				LEFT JOIN `'._DB_PREFIX_.'category_lang` cl ON ('.$alias.'.`id_category_default` = cl.`id_category` AND b.`id_lang` = cl.`id_lang` AND cl.id_shop = '.$id_shop.')
 				LEFT JOIN `'._DB_PREFIX_.'shop` shop ON (shop.id_shop = '.$id_shop.') 
-				LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop ON (image_shop.`id_image` = i.`id_image` AND image_shop.`cover` = 1 AND image_shop.id_shop = '.$id_shop.')';
+				LEFT JOIN `'._DB_PREFIX_.'image_shop` image_shop ON (image_shop.`id_image` = i.`id_image` AND image_shop.`cover` = 1 AND image_shop.id_shop = '.$id_shop.')
+				LEFT JOIN `'._DB_PREFIX_.'product_download` pd ON (pd.`id_product` = a.`id_product`)';
 		
 		$this->_select .= 'shop.name as shopname, a.id_shop_default, ';
-		$this->_select .= 'MAX('.$alias_image.'.id_image) id_image, cl.name `name_category`, '.$alias.'.`price`, 0 AS price_final, sav.`quantity` as sav_quantity, '.$alias.'.`active`, IF(sav.`quantity`<=0, 1, 0 ) badge_danger';
+		$this->_select .= 'MAX('.$alias_image.'.id_image) id_image, cl.name `name_category`, '.$alias.'.`price`, 0 AS price_final, a.`is_virtual`, pd.`nb_downloadable`, sav.`quantity` as sav_quantity, '.$alias.'.`active`, IF(sav.`quantity`<=0, 1, 0) badge_danger';
 		
 		if ($join_category)
 		{
@@ -199,7 +200,7 @@ class AdminProductsControllerCore extends AdminController
 			'type' => 'int'
 		);
 		$this->fields_list['image'] = array(
-			'title' => $this->l('Photo'),
+			'title' => $this->l('Image'),
 			'align' => 'center',
 			'image' => 'p',
 			'orderby' => false,
@@ -236,7 +237,8 @@ class AdminProductsControllerCore extends AdminController
 			'type' => 'price',
 			'align' => 'text-right',
 			'havingFilter' => true,
-			'orderby' => false
+			'orderby' => false,
+			'search' => false
 		);
 
 		if (Configuration::get('PS_STOCK_MANAGEMENT'))
@@ -267,6 +269,14 @@ class AdminProductsControllerCore extends AdminController
 				'align' => 'center',
 				'position' => 'position'
 			);
+	}
+
+	public static function getQuantities($echo, $tr)
+	{
+		if ((int)$tr['is_virtual'] == 1 && $tr['nb_downloadable'] == 0)
+			return '&infin;';
+		else
+			return $echo;
 	}
 
 	public function setMedia()
@@ -480,7 +490,7 @@ class AdminProductsControllerCore extends AdminController
 				$max_post = (int)ini_get('post_max_size');
 				$upload_mb = min($max_upload, $max_post);
 				$_FILES['attachment_file']['error'][] = sprintf(
-					$this->l('The file %1$s exceeds the size allowed by the server. The limit is set to %2$d MB.'),
+					$this->l('File %1$s exceeds the size allowed by the server. The limit is set to %2$d MB.'),
 					'<b>'.$_FILES['attachment_file']['name'].'</b> ',
 					'<b>'.$upload_mb.'</b>'
 				);
@@ -1184,6 +1194,23 @@ class AdminProductsControllerCore extends AdminController
 
 	public function initProcess()
 	{
+		if (Tools::isSubmit('submitAddproductAndStay') || Tools::isSubmit('submitAddproduct'))
+		{
+			$this->id_object = (int)Tools::getValue('id_product');
+			$this->object = new Product($this->id_object);
+
+			if ($this->object->is_virtual && (int)Tools::getValue('type_product') != 2)
+			{
+				if ($id_product_download = (int)ProductDownload::getIdFromIdProduct($this->id_object))
+				{
+					$product_download = new ProductDownload($id_product_download);
+					if (!$product_download->deleteFile($id_product_download))
+						$this->errors[] = Tools::displayError('Cannot delete file');
+				}
+
+			}
+		}
+
 		// Delete a product in the download folder
 		if (Tools::getValue('deleteVirtualProduct'))
 		{
@@ -1340,7 +1367,9 @@ class AdminProductsControllerCore extends AdminController
 				'thickbox',
 				'ajaxfileupload',
 				'date',
-				'tagify'
+				'tagify',
+				'select2',
+				'validate'
 			));
 
 			$this->addJS(array(
@@ -1355,8 +1384,11 @@ class AdminProductsControllerCore extends AdminController
 				_PS_JS_DIR_.'vendor/ladda.js'
 			));
 
+			$this->addJS(_PS_JS_DIR_.'jquery/plugins/select2/select2_locale_'.$this->context->language->iso_code.'.js');
+			$this->addJS(_PS_JS_DIR_.'jquery/plugins/validate/localization/messages_'.$this->context->language->iso_code.'.js');
+
 			$this->addCSS(array(
-				_PS_JS_DIR_.'jquery/plugins/timepicker/jquery-ui-timepicker-addon.css',
+				_PS_JS_DIR_.'jquery/plugins/timepicker/jquery-ui-timepicker-addon.css'
 			));
 		}
 	}
@@ -1459,7 +1491,7 @@ class AdminProductsControllerCore extends AdminController
 		$id_product = Tools::getValue('id_product');
 		if (($id_image = Tools::getValue('id_image')) && ($id_shop = (int)Tools::getValue('id_shop')))
 			if (Tools::getValue('active') == 'true')
-				$res = Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'image_shop (`id_image`, `id_shop`) VALUES('.(int)$id_image.', '.(int)$id_shop.')');
+				$res = Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'image_shop (`id_image`, `id_shop`, `cover`) VALUES('.(int)$id_image.', '.(int)$id_shop.', \'0\')');
 			else
 				$res = Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'image_shop WHERE `id_image` = '.(int)$id_image.' AND `id_shop` = '.(int)$id_shop);
 		
@@ -1804,7 +1836,6 @@ class AdminProductsControllerCore extends AdminController
 			return false;
 
 		$res = parent::processStatus();
-		Hook::exec('actionProductUpdate', array('product' => $this->object));
 		
 		return $res;
 	}
@@ -1911,8 +1942,6 @@ class AdminProductsControllerCore extends AdminController
 						$this->processWarehouses();
 					if (empty($this->errors))
 					{
-						Hook::exec('actionProductUpdate', array('product' => $object));
-
 						if (in_array($object->visibility, array('both', 'search')) && Configuration::get('PS_SEARCH_INDEXATION'))
 							Search::indexation(false, $object->id);
 
@@ -2285,7 +2314,7 @@ class AdminProductsControllerCore extends AdminController
 						'id' => $product_tab,
 						'selected' => (strtolower($product_tab) == strtolower($this->tab_display) || (isset($this->tab_display_module) && 'module'.$this->tab_display_module == Tools::strtolower($product_tab))),
 						'name' => $this->available_tabs_lang[$product_tab],
-						'href' => $this->context->link->getAdminLink('AdminProducts').'&amp;id_product='.(int)Tools::getValue('id_product').'&amp;action='.$product_tab,
+						'href' => $this->context->link->getAdminLink('AdminProducts').'&id_product='.(int)Tools::getValue('id_product').'&action='.$product_tab,
 					);
 				}
 				$this->tpl_form_vars['product_tabs'] = $product_tabs;
@@ -2375,6 +2404,7 @@ class AdminProductsControllerCore extends AdminController
 		$helper->id = 'box-disabled-products';
 		$helper->icon = 'icon-off';
 		$helper->color = 'color4';
+		$helper->href = $this->context->link->getAdminLink('AdminProducts');
 		$helper->title = $this->l('Disabled Products', null, null, false);
 		if (ConfigurationKPI::get('DISABLED_PRODUCTS') !== false)
 			$helper->value = ConfigurationKPI::get('DISABLED_PRODUCTS');
@@ -2397,7 +2427,7 @@ class AdminProductsControllerCore extends AdminController
 
 	public function ajaxProcessProductManufacturers()
 	{
-		$manufacturers = Manufacturer::getManufacturers();
+		$manufacturers = Manufacturer::getManufacturers(false, 0, true, false, false, false, true);
 		$jsonArray = array();
 			if ($manufacturers)
 				foreach ($manufacturers as $manufacturer)
@@ -2490,7 +2520,7 @@ class AdminProductsControllerCore extends AdminController
 						'href' => $this->context->link->getAdminLink('AdminProducts', true).'&id_product='.(int)$product->id.'&duplicateproduct',
 						'desc' => $this->l('Duplicate', null, null, false),
 						'confirm' => 1,
-						'js' => 'if (confirm(\''.$this->l('Also copy images', null, true, false).' ?\')){document.location.href = \''.$this->context->link->getAdminLink('AdminProducts', true).'&id_product='.(int)$product->id.'&duplicateproduct\'; return false;} else{document.location.href = \''.$this->context->link->getAdminLink('AdminProducts', true).'&id_product='.(int)$product->id.'&duplicateproduct&noimage=1\'; return false;}'
+						'js' => 'if (confirm(\''.$this->l('Also copy images', null, true, false).' ?\')){document.location.href = \''.Tools::safeOutput($this->context->link->getAdminLink('AdminProducts', true).'&id_product='.(int)$product->id.'&duplicateproduct').'\'; return false;} else{document.location.href = \''.Tools::safeOutput($this->context->link->getAdminLink('AdminProducts', true).'&id_product='.(int)$product->id.'&duplicateproduct&noimage=1').'\'; return false;}'
 					);
 
 				// adding button for preview this product statistics
@@ -2616,7 +2646,7 @@ class AdminProductsControllerCore extends AdminController
 		else
 			$id_product = (int)Tools::getvalue('id_product');
 
-		$this->tpl_form_vars['form_action'] = $this->context->link->getAdminLink('AdminProducts').'&amp;'.($id_product ? 'id_product='.(int)$id_product : 'addproduct');
+		$this->tpl_form_vars['form_action'] = $this->context->link->getAdminLink('AdminProducts').'&'.($id_product ? 'id_product='.(int)$id_product : 'addproduct');
 		$this->tpl_form_vars['id_product'] = $id_product;
 
 		// Transform configuration option 'upload_max_filesize' in octets
@@ -3126,12 +3156,14 @@ class AdminProductsControllerCore extends AdminController
 			{
 				$length = count($ids);
 				for ($i = 0; $i < $length; $i++)
+				{
 					if (!empty($ids[$i]) && !empty($names[$i]))
 					{
 						list($pack_items[$i]['pack_quantity'], $pack_items[$i]['id']) = explode('x', $ids[$i]);
 						$exploded_name = explode('x', $names[$i]);
 						$pack_items[$i]['name'] = $exploded_name[1];
 					}
+				}
 			}
 		}
 		else
@@ -3142,10 +3174,16 @@ class AdminProductsControllerCore extends AdminController
 				$pack_items[$i]['id'] = $pack_item->id;
 				$pack_items[$i]['pack_quantity'] = $pack_item->pack_quantity;
 				$pack_items[$i]['name']	= $pack_item->name;
+				$pack_items[$i]['reference'] = $pack_item->reference;
+
+				$cover = Product::getCover($pack_item->id);
+				$pack_items[$i]['image'] = Context::getContext()->link->getImageLink($pack_item->link_rewrite, $cover['id_image'] , 'home_default');
+				// @todo: don't rely on 'home_default'
+				//$path_to_image = _PS_IMG_DIR_.'p/'.Image::getImgFolderStatic($cover['id_image']).(int)$cover['id_image'].'.jpg';
+				//$pack_items[$i]['image'] = ImageManager::thumbnail($path_to_image, 'pack_mini_'.$pack_item->id.'_'.$this->context->shop->id.'.jpg', 120);
 				$i++;
 			}
 		}
-
 		return $pack_items;
 	}
 
@@ -3211,7 +3249,7 @@ class AdminProductsControllerCore extends AdminController
 		if (!file_exists($exists_file)
 			&& !empty($product->productDownload->display_filename)
 			&& empty($product->cache_default_attribute))
-			$msg = sprintf(Tools::displayError('This file "%s" is missing'),
+			$msg = sprintf(Tools::displayError('File "%s" is missing'),
 				$product->productDownload->display_filename);
 		else
 			$msg = '';
@@ -3660,9 +3698,12 @@ class AdminProductsControllerCore extends AdminController
 
 		$images = Image::getImages($this->context->language->id, $product->id);
 
-		foreach ($images as $k => $image)
-			$images[$k]['src'] = $this->context->link->getImageLink($product->link_rewrite[$this->context->language->id], $product->id.'-'.$image['id_image'], 'small_default');
-		$data->assign('images', $images);
+		if (is_array($images))
+		{
+			foreach ($images as $k => $image)
+				$images[$k]['src'] = $this->context->link->getImageLink($product->link_rewrite[$this->context->language->id], $product->id.'-'.$image['id_image'], 'small_default');
+			$data->assign('images', $images);
+		}
 		$data->assign('imagesTypes', ImageType::getImagesTypes('products'));
 
 		$product->tags = Tag::getProductTags($product->id);
@@ -3676,7 +3717,7 @@ class AdminProductsControllerCore extends AdminController
 
 		// TinyMCE
 		$iso_tiny_mce = $this->context->language->iso_code;
-		$iso_tiny_mce = (file_exists(_PS_JS_DIR_.'tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
+		$iso_tiny_mce = (file_exists(_PS_ROOT_DIR_.'/js/tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
 		$data->assign('ad', dirname($_SERVER['PHP_SELF']));
 		$data->assign('iso_tiny_mce', $iso_tiny_mce);
 		$data->assign('check_product_association_ajax', $check_product_association_ajax);
@@ -4540,7 +4581,7 @@ class AdminProductsControllerCore extends AdminController
 
 	protected function initPack(Product $product)
 	{
-		$this->tpl_form_vars['is_pack'] = ($product->id && Pack::isPack($product->id)) || Tools::getValue('ppack') || Tools::getValue('type_product') == Product::PTYPE_PACK;
+		$this->tpl_form_vars['is_pack'] = ($product->id && Pack::isPack($product->id)) || Tools::getValue('type_product') == Product::PTYPE_PACK;
 		$product->packItems = Pack::getItems($product->id, $this->context->language->id);
 
 		$input_pack_items = '';

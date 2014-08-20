@@ -67,7 +67,7 @@ class AdminCustomersControllerCore extends AdminController
 
 		$this->_select = '
 		a.date_add, gl.name as title, (
-			SELECT SUM(total_paid_tax_excl / conversion_rate) FROM '._DB_PREFIX_.'orders o
+			SELECT SUM(total_paid_real / conversion_rate) FROM '._DB_PREFIX_.'orders o
 			WHERE o.id_customer = a.id_customer
 			'.Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o').'
 			AND a.active = 1
@@ -86,7 +86,7 @@ class AdminCustomersControllerCore extends AdminController
 				'class' => 'fixed-width-xs'
 			),
 			'title' => array(
-				'title' => $this->l('Title'),
+				'title' => $this->l('Social title'),
 				'filter_key' => 'a!id_gender',
 				'type' => 'select',
 				'list' => $titles_array,
@@ -97,7 +97,7 @@ class AdminCustomersControllerCore extends AdminController
 				'title' => $this->l('Last name')
 			),
 			'firstname' => array(
-				'title' => $this->l('First Name')
+				'title' => $this->l('First name')
 			),
 			'email' => array(
 				'title' => $this->l('Email address')
@@ -131,14 +131,14 @@ class AdminCustomersControllerCore extends AdminController
 				'filter_key' => 'a!active'
 			),
 			'newsletter' => array(
-				'title' => $this->l('News.'),
+				'title' => $this->l('Newsletter'),
 				'align' => 'text-center',
 				'type' => 'bool',
 				'callback' => 'printNewsIcon',
 				'orderby' => false
 			),
 			'optin' => array(
-				'title' => $this->l('Opt.'),
+				'title' => $this->l('Opt-in'),
 				'align' => 'text-center',
 				'type' => 'bool',
 				'callback' => 'printOptinIcon',
@@ -240,7 +240,7 @@ class AdminCustomersControllerCore extends AdminController
 
 	public function initPageHeaderToolbar()
 	{
-		if (empty($this->display))
+		if (empty($this->display) && $this->can_add_customer)
 			$this->page_header_toolbar_btn['new_customer'] = array(
 				'href' => self::$currentIndex.'&addcustomer&token='.$this->token,
 				'desc' => $this->l('Add new customer', null, null, false),
@@ -323,7 +323,7 @@ class AdminCustomersControllerCore extends AdminController
 			'input' => array(
 				array(
 					'type' => 'radio',
-					'label' => $this->l('Title'),
+					'label' => $this->l('Social title'),
 					'name' => 'id_gender',
 					'required' => false,
 					'class' => 't',
@@ -335,7 +335,7 @@ class AdminCustomersControllerCore extends AdminController
 					'name' => 'firstname',
 					'required' => true,
 					'col' => '4',
-					'hint' => $this->l('Forbidden characters:').' 0-9!&lt;&gt;,;?=+()@#"°{}_$%:'
+					'hint' => $this->l('Invalid characters:').' 0-9!&lt;&gt;,;?=+()@#"°{}_$%:'
 				),
 				array(
 					'type' => 'text',
@@ -361,7 +361,7 @@ class AdminCustomersControllerCore extends AdminController
 					'required' => ($obj->id ? false : true),
 					'col' => '4',
 					'hint' => ($obj->id ? $this->l('Leave this field blank if there\'s no change.') :
-						sprintf($this->l('Minimum of %s characters.'), Validate::PASSWORD_LENGTH))
+						sprintf($this->l('Password should be at least %s characters long.'), Validate::PASSWORD_LENGTH))
 				),
 				array(
 					'type' => 'birthday',
@@ -375,7 +375,7 @@ class AdminCustomersControllerCore extends AdminController
 				),
 				array(
 					'type' => 'switch',
-					'label' => $this->l('Status'),
+					'label' => $this->l('Enabled'),
 					'name' => 'active',
 					'required' => false,
 					'class' => 't',
@@ -417,7 +417,7 @@ class AdminCustomersControllerCore extends AdminController
 				),
 				array(
 					'type' => 'switch',
-					'label' => $this->l('Opt in'),
+					'label' => $this->l('Opt-in'),
 					'name' => 'optin',
 					'required' => false,
 					'class' => 't',
@@ -710,9 +710,6 @@ class AdminCustomersControllerCore extends AdminController
 		}
 
 		$products = $customer->getBoughtProducts();
-		$total_products = count($products);
-		for ($i = 0; $i < $total_products; $i++)
-			$products[$i]['date_add'] = Tools::displayDate($products[$i]['date_add'], null, true);
 
 		$carts = Cart::getCustomerCarts($customer->id);
 		$total_carts = count($carts);
@@ -968,16 +965,16 @@ class AdminCustomersControllerCore extends AdminController
 
 	public function printNewsIcon($value, $customer)
 	{
-		return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?tab=AdminCustomers&id_customer='
-			.(int)$customer['id_customer'].'&changeNewsletterVal&token='.Tools::getAdminTokenLite('AdminCustomers').'">
+		return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?'.htmlspecialchars('tab=AdminCustomers&id_customer='
+			.(int)$customer['id_customer'].'&changeNewsletterVal&token='.Tools::getAdminTokenLite('AdminCustomers')).'">
 				'.($value ? '<i class="icon-check"></i>' : '<i class="icon-remove"></i>').
 			'</a>';
 	}
 
 	public function printOptinIcon($value, $customer)
 	{
-		return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?tab=AdminCustomers&id_customer='
-			.(int)$customer['id_customer'].'&changeOptinVal&token='.Tools::getAdminTokenLite('AdminCustomers').'">
+		return '<a class="list-action-enable '.($value ? 'action-enabled' : 'action-disabled').'" href="index.php?'.htmlspecialchars('tab=AdminCustomers&id_customer='
+			.(int)$customer['id_customer'].'&changeOptinVal&token='.Tools::getAdminTokenLite('AdminCustomers')).'">
 				'.($value ? '<i class="icon-check"></i>' : '<i class="icon-remove"></i>').
 			'</a>';
 	}

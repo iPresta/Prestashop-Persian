@@ -35,7 +35,7 @@ class BlockNewProducts extends Module
 	{
 		$this->name = 'blocknewproducts';
 		$this->tab = 'front_office_features';
-		$this->version = '1.8';
+		$this->version = '1.9.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -99,6 +99,7 @@ class BlockNewProducts extends Module
 				Configuration::updateValue('PS_NB_DAYS_NEW_PRODUCT', (int)(Tools::getValue('PS_NB_DAYS_NEW_PRODUCT')));
 				Configuration::updateValue('PS_BLOCK_NEWPRODUCTS_DISPLAY', (int)(Tools::getValue('PS_BLOCK_NEWPRODUCTS_DISPLAY')));
 				Configuration::updateValue('NEW_PRODUCTS_NBR', (int)($productNbr));
+				$this->_clearCache('*');
 				$output .= $this->displayConfirmation($this->l('Settings updated'));
 			}
 		}
@@ -204,8 +205,8 @@ class BlockNewProducts extends Module
 	public function _clearCache($template, $cache_id = NULL, $compile_id = NULL)
 	{
 		parent::_clearCache('blocknewproducts.tpl');
-		parent::_clearCache('blocknewproducts_home.tpl', $this->getCacheId('blocknewproducts-home'));
-		parent::_clearCache('tab.tpl', $this->getCacheId('blocknewproducts-tab'));
+		parent::_clearCache('blocknewproducts_home.tpl', 'blocknewproducts-home');
+		parent::_clearCache('tab.tpl', 'blocknewproducts-tab');
 	}
 
 	public function renderForm()

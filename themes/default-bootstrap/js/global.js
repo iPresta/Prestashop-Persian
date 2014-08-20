@@ -114,46 +114,75 @@ function highdpiInit()
 	}
 }
 
+
+// Used to compensante Chrome/Safari bug (they don't care about scroll bar for width)
+function scrollCompensate() 
+{
+    var inner = document.createElement('p');
+    inner.style.width = "100%";
+    inner.style.height = "200px";
+
+    var outer = document.createElement('div');
+    outer.style.position = "absolute";
+    outer.style.top = "0px";
+    outer.style.left = "0px";
+    outer.style.visibility = "hidden";
+    outer.style.width = "200px";
+    outer.style.height = "150px";
+    outer.style.overflow = "hidden";
+    outer.appendChild(inner);
+
+    document.body.appendChild(outer);
+    var w1 = inner.offsetWidth;
+    outer.style.overflow = 'scroll';
+    var w2 = inner.offsetWidth;
+    if (w1 == w2) w2 = outer.clientWidth;
+
+    document.body.removeChild(outer);
+
+    return (w1 - w2);
+}
+
 function responsiveResize()
 {
-	if ($(document).width() <= 767 && responsiveflag == false)
+	compensante = scrollCompensate();
+	if (($(window).width()+scrollCompensate()) <= 767 && responsiveflag == false)
 	{
 		accordion('enable');
 	    accordionFooter('enable');
 		responsiveflag = true;	
 	}
-	else if ($(document).width() >= 768)
+	else if (($(window).width()+scrollCompensate()) >= 768)
 	{
 		accordion('disable');
 		accordionFooter('disable');
 	    responsiveflag = false;
 	}
+	if (typeof page_name != 'undefined' && in_array(page_name, ['category']))
+		resizeCatimg();
 }
 
 function blockHover(status)
 {
 	$(document).off('mouseenter').on('mouseenter', '.product_list.grid li.ajax_block_product .product-container', function(e){
 
-		if ('ontouchstart' in document.documentElement)
-			return;
 		if ($('body').find('.container').width() == 1170)
 		{
 			var pcHeight = $(this).parent().outerHeight();
 			var pcPHeight = $(this).parent().find('.button-container').outerHeight() + $(this).parent().find('.comments_note').outerHeight() + $(this).parent().find('.functional-buttons').outerHeight();
-			$(this).parent().addClass('hovered');
-			$(this).parent().css('height', pcHeight + pcPHeight).css('margin-bottom', pcPHeight * (-1));
+			$(this).parent().addClass('hovered').css({'height':pcHeight + pcPHeight, 'margin-bottom':pcPHeight * (-1)});
 		}
 	});
 
 	$(document).off('mouseleave').on('mouseleave', '.product_list.grid li.ajax_block_product .product-container', function(e){
 		if ($('body').find('.container').width() == 1170)
-			$(this).parent().removeClass('hovered').removeAttr('style');
+			$(this).parent().removeClass('hovered').css({'height':'auto', 'margin-bottom':'0'});
 	});
 }
 
 function quick_view()
 {
-	$(document).on('click', '.quick-view:visible', function(e) 
+	$(document).on('click', '.quick-view:visible, .quick-view-mobile:visible', function(e) 
 	{
 		e.preventDefault();
 		var url = this.rel;
@@ -176,6 +205,9 @@ function quick_view()
 function bindGrid()
 {
 	var view = $.totalStorage('display');
+	
+	if (!view && (typeof displayList != 'undefined') && displayList)
+		view = 'list';
 
 	if (view && view != 'grid')
 		display(view);
@@ -342,4 +374,19 @@ function accordion(status)
 		$('#right_column .block .title_block, #left_column .block .title_block, #left_column #newsletter_block_left h4').removeClass('active').off().parent().find('.block_content').removeAttr('style').slideDown('fast');
 		$('#left_column, #right_column').removeClass('accordion');
 	}
+}
+
+function resizeCatimg()
+{
+	var div = $('.cat_desc').parent('div');
+	var image = new Image;
+	$(image).load(function(){
+	    var width  = image.width;
+	    var height = image.height;
+		var ratio = parseFloat(height / width);
+		var calc = Math.round(ratio * parseInt(div.outerWidth(false)));
+		div.css('min-height', calc);
+	});
+	if (div.length)
+		image.src = div.css('background-image').replace(/url\("?|"?\)$/ig, '');
 }

@@ -52,7 +52,7 @@ class Blocktopmenu extends Module
 	{
 		$this->name = 'blocktopmenu';
 		$this->tab = 'front_office_features';
-		$this->version = 1.11;
+		$this->version = '1.13';
 		$this->author = 'PrestaShop';
 
 		$this->bootstrap = true;
@@ -146,7 +146,11 @@ class Blocktopmenu extends Module
 		if (Tools::isSubmit('submitBlocktopmenu'))
 		{
 			$items = Tools::getValue('items');
-			if (is_array($items) && count($items) && Configuration::updateValue('MOD_BLOCKTOPMENU_ITEMS', (string)implode(',', $items)))
+			if (is_array($items) && count($items))
+ 				$updated = Configuration::updateValue('MOD_BLOCKTOPMENU_ITEMS', (string)implode(',', $items));
+ 			else
+ 				$updated = Configuration::updateValue('MOD_BLOCKTOPMENU_ITEMS', '');
+ 			if ($updated)
 				$this->_html .= $this->displayConfirmation($this->l('The settings have been updated.'));
 			else
 				$this->_html .= $this->displayError($this->l('Unable to update settings.'));
@@ -209,7 +213,7 @@ class Blocktopmenu extends Module
 			}
 			$update_cache = true;
 		}
-		
+
 		if ($update_cache)
 			$this->clearMenuCache();
 		
@@ -295,7 +299,7 @@ class Blocktopmenu extends Module
 				case 'ALLSUP':
 					$html .= '<option selected="selected" value="ALLSUP0">'.$this->l('All suppliers').'</option>'.PHP_EOL;
 					break;
-					
+
 				case 'SUP':
 					$supplier = new Supplier((int)$id, (int)$id_lang);
 					if (Validate::isLoadedObject($supplier))
@@ -311,9 +315,10 @@ class Blocktopmenu extends Module
 							$default_language = Configuration::get('PS_LANG_DEFAULT');
 							$link = MenuTopLinks::get($link[0]['id_linksmenutop'], (int)$default_language, (int)Shop::getContextShopID());
 						}
-						$html .= '<option selected="selected" value="LNK'.$link[0]['id_linksmenutop'].'">'.$link[0]['label'].'</option>';
+						$html .= '<option selected="selected" value="LNK'.(int)$link[0]['id_linksmenutop'].'">'.Tools::safeOutput($link[0]['label']).'</option>';
 					}
 					break;
+
 				case 'SHOP':
 					$shop = new Shop((int)$id);
 					if (Validate::isLoadedObject($shop))
@@ -321,6 +326,7 @@ class Blocktopmenu extends Module
 					break;
 			}
 		}
+
 		return $html.'</select>';
 	}
 
@@ -454,7 +460,6 @@ class Blocktopmenu extends Module
 				$html .= $this->generateCategoriesOption($category['children'], $items_to_skip);
 
 		}
-
 		return $html;
 	}
 
@@ -583,7 +588,8 @@ class Blocktopmenu extends Module
 		$this->page_name = Dispatcher::getInstance()->getController();
 		if (!$this->isCached('blocktopmenu.tpl', $this->getCacheId()))
 		{
-			$this->makeMenu();
+			if (Tools::isEmpty($this->_menu))
+				$this->makeMenu();
 			$this->smarty->assign('MENU_SEARCH', Configuration::get('MOD_BLOCKTOPMENU_SEARCH'));
 			$this->smarty->assign('MENU', $this->_menu);
 			$this->smarty->assign('this_path', $this->_path);
@@ -925,7 +931,7 @@ class Blocktopmenu extends Module
 	{
 		$spacer = str_repeat('&nbsp;', $this->spacer_size);
 		$items = $this->getMenuItems();
-		
+
 		$html = '<select multiple="multiple" id="availableItems" style="width: 300px; height: 160px;">';
 		$html .= '<optgroup label="'.$this->l('CMS').'">';
 		$html .= $this->getCMSOptions(0, 1, $this->context->language->id, $items);
@@ -957,7 +963,7 @@ class Blocktopmenu extends Module
 		$html .= $this->generateCategoriesOption(
 			Category::getNestedCategories(null, (int)$this->context->language->id, true), $items);
 		$html .= '</optgroup>';
-		
+
 		// BEGIN Shops
 		if (Shop::isFeatureActive())
 		{
@@ -989,10 +995,10 @@ class Blocktopmenu extends Module
 				$default_language = Configuration::get('PS_LANG_DEFAULT');
 				$link = MenuTopLinks::get($link['id_linksmenutop'], $default_language, (int)Shop::getContextShopID());
 				if (!in_array('LNK'.(int)$link[0]['id_linksmenutop'], $items))
-					$html .= '<option value="LNK'.(int)$link[0]['id_linksmenutop'].'">'.$spacer.$link[0]['label'].'</option>';
+					$html .= '<option value="LNK'.(int)$link[0]['id_linksmenutop'].'">'.$spacer.Tools::safeOutput($link[0]['label']).'</option>';
 			}
 			elseif (!in_array('LNK'.(int)$link['id_linksmenutop'], $items))
-				$html .= '<option value="LNK'.(int)$link['id_linksmenutop'].'">'.$spacer.$link['label'].'</option>';
+				$html .= '<option value="LNK'.(int)$link['id_linksmenutop'].'">'.$spacer.Tools::safeOutput($link['label']).'</option>';
 		}
 		$html .= '</optgroup>';
 		$html .= '</select>';

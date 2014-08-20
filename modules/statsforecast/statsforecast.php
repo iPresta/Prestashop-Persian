@@ -43,7 +43,7 @@ class StatsForecast extends Module
 	{
 		$this->name = 'statsforecast';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.3.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -130,19 +130,19 @@ class StatsForecast extends Module
 
 		$this->html .= '<div>
 			<div class="panel-heading"><i class="icon-dashboard"></i> '.$this->displayName.'</div>
-			<div class="alert alert-info">'.$this->l('All amounts listed do not include tax.').'</div>
+			<div class="alert alert-info">'.$this->l('The listed amounts do not include tax.').'</div>
 			<form id="granularity" action="'.Tools::safeOutput($ru).'#granularity" method="post" class="form-horizontal">
 				<div class="row row-margin-bottom">
 					<label class="control-label col-lg-3">
-						'.$this->l('Display:').'
+						'.$this->l('Time frame').'
 					</label>
 					<div class="col-lg-2">
 						<input type="hidden" name="submitGranularity" value="1" />
 						<select name="stats_granularity" onchange="this.form.submit();">
-							<option value="10">'.$this->l('Per day').'</option>
-							<option value="42" '.($this->context->cookie->stats_granularity == '42' ? 'selected="selected"' : '').'>'.$this->l('Per week').'</option>
-							<option value="7" '.($this->context->cookie->stats_granularity == '7' ? 'selected="selected"' : '').'>'.$this->l('Per month').'</option>
-							<option value="4" '.($this->context->cookie->stats_granularity == '4' ? 'selected="selected"' : '').'>'.$this->l('Per year').'</option>
+							<option value="10">'.$this->l('Daily').'</option>
+							<option value="42" '.($this->context->cookie->stats_granularity == '42' ? 'selected="selected"' : '').'>'.$this->l('Weekly').'</option>
+							<option value="7" '.($this->context->cookie->stats_granularity == '7' ? 'selected="selected"' : '').'>'.$this->l('Monthly').'</option>
+							<option value="4" '.($this->context->cookie->stats_granularity == '4' ? 'selected="selected"' : '').'>'.$this->l('Yearly').'</option>
 						</select>
 					</div>
 				</div>
@@ -154,11 +154,11 @@ class StatsForecast extends Module
 						<th></th>
 						<th class="center"><span class="title_box active">'.$this->l('Visits').'</span></th>
 						<th class="center"><span class="title_box active">'.$this->l('Registrations').'</span></th>
-						<th class="center"><span class="title_box active">'.$this->l('orders').'</span></th>
-						<th class="center"><span class="title_box active">'.$this->l('Items').'</span></th>
-						<th class="center"><span class="title_box active">'.$this->l('% Registrations').'</span></th>
-						<th class="center"><span class="title_box active">'.$this->l('% Orders').'</span></th>
-						<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
+						<th class="center"><span class="title_box active">'.$this->l('Placed orders').'</span></th>
+						<th class="center"><span class="title_box active">'.$this->l('Bought items').'</span></th>
+						<th class="center"><span class="title_box active">'.$this->l('Percentage of registrations').'</span></th>
+						<th class="center"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
+						<th class="center"><span class="title_box active">'.$this->l('Revenue').'</span></th>
 					</tr>
 				</thead>';
 
@@ -209,11 +209,11 @@ class StatsForecast extends Module
 					<th></th>
 					<th class="center"><span class="title_box active">'.$this->l('Visits').'</span></th>
 					<th class="center"><span class="title_box active">'.$this->l('Registrations').'</span></th>
-					<th class="center"><span class="title_box active">'.$this->l('orders').'</span></th>
-					<th class="center"><span class="title_box active">'.$this->l('Items').'</span></th>
-					<th class="center"><span class="title_box active">'.$this->l('% Registrations').'</span></th>
-					<th class="center"><span class="title_box active">'.$this->l('% Orders').'</span></th>
-					<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
+					<th class="center"><span class="title_box active">'.$this->l('Placed orders').'</span></th>
+					<th class="center"><span class="title_box active">'.$this->l('Bought items').'</span></th>
+					<th class="center"><span class="title_box active">'.$this->l('Percentage of registrations').'</span></th>
+					<th class="center"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
+					<th class="center"><span class="title_box active">'.$this->l('Revenue').'</span></th>
 				</tr>
 				<tr>
 					<td>'.$this->l('Total').'</td>
@@ -349,7 +349,7 @@ class StatsForecast extends Module
 							<i class="icon-chevron-right"></i>
 						</td>
 						<td rowspan="2" class="center">
-							<p>'.$this->l('orders').'</p>
+							<p>'.$this->l('Orders').'</p>
 						</td>
 					</tr>
 					<tr>
@@ -370,9 +370,9 @@ class StatsForecast extends Module
 			</table>
 		</div>
 		<div class="alert alert-info">
-			<p>'.$this->l('Turn your visitors into money:').'</p>
-			<p>'.$this->l('Each visitor yields').' <b>'.Tools::displayPrice($ca['ventil']['total'] / max(1, $visitors), $currency).'.</b></p>
-			<p>'.$this->l('Each registered visitor yields').' <b>'.Tools::displayPrice($ca['ventil']['total'] / max(1, $customers), $currency).'</b>.</p>
+			<p>'.$this->l('A simple statistical calculation lets you know the monetary value of your visitors:').'</p>
+			<p>'.$this->l('On average, each visitor places an order for this amount:').' <b>'.Tools::displayPrice($ca['ventil']['total'] / max(1, $visitors), $currency).'.</b></p>
+			<p>'.$this->l('On average, each registered visitor places an order for this amount:').' <b>'.Tools::displayPrice($ca['ventil']['total'] / max(1, $customers), $currency).'</b>.</p>
 			</p>
 		</div>';
 
@@ -384,7 +384,7 @@ class StatsForecast extends Module
 			<div class="row row-margin-bottom">
 				<h4><i class="icon-money"></i> '.$this->l('Payment distribution').'</h4>
 				<div class="alert alert-info">'
-			.$this->l('The amounts are with taxes, so you can get an estimation of the commission due to the payment method.').'
+			.$this->l('The amounts include taxes, so you can get an estimation of the commission due to the payment method.').'
 				</div>
 				<form id="cat" action="'.$ru.'#payment" method="post" class="form-horizontal">
 					<div class="row row-margin-bottom">
@@ -406,9 +406,9 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Module').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Transactions').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Total').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Average Cart Value').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Average cart value').'</span></th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -446,10 +446,10 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Category').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Products Sold').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Products sold').'</span></th>
 							<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Count').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Sales').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of products sold').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of sales').'</span></th>
 							<th class="center"><span class="title_box active">'.$this->l('Average price').'</span></th>
 						</tr>
 					</thead>
@@ -475,7 +475,7 @@ class StatsForecast extends Module
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Language').'</span></th>
 							<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('%').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage').'</span></th>
 							<th class="center" colspan="2"><span class="title_box active">'.$this->l('Growth').'</span></th>
 						</tr>
 					</thead>
@@ -502,10 +502,10 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Zone').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Count').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Total').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Count').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Sales').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Sales').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of sales').'</span></th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -544,10 +544,10 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Currency').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Count').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
 							<th align="right"><span class="title_box active">'.$this->l('Sales (converted)').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Count').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('% Sales').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Percentage of sales').'</span></th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -571,7 +571,7 @@ class StatsForecast extends Module
 						<tr>
 							<th class="center"><span class="title_box active">'.$this->l('Group').'</span></th>
 							<th class="center"><span class="title_box active">'.$this->l('Attribute').'</span></th>
-							<th class="center"><span class="title_box active">'.$this->l('Count').'</span></th>
+							<th class="center"><span class="title_box active">'.$this->l('Quantity of products sold').'</span></th>
 						</tr>
 					</thead>
 					<tbody>';

@@ -33,7 +33,7 @@ class BlockStore extends Module
 	{
 		$this->name = 'blockstore';
 		$this->tab = 'front_office_features';
-		$this->version = 1.1;
+		$this->version = '1.2.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -56,7 +56,7 @@ class BlockStore extends Module
 			&& (!$theme->default_left_column || !$this->registerHook('leftColumn')))
 		{
 			// If there are no colums implemented by the template, throw an error and uninstall the module
-			$this->_errors[] = $this->l('This module need to be hooked in a column and your theme does not implement one');
+			$this->_errors[] = $this->l('This module needs to be hooked in a column, but your theme does not implement one.');
 			parent::uninstall();
 			return false;
 		}
@@ -83,7 +83,11 @@ class BlockStore extends Module
 	{
 		if (!$this->isCached('blockstore.tpl', $this->getCacheId()))
 		{
-			$this->smarty->assign('store_img', Configuration::get('BLOCKSTORE_IMG'));
+			$id_lang = $this->context->cart->id_lang;
+			$this->smarty->assign(array(
+					'store_img' => Configuration::get('BLOCKSTORE_IMG'),
+					'store_text' => Configuration::get('BLOCKSTORE_TEXT', $id_lang),
+				));
 			$sql = 'SELECT COUNT(*)
 					FROM '._DB_PREFIX_.'store s'
 					.Shop::addSqlAssociation('store', 's');
@@ -108,8 +112,11 @@ class BlockStore extends Module
 			if (!($languages = Language::getLanguages(true)))
 				return false;
 
+			$text = array();
 			foreach ($languages as $lang)
-				Configuration::updateValue('BLOCKSTORE_TEXT_'.$lang['id_lang'], Tools::getValue('BLOCKSTORE_TEXT_'.$lang['id_lang']));
+				$text[$lang['id_lang']] = Tools::getValue('BLOCKSTORE_TEXT_'.$lang['id_lang']);
+
+			Configuration::updateValue('BLOCKSTORE_TEXT', $text);
 
 			if (isset($_FILES['BLOCKSTORE_IMG']) && isset($_FILES['BLOCKSTORE_IMG']['tmp_name']) && !empty($_FILES['BLOCKSTORE_IMG']['tmp_name']))
 			{
@@ -131,6 +138,7 @@ class BlockStore extends Module
 					}
 				}
 			}
+			$this->_clearCache('blockstore.tpl');
 		}
 		return '';
 	}
@@ -151,14 +159,13 @@ class BlockStore extends Module
 				'input' => array(
 					array(
 						'type' => 'file',
-						'label' => $this->l('Block image'),
+						'label' => $this->l('Image for the Store Locator block'),
 						'name' => 'BLOCKSTORE_IMG',
-						'desc' => $this->l('( The selected image will be displayed as 174 pixels per 115 pixels).'),
 						'thumb' => '../modules/'.$this->name.'/'.Configuration::get('BLOCKSTORE_IMG'),
 					),
 					array(
 						'type' => 'text',
-						'label' => $this->l('Block text'),
+						'label' => $this->l('Text for the Store Locator block'),
 						'name' => 'BLOCKSTORE_TEXT',
 						'lang' => true,
 					),
@@ -198,7 +205,7 @@ class BlockStore extends Module
 		);
 
 		foreach ($languages as $lang)
-			$data['BLOCKSTORE_TEXT'][$lang['id_lang']] = Configuration::get('BLOCKSTORE_TEXT_'.$lang['id_lang']);
+			$data['BLOCKSTORE_TEXT'][$lang['id_lang']] = Configuration::get('BLOCKSTORE_TEXT', $lang['id_lang']);
 
 		return $data;
 	}

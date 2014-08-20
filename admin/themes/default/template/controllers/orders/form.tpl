@@ -27,7 +27,7 @@
 	var id_customer = 0;
 	var changed_shipping_price = false;
 	var shipping_price_selected_carrier = '';
-	var current_index = '{$current}&token={$token}';
+	var current_index = '{$current|escape:'html':'UTF-8'}&token={$token|escape:'html':'UTF-8'}';
 	var admin_cart_link = '{$link->getAdminLink('AdminCarts')|addslashes}';
 	var cart_quantity = new Array();
 	var currencies = new Array();
@@ -41,7 +41,7 @@
 	var currency_format = 5;
 	var currency_sign = '';
 	var currency_blank = false;
-	var priceDisplayPrecision = 2;
+	var priceDisplayPrecision = {$smarty.const._PS_PRICE_DISPLAY_PRECISION_|intval};
 	
 	{foreach from=$defaults_order_state key='module' item='id_order_state'}
 		defaults_order_state['{$module}'] = '{$id_order_state}';
@@ -260,7 +260,16 @@
 		$('.fancybox').fancybox({
 			'type': 'iframe',
 			'width': '90%',
-			'height': '90%'
+			'height': '90%',
+		});
+		
+		$('.fancybox_customer').fancybox({
+			'type': 'iframe',
+			'width': '90%',
+			'height': '90%',
+			'afterClose' : function () {
+				searchCustomers();
+			}
 		});
 		/*$("#new_address").fancybox({
 			onClosed: useCart(id_cart)
@@ -575,7 +584,7 @@
 			dataType: "json",
 			data : {
 				ajax: "1",
-				token: "{$token}",
+				token: "{$token|escape:'html':'UTF-8'}",
 				tab: "AdminOrders",
 				action: "searchProducts",
 				id_cart: id_cart,
@@ -605,7 +614,7 @@
 						stock[id_product] = new Array();
 						if (this.customizable == '1')
 						{
-							customization_html += '<div class="bootstrap"><div class="panel"><h3>{l s='Customization'}</h3><form id="customization_'+id_product+'" class="id_customization" method="post" enctype="multipart/form-data" action="'+admin_cart_link+'" style="display:none;">';
+							customization_html += '<div class="bootstrap"><div class="panel"><div class="panel-heading">{l s='Customization'}</div><form id="customization_'+id_product+'" class="id_customization" method="post" enctype="multipart/form-data" action="'+admin_cart_link+'" style="display:none;">';
 							customization_html += '<input type="hidden" name="id_product" value="'+id_product+'" />';
 							customization_html += '<input type="hidden" name="id_cart" value="'+id_cart+'" />';
 							customization_html += '<input type="hidden" name="action" value="updateCustomizationFields" />';
@@ -1035,15 +1044,11 @@
 </script>
 
 <div class="leadin">{block name="leadin"}{/block}</div>
-
-
 	<div class="panel form-horizontal" id="customer_part">
-
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-user"></i>
 			{l s='Customer'}
-		</h3>
-
+		</div>
 		<div id="search-customer-form-group" class="form-group">
 			<label class="control-label col-lg-3">
 				<span title="" data-toggle="tooltip" class="label-tooltip" data-original-title="{l s='Search for an existing customer by typing the first letters of his/her name.'}">
@@ -1062,7 +1067,7 @@
 					</div>
 					<div class="col-lg-6">
 						<span class="form-control-static">{l s='Or'}&nbsp;</span>
-						<a class="fancybox btn btn-default" href="{$link->getAdminLink('AdminCustomers')|escape:'html':'UTF-8'}&addcustomer&liteDisplaying=1&submitFormAjax=1#">
+						<a class="fancybox_customer btn btn-default" href="{$link->getAdminLink('AdminCustomers')|escape:'html':'UTF-8'}&amp;addcustomer&amp;liteDisplaying=1&amp;submitFormAjax=1#">
 							<i class="icon-plus-sign-alt"></i>
 							{l s='Add new customer'}
 						</a>
@@ -1070,11 +1075,9 @@
 				</div>
 			</div>
 		</div>
-		
 		<div class="row">
 			<div id="customers"></div>
 		</div>
-
 		<div id="carts">
 			<button type="button" id="show_old_carts" class="btn btn-default pull-right" data-toggle="collapse" data-target="#old_carts_orders">
 				<i class="icon-caret-down"></i>
@@ -1131,12 +1134,12 @@
 	</div>
 
 
-<form class="form-horizontal" action="{$link->getAdminLink('AdminOrders')|escape:'html':'UTF-8'}&submitAdd{$table}=1" method="post" autocomplete="off">
+<form class="form-horizontal" action="{$link->getAdminLink('AdminOrders')|escape:'html':'UTF-8'}&amp;submitAdd{$table|escape:'html':'UTF-8'}=1" method="post" autocomplete="off">
 	<div class="panel" id="products_part" style="display:none;">
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-shopping-cart"></i>
 			{l s='Cart'}
-		</h3>
+		</div>
 		<div class="form-group">
 			<label class="control-label col-lg-3">
 				<span title="" data-toggle="tooltip" class="label-tooltip" data-original-title="{l s='Search for an existing product by typing the first letters of its name.'}">
@@ -1254,10 +1257,10 @@
 	</div>
 
 	<div class="panel" id="vouchers_part" style="display:none;">
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-ticket"></i>
 			{l s='Vouchers'}
-		</h3>
+		</div>
 		<div class="form-group">
 			<label class="control-label col-lg-3">
 				{l s='Search for a voucher'} 
@@ -1274,7 +1277,7 @@
 					</div>
 					<div class="col-lg-6">
 						<span class="form-control-static">{l s='Or'}&nbsp;</span>
-						<a class="fancybox btn btn-default" href="{$link->getAdminLink('AdminCartRules')|escape:'html':'UTF-8'}&addcart_rule&liteDisplaying=1&submitFormAjax=1#">
+						<a class="fancybox btn btn-default" href="{$link->getAdminLink('AdminCartRules')|escape:'html':'UTF-8'}&amp;addcart_rule&amp;liteDisplaying=1&amp;submitFormAjax=1#">
 							<i class="icon-plus-sign-alt"></i>
 							{l s='Add new voucher'}
 						</a>
@@ -1300,10 +1303,10 @@
 	</div>
 
 	<div class="panel" id="address_part" style="display:none;">
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-envelope"></i>
 			{l s='Addresses'}
-		</h3>
+		</div>
 		<div id="addresses_err" class="alert alert-warning" style="display:none;"></div>
 
 		<div class="row">
@@ -1336,7 +1339,7 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-12">
-				<a class="fancybox btn btn-default" id="new_address" href="{$link->getAdminLink('AdminAddresses')|escape:'html':'UTF-8'}&addaddress&id_customer=42&liteDisplaying=1&submitFormAjax=1#">
+				<a class="fancybox btn btn-default" id="new_address" href="{$link->getAdminLink('AdminAddresses')|escape:'html':'UTF-8'}&amp;addaddress&amp;id_customer=42&amp;liteDisplaying=1&amp;submitFormAjax=1#">
 					<i class="icon-plus-sign-alt"></i>
 					{l s='Add a new address'}
 				</a>
@@ -1344,10 +1347,10 @@
 		</div>
 	</div>
 	<div class="panel" id="carriers_part" style="display:none;">
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-truck"></i>
 			{l s='Shipping'}
-		</h3>
+		</div>
 		<div id="carriers_err" style="display:none;" class="alert alert-warning"></div>
 		<div id="carrier_form">
 			<div class="form-group">
@@ -1416,10 +1419,10 @@
 		</div>
 	</div>
 	<div class="panel" id="summary_part" style="display:none;">
-		<h3>
+		<div class="panel-heading">
 			<i class="icon-align-justify"></i>
 			{l s='Summary'}
-		</h3>
+		</div>
 
 		<div id="send_email_feedback" class="hide alert"></div>
 

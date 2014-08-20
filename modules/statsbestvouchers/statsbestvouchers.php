@@ -41,7 +41,7 @@ class StatsBestVouchers extends ModuleGrid
 	{
 		$this->name = 'statsbestvouchers';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -127,18 +127,21 @@ class StatsBestVouchers extends ModuleGrid
 					'.Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o').'
 					AND o.invoice_date BETWEEN '.$this->getDate().'
 				GROUP BY ocr.id_cart_rule';
+
 		if (Validate::IsName($this->_sort))
 		{
-			$this->query .= ' ORDER BY `'.$this->_sort.'`';
+			$this->query .= ' ORDER BY `'.bqSQL($this->_sort).'`';
 			if (isset($this->_direction) && (Tools::strtoupper($this->_direction) == 'ASC' || Tools::strtoupper($this->_direction) == 'DESC'))
 				$this->query .= ' '.pSQL($this->_direction);
 		}
+
 		if (($this->_start === 0 || Validate::IsUnsignedInt($this->_start)) && Validate::IsUnsignedInt($this->_limit))
-			$this->query .= ' LIMIT '.$this->_start.', '.($this->_limit);
+			$this->query .= ' LIMIT '.(int)$this->_start.', '.(int)$this->_limit;
 
 		$values = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($this->query);
 		foreach ($values as &$value)
 			$value['ca'] = Tools::displayPrice($value['ca'], $currency);
+
 		$this->_values = $values;
 		$this->_totalCount = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('SELECT FOUND_ROWS()');
 	}

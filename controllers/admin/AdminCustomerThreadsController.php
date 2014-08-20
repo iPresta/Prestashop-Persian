@@ -240,6 +240,8 @@ class AdminCustomerThreadsControllerCore extends AdminController
 				ON (cl.`id_contact` = a.`id_contact` AND cl.`id_lang` = '.(int)$this->context->language->id.')';
 
 		$this->_group = 'GROUP BY cm.id_customer_thread';
+		$this->_orderBy = 'id_customer_thread';
+		$this->_orderWay = 'DESC';
 
 		$contacts = CustomerThread::getContacts();
 
@@ -491,6 +493,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 		$helper->id = 'box-pending-messages';
 		$helper->icon = 'icon-envelope';
 		$helper->color = 'color1';
+		$helper->href = $this->context->link->getAdminLink('AdminCustomerThreads');
 		$helper->title = $this->l('Pending Discussion Threads', null, null, false);
 		if (ConfigurationKPI::get('PENDING_MESSAGES') !== false)
 			$helper->value = ConfigurationKPI::get('PENDING_MESSAGES');
@@ -542,11 +545,18 @@ class AdminCustomerThreadsControllerCore extends AdminController
 		$messages = CustomerThread::getMessageCustomerThreads($id_customer_thread);
 		
 		foreach ($messages as $key => $mess)
+		{	
+			if ($mess['id_employee'])
+			{
+				$employee = new Employee($mess['id_employee']);
+				$messages[$key]['employee_image'] = $employee->getImage();
+			}
 			if (isset($mess['file_name']) && $mess['file_name'] != '')
 				$messages[$key]['file_name'] = _THEME_PROD_PIC_DIR_.$mess['file_name'];
 			else
 				unset($messages[$key]['file_name']);
-
+		}
+		
 		$next_thread = CustomerThread::getNextThread((int)$thread->id);
 		
 		$contacts = Contact::getContacts($this->context->language->id);
@@ -671,7 +681,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 		$timeline = array();
 		foreach ($messages as $message)
 		{
-			$content = $this->l('Message to: ').' <span class="badge">'.(!$message['id_employee'] ? $message['subject'] : $message['customer_name']).'</span></br>'.$message['message'];
+			$content = $this->l('Message to: ').' <span class="badge">'.(!$message['id_employee'] ? $message['subject'] : $message['customer_name']).'</span><br/>'.Tools::safeOutput($message['message']);
 			
 			$timeline[$message['date_add']][] = array(
 				'arrow' => 'left',
@@ -689,7 +699,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 			foreach ($order_history as $history)
 			{
 				$link = $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int)$order->id;
-				$content = '<a class="badge" target="_blank" href="'.$link.'">'.$this->l('Order').' #'.(int)$order->id.'</a></br></br>';
+				$content = '<a class="badge" target="_blank" href="'.Tools::safeOutput($link).'">'.$this->l('Order').' #'.(int)$order->id.'</a><br/><br/>';
 				$content .= '<span>'.$this->l('Status:').' '.$history['ostate_name'].'</span>';
 
 				$timeline[$history['date_add']][] = array(
@@ -703,7 +713,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 				);
 			}
 		}
-		ksort($timeline);
+		krsort($timeline);
 		return $timeline;
 	}
 	
@@ -807,7 +817,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 		$id_thread = Tools::getValue('id_thread');
 		$messages = CustomerThread::getMessageCustomerThreads($id_thread);		
 		if (count($messages))
-			Db::getInstance()->execute('UPDATE '._DB_PREFIX_.'customer_message set `read` = 1');
+			Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'customer_message` set `read` = 1 WHERE `id_employee` = '.(int)$this->context->employee->id.' AND `id_customer_thread` = '.(int)$id_thread);
 	}
 	
 	public function ajaxProcessSyncImap()

@@ -37,7 +37,7 @@ class StatsEquipment extends ModuleGraph
 	{
 		$this->name = 'statsequipment';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.2.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -128,12 +128,12 @@ class StatsEquipment extends ModuleGraph
 		</div>
 		<h4>'.$this->l('Guide').'</h4>
 		<div class="alert alert-warning">
-			<h4>'.$this->l('Ensure that your website is accessible to all').'</h4>
+			<h4>'.$this->l('Making sure that your website is accessible to as many people as possible').'</h4>
 			<p>
-			'.$this->l('When managing Websites, it is important to keep track of the software used by visitors in order to be sure that the site displays the same way for everyone. 
-				PrestaShop was built in order to be compatible with the most recent Web browsers and computer operating systems (OS). 
+			'.$this->l('When managing a website, it is important to keep track of the software used by visitors in order to be sure that the site displays the same way for everyone. 
+				PrestaShop was built to be compatible with the most recent Web browsers and computer operating systems (OS). 
 				However, because you may end up adding advanced features to your website or even modify the core PrestaShop code, these additions may not be accessible to everyone. 
-				That is why it is a good idea to keep tabs on the percentage of users for each type of software before adding or changing something that only a limited number of users will be able to access.').'
+				That is why it is a good idea to keep track of the percentage of users for each type of software before adding or changing something that only a limited number of users will be able to access.').'
 			</p>
 		</div>
 		<div class="row row-margin-bottom">
@@ -142,7 +142,7 @@ class StatsEquipment extends ModuleGraph
 					'.$this->engine(array('type' => 'pie', 'option' => 'wb')).'
 				</div>
 				<div class="col-lg-4">
-					<p>'.$this->l('Determine the percentage of web browsers used by customers.').'</p>
+					<p>'.$this->l('Indicates the percentage of each web browser used by customers.').'</p>
 					<hr/>
 					<a class="btn btn-default export-csv" href="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'&export=1&exportType=browser">
 						<i class="icon-cloud-upload"></i>'.$this->l('CSV Export').'
@@ -156,7 +156,7 @@ class StatsEquipment extends ModuleGraph
 					'.$this->engine(array('type' => 'pie', 'option' => 'os')).'
 				</div>
 				<div class="col-lg-4">
-					<p>'.$this->l('Determine the percentage of operating systems used by customers.').'</p>
+					<p>'.$this->l('Indicates the percentage of each operating system used by customers.').'</p>
 					<hr/>
 					<a class="btn btn-default export-csv" href="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'&export=1&exportType=os">
 						<i class="icon-cloud-upload"></i>'.$this->l('CSV Export').'
@@ -181,7 +181,7 @@ class StatsEquipment extends ModuleGraph
 		switch ($option)
 		{
 			case 'wb':
-				$this->_titles['main'] = $this->l('Web browser used.');
+				$this->_titles['main'] = $this->l('Web browser used');
 				$this->query = 'SELECT wb.`name`, COUNT(g.`id_web_browser`) AS total
 						FROM `'._DB_PREFIX_.'web_browser` wb
 						LEFT JOIN `'._DB_PREFIX_.'guest` g ON g.`id_web_browser` = wb.`id_web_browser`
@@ -193,7 +193,7 @@ class StatsEquipment extends ModuleGraph
 				break;
 
 			case 'os':
-				$this->_titles['main'] = $this->l('Operating system used.');
+				$this->_titles['main'] = $this->l('Operating system used');
 				$this->query = 'SELECT os.`name`, COUNT(g.`id_operating_system`) AS total
 						FROM `'._DB_PREFIX_.'operating_system` os
 						LEFT JOIN `'._DB_PREFIX_.'guest` g ON g.`id_operating_system` = os.`id_operating_system`

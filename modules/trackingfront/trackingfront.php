@@ -33,7 +33,7 @@ class TrackingFront extends Module
 	{
 		$this->name = 'trackingfront';
 		$this->tab = 'shipping_logistics';
-		$this->version = '1.5';
+		$this->version = '1.7';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 

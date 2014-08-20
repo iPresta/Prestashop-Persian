@@ -33,7 +33,7 @@ class VatNumber extends TaxManagerModule
 	{
 		$this->name = 'vatnumber';
 		$this->tab = 'billing_invoicing';
-		$this->version = 1.5;
+		$this->version = '1.7.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -48,7 +48,6 @@ class VatNumber extends TaxManagerModule
 
 		$this->displayName = $this->l('European VAT number');
 		$this->description = $this->l('Enables you to enter the intra-community VAT number when creating the address. You must fill in the company field to allow entering the VAT number.');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -130,8 +129,10 @@ class VatNumber extends TaxManagerModule
 			//Slovenia
 			'RO' => 'RO',
 			//Romania
-			'BG' => 'BG'
+			'BG' => 'BG',
 			//Bulgaria
+			'HR' => 'HR',
+			//Croatia
 		);
 
 		return $intracom_array;
@@ -261,6 +262,7 @@ class VatNumber extends TaxManagerModule
 		);
 
 		$helper = new HelperForm();
+		$helper->module = $this;
 		$helper->show_toolbar = false;
 		$helper->table = $this->table;
 		$lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));

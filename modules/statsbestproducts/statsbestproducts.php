@@ -41,7 +41,7 @@ class StatsBestProducts extends ModuleGrid
 	{
 		$this->name = 'statsbestproducts';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -174,19 +174,21 @@ class StatsBestProducts extends ModuleGrid
 
 		if (Validate::IsName($this->_sort))
 		{
-			$this->query .= ' ORDER BY `'.$this->_sort.'`';
+			$this->query .= ' ORDER BY `'.bqSQL($this->_sort).'`';
 			if (isset($this->_direction) && Validate::isSortDirection($this->_direction))
 				$this->query .= ' '.$this->_direction;
 		}
 
 		if (($this->_start === 0 || Validate::IsUnsignedInt($this->_start)) && Validate::IsUnsignedInt($this->_limit))
-			$this->query .= ' LIMIT '.$this->_start.', '.($this->_limit);
+			$this->query .= ' LIMIT '.(int)$this->_start.', '.(int)$this->_limit;
+
 		$values = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($this->query);
 		foreach ($values as &$value)
 		{
 			$value['avgPriceSold'] = Tools::displayPrice($value['avgPriceSold'], $currency);
 			$value['totalPriceSold'] = Tools::displayPrice($value['totalPriceSold'], $currency);
 		}
+
 		$this->_values = $values;
 		$this->_totalCount = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('SELECT FOUND_ROWS()');
 	}

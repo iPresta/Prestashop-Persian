@@ -34,7 +34,7 @@ class BlockViewed extends Module
 	{
 		$this->name = 'blockviewed';
 		$this->tab = 'front_office_features';
-		$this->version = 1.1;
+		$this->version = '1.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -48,12 +48,12 @@ class BlockViewed extends Module
 
 	public function install()
 	{
-		$success = (parent::install() && $this->registerHook('header') && Configuration::updateValue('PRODUCTS_VIEWED_NBR', 2));
+		$success = parent::install() && $this->registerHook('header') && Configuration::updateValue('PRODUCTS_VIEWED_NBR', 2);
 
 		if ($success)
 		{
 			// Hook the module either on the left or right column
-			$theme = new Theme(Context::getContext()->shop->id_theme);
+			$theme = new Theme((int)Context::getContext()->shop->id_theme);
 			if ((!$theme->default_left_column || !$this->registerHook('leftColumn'))
 				&& (!$theme->default_right_column || !$this->registerHook('rightColumn')))
 			{
@@ -92,7 +92,7 @@ class BlockViewed extends Module
 		{
 			$defaultCover = Language::getIsoById($params['cookie']->id_lang).'-default';
 
-			$productIds = implode(',', $productsViewed);
+			$productIds = implode(',', array_map('intval', $productsViewed));
 			$productsImages = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 			SELECT MAX(image_shop.id_image) id_image, p.id_product, il.legend, product_shop.active, pl.name, pl.description_short, pl.link_rewrite, cl.link_rewrite AS category_rewrite
 			FROM '._DB_PREFIX_.'product p

@@ -268,25 +268,6 @@ class AdminCountriesControllerCore extends AdminController
 				),
 				array(
 					'type' => 'switch',
-					'label' => $this->l('Address Standardization'),
-					'name' => 'standardization',
-					'required' => false,
-					'is_bool' => true,
-					'values' => array(
-						array(
-							'id' => 'standardization_on',
-							'value' => 1,
-							'label' => $this->l('Enabled')
-						),
-						array(
-							'id' => 'standardization_off',
-							'value' => 0,
-							'label' => $this->l('Disabled')
-						)
-					),
-				),					
-				array(
-					'type' => 'switch',
 					'label' => $this->l('Active'),
 					'name' => 'active',
 					'required' => false,
@@ -376,9 +357,6 @@ class AdminCountriesControllerCore extends AdminController
 			'title' => $this->l('Save')
 		);
 		
-		if ($this->object->iso_code == 'US')
-			$this->object->standardization = Configuration::get('PS_TAASC');
-		
 		return parent::renderForm();
 	}
 	
@@ -419,48 +397,44 @@ class AdminCountriesControllerCore extends AdminController
 			if (!is_null($id_country) && $id_country != Tools::getValue('id_'.$this->table))
 				$this->errors[] = Tools::displayError('This ISO code already exists.You cannot create two countries with the same ISO code.');
 		}
-		
-		if (Tools::isSubmit('standardization'))
-			Configuration::updateValue('PS_TAASC', (bool)Tools::getValue('standardization', false));	
 
 		return parent::postProcess();
 	}
 	
 	public function processSave()
 	{
-		if (!count($this->errors))
+		if (!$this->id_object)
 		{
-			$id_country = Tools::getValue('id_country');
-			$tmp_addr_format = new AddressFormat($id_country);
-
-			$save_status = false;
-
-			$is_new = is_null($tmp_addr_format->id_country);
-			if ($is_new)
-			{
-				$tmp_addr_format = new AddressFormat();
-				$tmp_addr_format->id_country = $id_country;
-			}
-
-			$tmp_addr_format->format = Tools::getValue('address_layout');
-			if (strlen($tmp_addr_format->format) > 0)
-			{
-				if ($tmp_addr_format->checkFormatFields())
-					$address_format_result = $tmp_addr_format->save();
-				else
-				{
-					$error_list = $tmp_addr_format->getErrorList();
-					foreach ($error_list as $num_error => $error)
-						$this->errors[] = $error;
-				}
-
-				if (!isset($address_format_result) || !$address_format_result)
-					$this->errors[] = Tools::displayError('Invalid address layout '.Db::getInstance()->getMsgError());
-			}
-			unset($tmp_addr_format);
+			$tmp_addr_format = new AddressFormat();
+		}
+		else
+		{
+			$tmp_addr_format = new AddressFormat($this->id_object);
 		}
 
-		return parent::processSave();
+		$tmp_addr_format->format = Tools::getValue('address_layout');
+
+		if (!$tmp_addr_format->checkFormatFields())
+		{
+			$error_list = $tmp_addr_format->getErrorList();
+			foreach ($error_list as $num_error => $error)
+				$this->errors[] = $error;
+		}
+		if (strlen($tmp_addr_format->format) <= 0)
+				$this->errors[] = $this->l("Address format invalid");
+
+		$country =  parent::processSave();
+
+		if (!count($this->errors))
+		{
+			if (is_null($tmp_addr_format->id_country))
+				$tmp_addr_format->id_country = $country->id;
+
+			if (!$tmp_addr_format->save())
+				$this->errors[] = Tools::displayError('Invalid address layout '.Db::getInstance()->getMsgError());
+		}
+
+		return $country;
 	}
 	
 	public function processStatus()
@@ -510,7 +484,7 @@ class AdminCountriesControllerCore extends AdminController
 		{
 			if ($i != 0){ $class_tab_active = ''; }
 			$fields = array();
-			$html_tabnav .= '<li class="'.$class_tab_active.'"">
+			$html_tabnav .= '<li'.($class_tab_active ? ' class="'.$class_tab_active.'"' : '').'>
 				<a href="#availableListFieldsFor_'.$class_name.'"><i class="icon-caret-down"></i>&nbsp;'.Translate::getAdminTranslation($class_name, 'AdminCountries').'</a></li>';
 			
 			foreach (AddressFormat::getValidateFields($class_name) as $name)

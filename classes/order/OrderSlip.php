@@ -83,7 +83,7 @@ class OrderSlipCore extends ObjectModel
 			'id_order' => array('xlink_resource'=> 'orders'),
 		),
 		'associations' => array(
-			'order_slip_details' => array('resource' => 'order_slip_detail', 'setter' => false, 'virtual_entity' => true,
+			'order_slip_details' => array('resource' => 'order_slip_details', 'setter' => false, 'virtual_entity' => true,
 				'fields' => array(
 					'id' =>  array(),
 					'id_order_detail' => array('required' => true),
@@ -202,9 +202,11 @@ class OrderSlipCore extends ObjectModel
 	{
 		$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 		SELECT `id_order_slip`
-		FROM `'._DB_PREFIX_.'order_slip`
-		WHERE `date_add` BETWEEN \''.pSQL($dateFrom).' 00:00:00\' AND \''.pSQL($dateTo).' 23:59:59\'
-		ORDER BY `date_add` ASC');
+		FROM `'._DB_PREFIX_.'order_slip` os
+		LEFT JOIN `'._DB_PREFIX_.'orders` o ON (o.`id_order` = os.`id_order`)
+		WHERE os.`date_add` BETWEEN \''.pSQL($dateFrom).' 00:00:00\' AND \''.pSQL($dateTo).' 23:59:59\'
+		'.Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o').'
+		ORDER BY os.`date_add` ASC');
 
 		$slips = array();
 		foreach ($result as $slip)

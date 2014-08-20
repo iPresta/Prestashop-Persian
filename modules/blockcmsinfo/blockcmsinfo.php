@@ -36,7 +36,7 @@ class Blockcmsinfo extends Module
 	{
 		$this->name = 'blockcmsinfo';
 		$this->tab = 'front_office_features';
-		$this->version = '1.4';
+		$this->version = '1.5.1';
 		$this->author = 'PrestaShop';
 		$this->bootstrap = true;
 		$this->need_instance = 0;
@@ -119,20 +119,28 @@ class Blockcmsinfo extends Module
 
 		if (Tools::isSubmit('saveblockcmsinfo'))
 		{
-			if ($id_info = Tools::getValue('id_info'))
-				$info = new infoClass((int)$id_info);
+			if (Shop::isFeatureActive())
+				$shops = Tools::getValue('checkBoxShopAsso_configuration');
 			else
-				$info = new infoClass();
-			$info->copyFromPost();
-			$info->id_shop = $this->context->shop->id;
+				$shops = array($this->context->shop->id);
 
-			if ($info->validateFields(false) && $info->validateFieldsLang(false))
+			foreach ($shops as $shop)
 			{
-				$info->save();
-				$this->_clearCache('blockcmsinfo.tpl');
+				if ($id_info = Tools::getValue('id_info'))
+					$info = new infoClass((int)$id_info);
+				else
+					$info = new infoClass();
+				$info->copyFromPost();
+				$info->id_shop = (int)$shop;
+
+				if ($info->validateFields(false) && $info->validateFieldsLang(false))
+				{
+					$info->save();
+					$this->_clearCache('blockcmsinfo.tpl');
+				}
+				else
+					$html .= '<div class="conf error">'.$this->l('An error occurred while attempting to save.').'</div>';
 			}
-			else
-				$html .= '<div class="conf error">'.$this->l('An error occurred while attempting to save.').'</div>';
 		}
 
 		if (Tools::isSubmit('updateblockcmsinfo') || Tools::isSubmit('addblockcmsinfo'))
@@ -181,7 +189,8 @@ class Blockcmsinfo extends Module
 				$output = '<div class="conf confirm">'.$this->l('The block configuration has been updated.').'</div>';
 			}
 			else
-				$output = '<div class="conf error"><img src="../img/admin/disabled.gif"/>'.$this->l('An error occurred while attempting to save.').'</div>';
+				$output = '<div class="conf error">
+					<img src="../img/admin/disabled.gif"/>'.$this->l('An error occurred while attempting to save.').'</div>';
 		}
 	}
 
@@ -192,9 +201,8 @@ class Blockcmsinfo extends Module
 			FROM `'._DB_PREFIX_.'info` r
 			LEFT JOIN `'._DB_PREFIX_.'info_lang` rl ON (r.`id_info` = rl.`id_info`)
 			WHERE `id_lang` = '.(int)$id_lang.($id_shop ? ' AND id_shop='.bqSQL((int)$id_shop) : '').
-			(Tools::getIsset('blockcmsinfoOrderby') && Tools::getIsset('blockcmsinfoOrderway') ?
-				' ORDER BY `'.bqSQL(Tools::getValue('blockcmsinfoOrderby')).'` '.bqSQL(Tools::getValue('blockcmsinfoOrderway')) : '')
-		);
+			(Tools::getIsset('blockcmsinfoOrderby') && Tools::getIsset('blockcmsinfoOrderway') ? ' 
+			ORDER BY `'.bqSQL(Tools::getValue('blockcmsinfoOrderby')).'` `'.bqSQL(Tools::getValue('blockcmsinfoOrderway')).'`' : ''));
 
 		return $content;
 	}
@@ -271,13 +279,13 @@ class Blockcmsinfo extends Module
 	{
 		$this->fields_list = array(
 			'id_info' => array(
-				'title' => $this->l('Custom block number'),
+				'title' => $this->l('Block ID'),
 				'type' => 'text',
 				'search' => false,
 				'orderby' => false,
 			),
 			'text' => array(
-				'title' => $this->l('Custom block text'),
+				'title' => $this->l('Block text'),
 				'type' => 'text',
 				'search' => false,
 				'orderby' => false,
@@ -285,7 +293,6 @@ class Blockcmsinfo extends Module
 		);
 
 		if (Shop::isFeatureActive())
-		{
 			$this->fields_list['id_shop'] = array(
 				'title' => $this->l('Shop ID'),
 				'align' => 'center',
@@ -293,7 +300,6 @@ class Blockcmsinfo extends Module
 				'type' => 'int',
 				'search' => false
 			);
-		}
 
 		$helper = new HelperList();
 		$helper->shopLinkType = '';

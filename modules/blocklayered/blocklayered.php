@@ -37,7 +37,7 @@ class BlockLayered extends Module
 	{
 		$this->name = 'blocklayered';
 		$this->tab = 'front_office_features';
-		$this->version = '1.10.8';
+		$this->version = '1.11';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->bootstrap = true;
@@ -46,7 +46,6 @@ class BlockLayered extends Module
 
 		$this->displayName = $this->l('Layered navigation block');
 		$this->description = $this->l('Displays a block with layered navigation filters.');
-		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 		
 		if ((int)Tools::getValue('p'))
 			$this->page = (int)Tools::getValue('p');
@@ -1367,7 +1366,7 @@ class BlockLayered extends Module
 			if (!Tools::getValue('layered_tpl_name'))
 				$message = $this->displayError($this->l('Filter template name required (cannot be empty)'));
 			elseif (!Tools::getValue('categoryBox'))
-				$message = $this->displayError($this->l('You must select at least a category'));
+				$message = $this->displayError($this->l('You must select at least one category.'));
 			else
 			{
 				if (Tools::getValue('id_layered_filter'))
@@ -2326,6 +2325,7 @@ class BlockLayered extends Module
 			switch ($filter['type'])
 			{
 				case 'price':
+				if ($this->showPriceFilter()) {
 					$price_array = array(
 						'type_lite' => 'price',
 						'type' => 'price',
@@ -2385,7 +2385,8 @@ class BlockLayered extends Module
 						}
 						$filter_blocks[] = $price_array;
 					}
-					break;
+				}
+				break;
 
 				case 'weight':
 					$weight_array = array(
@@ -3059,6 +3060,7 @@ class BlockLayered extends Module
 				'static_token' => Tools::getToken(false),
 				'page_name' => 'category',
 				'nArray' => $nArray,
+				'compareProducts' => CompareProduct::getCompareProducts((int)$this->context->cookie->id_compare)
 			)
 		);
 		
@@ -3073,18 +3075,26 @@ class BlockLayered extends Module
 		else
 			$product_list = $smarty->fetch(_PS_THEME_DIR_.'product-list.tpl');
 		
+		$vars = array(
+			'filtersBlock' => utf8_encode($this->generateFiltersBlock($selected_filters)),
+			'productList' => utf8_encode($product_list),
+			'pagination' => $smarty->fetch(_PS_THEME_DIR_.'pagination.tpl'),
+			'categoryCount' => $category_count,
+			'meta_title' => $meta_title.' - '.Configuration::get('PS_SHOP_NAME'),
+			'heading' => $meta_title,
+			'meta_keywords' => isset($meta_keywords) ? $meta_keywords : null,
+			'meta_description' => $meta_description,
+			'current_friendly_url' => ((int)$n == (int)$nb_products) ? '#/show-all': '#'.$filter_block['current_friendly_url'],
+			'filters' => $filter_block['filters'],
+			'nbRenderedProducts' => (int)$nb_products,
+			'nbAskedProducts' => (int)$n
+		);
+
+		if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
+			$vars = array_merge($vars, array('pagination_bottom' => $smarty->assign('paginationId', 'bottom')
+				->fetch(_PS_THEME_DIR_.'pagination.tpl')));
 		/* We are sending an array in jSon to the .js controller, it will update both the filters and the products zones */
-		return Tools::jsonEncode(array(
-		'filtersBlock' => utf8_encode($this->generateFiltersBlock($selected_filters)),
-		'productList' => utf8_encode($product_list),
-		'pagination' => $smarty->fetch(_PS_THEME_DIR_.'pagination.tpl'),
-		'categoryCount' => $category_count,
-		'meta_title' => $meta_title.' - '.Configuration::get('PS_SHOP_NAME'),
-		'heading' => $meta_title,
-		'meta_keywords' => isset($meta_keywords) ? $meta_keywords : null,
-		'meta_description' => $meta_description,
-		'current_friendly_url' => '#'.$filter_block['current_friendly_url'],
-		'filters' => $filter_block['filters']));
+		return Tools::jsonEncode($vars);
 	}
 	
 	public function getProducts($selected_filters, &$products, &$nb_products, &$p, &$n, &$pages_nb, &$start, &$stop, &$range)
@@ -3408,5 +3418,10 @@ class BlockLayered extends Module
 			if (!$anchor = Configuration::get('PS_ATTRIBUTE_ANCHOR_SEPARATOR'))
 				$anchor = '-';
 		return $anchor;
+	}
+
+	protected function showPriceFilter()
+	{
+		return Group::getCurrent()->show_prices;
 	}
 }

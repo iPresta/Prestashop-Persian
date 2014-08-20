@@ -117,6 +117,9 @@ class OrderControllerCore extends ParentOrderController
 		if ($this->nbProducts)
 			$this->context->smarty->assign('virtual_cart', $this->context->cart->isVirtualCart());
 
+		if (!Tools::getValue('multi-shipping'))
+			$this->context->cart->setNoMultishipping();
+
 		// 4 steps to the order
 		switch ((int)$this->step)
 		{
@@ -161,9 +164,9 @@ class OrderControllerCore extends ParentOrderController
 					elseif (!Tools::getValue('id_carrier') && !$this->context->cart->id_carrier)
 					{
 						$deliveries_options = Tools::getValue('delivery_option');
-						if (!$deliveries_options) {
+						if (!$deliveries_options)
 							$deliveries_options = $this->context->cart->delivery_option;
-						}
+
 						foreach ($deliveries_options as $delivery_option)
 							if (empty($delivery_option))
 								Tools::redirect('index.php?controller=order&step=2');
@@ -223,12 +226,26 @@ class OrderControllerCore extends ParentOrderController
 	 */
 	public function autoStep()
 	{
-
 		if ($this->step >= 2 && (!$this->context->cart->id_address_delivery || !$this->context->cart->id_address_invoice))
 			Tools::redirect('index.php?controller=order&step=1');
 
-		if ($this->step > 2 && !$this->context->cart->isVirtualCart() && count($this->context->cart->getDeliveryOptionList()) == 0)
-			Tools::redirect('index.php?controller=order&step=2');
+		if ($this->step > 2 && !$this->context->cart->isVirtualCart())
+		{
+			$redirect = false;
+			if (count($this->context->cart->getDeliveryOptionList()) == 0)
+				$redirect = true;
+
+			if (!$this->context->cart->isMultiAddressDelivery())
+				foreach ($this->context->cart->getProducts() as $product)
+					if (!in_array($this->context->cart->id_carrier, Carrier::getAvailableCarrierList(new Product($product['id_product']), null, $this->context->cart->id_address_delivery)))
+					{
+						$redirect = true;
+						break;
+					}
+			
+			if ($redirect)
+				Tools::redirect('index.php?controller=order&step=2');
+		} 
 
 		$delivery = new Address((int)$this->context->cart->id_address_delivery);
 		$invoice = new Address((int)$this->context->cart->id_address_invoice);
@@ -248,9 +265,6 @@ class OrderControllerCore extends ParentOrderController
 	 */
 	public function processAddress()
 	{
-		if (!Tools::getValue('multi-shipping'))
-			$this->context->cart->setNoMultishipping();
-		
 		$same = Tools::isSubmit('same');
 		if(!Tools::getValue('id_address_invoice', false) && !$same)
 			$same = true;
@@ -378,4 +392,3 @@ class OrderControllerCore extends ParentOrderController
 			$this->addJS(_THEME_JS_DIR_.'order-carrier.js');
 	}
 }
-

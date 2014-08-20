@@ -29,7 +29,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>PrestaShop&trade; - {l s='Affiliation' mod='trackingfront'}</title>
         <script type="text/javascript">
-            var product_ids = ({$js_tpl_var.product_ids});
+            var product_ids = [{$js_tpl_var.product_ids}];
             var referrer_id = {$js_tpl_var.referrer_id};
             var token = "{$js_tpl_var.token}";
             var display_tab = ["{$js_tpl_var.display_tab}"];

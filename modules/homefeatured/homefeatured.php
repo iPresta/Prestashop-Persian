@@ -35,7 +35,7 @@ class HomeFeatured extends Module
 	{
 		$this->name = 'homefeatured';
 		$this->tab = 'front_office_features';
-		$this->version = '1.3';
+		$this->version = '1.5';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -82,7 +82,10 @@ class HomeFeatured extends Module
 			if (!$nbr || $nbr <= 0 || !Validate::isInt($nbr))
 				$errors[] = $this->l('An invalid number of products has been specified.');
 			else
+			{
+				Tools::clearCache(Context::getContext()->smarty, $this->getTemplatePath('homefeatured.tpl'));
 				Configuration::updateValue('HOME_FEATURED_NBR', (int)$nbr);
+			}
 			if (isset($errors) && count($errors))
 				$output .= $this->displayError(implode('<br />', $errors));
 			else
@@ -170,7 +173,7 @@ class HomeFeatured extends Module
 	public function _clearCache($template, $cache_id = NULL, $compile_id = NULL)
 	{
 		parent::_clearCache('homefeatured.tpl');
-		parent::_clearCache('tab.tpl', $this->getCacheId('homefeatured-tab'));
+		parent::_clearCache('tab.tpl', 'homefeatured-tab');
 	}
 
 	public function renderForm()

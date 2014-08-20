@@ -38,7 +38,7 @@ class SocialSharing extends Module
 		$this->author = 'PrestaShop';
 		$this->tab = 'advertising_marketing';
 		$this->need_instance = 0;
-		$this->version = '1.2';
+		$this->version = '1.2.6';
 		$this->bootstrap = true;
 		$this->_directory = dirname(__FILE__);
 
@@ -46,7 +46,6 @@ class SocialSharing extends Module
 
 		$this->displayName = $this->l('Social sharing');
 		$this->description = $this->l('Displays social sharing buttons (Twitter, Facebook, Google+ and Pinterest) on every product page.');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -100,8 +99,8 @@ class SocialSharing extends Module
 			foreach (self::$networks as $network)
 				Configuration::updateValue('PS_SC_'.Tools::strtoupper($network), (int)Tools::getValue('PS_SC_'.Tools::strtoupper($network)));
 			$this->html .= $this->displayConfirmation($this->l('Settings updated'));
-			$this->_clearCache('socialsharing.tpl');
-			$this->_clearCache('socialsharing_compare.tpl');
+			Tools::clearCache(Context::getContext()->smarty, $this->getTemplatePath('socialsharing.tpl'));
+			Tools::clearCache(Context::getContext()->smarty, $this->getTemplatePath('socialsharing_compare.tpl'));
 			Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true).'&conf=6&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name);
 
 		}
@@ -174,10 +173,11 @@ class SocialSharing extends Module
 
 	protected function displaySocialSharing()
 	{
-		if (!$this->isCached('socialsharing.tpl', $this->getCacheId()))
+		$product = $this->context->controller->getProduct();
+		if (!$this->isCached('socialsharing.tpl', $this->getCacheId('socialsharing|'.(int)$product->id)))
 		{
 			$this->context->smarty->assign(array(
-				'product' => $this->context->controller->getProduct(),
+				'product' => $product,
 				'PS_SC_TWITTER' => Configuration::get('PS_SC_TWITTER'),
 				'PS_SC_GOOGLE' => Configuration::get('PS_SC_GOOGLE'),
 				'PS_SC_FACEBOOK' => Configuration::get('PS_SC_FACEBOOK'),
@@ -185,7 +185,7 @@ class SocialSharing extends Module
 			));
 		}
 
-		return $this->display(__FILE__, 'socialsharing.tpl', $this->getCacheId());
+		return $this->display(__FILE__, 'socialsharing.tpl', $this->getCacheId('socialsharing|'.(int)$product->id));
 	}
 
 	protected function clearProductHeaderCache($id_product)

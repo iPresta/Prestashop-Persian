@@ -219,7 +219,7 @@ class AdminDashboardControllerCore extends AdminController
 			//'translations' => $translations,
 			'action' => '#',
 			'warning' => $this->getWarningDomainName(),
-			'new_version_url' => Tools::getCurrentUrlProtocolPrefix().'api.prestashop.com/version/check_version.php?v='._PS_VERSION_.'&lang='.$this->context->language->iso_code,
+			'new_version_url' => Tools::getCurrentUrlProtocolPrefix().'api.prestashop.com/version/check_version.php?v='._PS_VERSION_.'&lang='.$this->context->language->iso_code.'&autoupgrade='.(int)(Module::isInstalled('autoupgrade') && Module::isEnabled('autoupgrade')).'&hosted_mode='.(int)defined('_PS_HOST_MODE_'),
 			'dashboard_use_push' => Configuration::get('PS_DASHBOARD_USE_PUSH'),
 			'calendar' => $calendar_helper->generate(),
 			'PS_DASHBOARD_SIMULATION' => Configuration::get('PS_DASHBOARD_SIMULATION'),
@@ -336,7 +336,7 @@ class AdminDashboardControllerCore extends AdminController
 					$return['rss'][] = array(
 						'date' => Tools::displayDate(date('Y-m-d', strtotime((string)$item->pubDate))),
 						'title' => (string)Tools::htmlentitiesUTF8($item->title),
-						'short_desc' => substr((string)Tools::htmlentitiesUTF8($item->description), 0, 100).'...',
+						'short_desc' => Tools::truncateString(strip_tags((string)$item->description), 150),
 						'link' => (string)$item->link,
 					);
 				else

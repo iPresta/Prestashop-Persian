@@ -37,8 +37,10 @@ class AdminManufacturersControllerCore extends AdminController
 	 	$this->lang = false;
 	 	$this->deleted = false;
 		$this->allow_export = true;
-		$this->_orderBy = 'name';
-		$this->_orderWay = 'ASC';
+		$this->list_id = 'manufacturer';
+		$this->identifier = 'id_manufacturer';
+		$this->_defaultOrderBy = 'name';
+		$this->_defaultOrderWay = 'ASC';
 
 	 	$this->bulk_actions = array(
 			'delete' => array(
@@ -172,7 +174,7 @@ class AdminManufacturersControllerCore extends AdminController
 			'manufacturer_name' => array(
 				'title' => $this->l('Manufacturer'),
 				'width' => 'auto',
-				'filter_key' => 'm!name'
+				'filter_key' => 'manufacturer_name'
 			),
 			'firstname' => array(
 				'title' => $this->l('First name')
@@ -200,7 +202,10 @@ class AdminManufacturersControllerCore extends AdminController
 	public function processExport($text_delimiter = '"')
 	{
 		if (strtolower($this->table) == 'address')
-			$this->_orderBy = null;
+		{
+			$this->_defaultOrderBy = 'id_manufacturer';
+			$this->_where = 'AND a.`id_customer` = 0 AND a.`id_supplier` = 0 AND a.`id_warehouse` = 0 AND a.`deleted`= 0';
+		}
 
 		return parent::processExport($text_delimiter);
 	}
@@ -216,6 +221,10 @@ class AdminManufacturersControllerCore extends AdminController
 		$this->list_id = 'address';
 		$this->identifier = 'id_address';
 		$this->deleted = true;
+
+		$this->_defaultOrderBy = 'id_address';
+		$this->_defaultOrderWay = 'ASC';
+
 		$this->_orderBy = null;
 
 		$this->addRowAction('editaddresses');
@@ -244,7 +253,7 @@ class AdminManufacturersControllerCore extends AdminController
 		$this->_join .= '
 			LEFT JOIN `'._DB_PREFIX_.'manufacturer` m
 				ON (a.`id_manufacturer` = m.`id_manufacturer`)';
-		$this->_where = 'AND a.`id_customer` = 0 AND a.`id_supplier` = 0 AND a.`id_warehouse` = 0 AND a.`deleted`=0';
+		$this->_where = 'AND a.`id_customer` = 0 AND a.`id_supplier` = 0 AND a.`id_warehouse` = 0 AND a.`deleted`= 0';
 
 		$this->context->smarty->assign('title_list', $this->l('Manufacturers addresses'));
 
@@ -252,6 +261,7 @@ class AdminManufacturersControllerCore extends AdminController
 		$this->postProcess();
 
 		$this->initToolbar();
+
 		$this->content .= parent::renderList();
 
 	}
@@ -482,6 +492,18 @@ class AdminManufacturersControllerCore extends AdminController
 			'type' => 'hidden',
 			'name' => 'id_address',
 		);
+
+		 if (in_array('company', $required_fields))
+			$form['input'][] = array(
+				'type' => 'text',
+				'label' => $this->l('Company'),
+				'name' => 'company',
+				'display' => in_array('company', $required_fields),
+				'required' => in_array('company', $required_fields),
+				'maxlength' => 16,
+				'col' => 4,
+				'hint' => $this->l('Company name for this supplier')
+			);
 		
 		$form['input'][] = array(
 			'type' => 'text',
@@ -772,7 +794,7 @@ class AdminManufacturersControllerCore extends AdminController
 
 	public function initProcess()
 	{
-		if (Tools::getValue('submitAddaddress') || Tools::isSubmit('deleteaddress') || Tools::isSubmit('submitBulkdeleteaddress') || Tools::isSubmit('exportaddress'))
+		if (Tools::isSubmit('submitAddaddress') || Tools::isSubmit('deleteaddress') || Tools::isSubmit('submitBulkdeleteaddress') || Tools::isSubmit('exportaddress'))
 		{
 			$this->table = 'address';
 			$this->className = 'Address';
@@ -819,5 +841,12 @@ class AdminManufacturersControllerCore extends AdminController
 	protected function beforeDelete($object)
 	{
 		return true;
+	}
+	
+	public function processSave()
+	{
+		parent::processSave();
+		if (Tools::isSubmit('submitAddaddress'))
+			$this->display = 'editaddresses';
 	}
 }

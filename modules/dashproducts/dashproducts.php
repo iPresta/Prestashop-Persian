@@ -34,7 +34,7 @@ class DashProducts extends Module
 		$this->name = 'dashproducts';
 		$this->displayName = 'Dashboard Products';
 		$this->tab = 'dashboard';
-		$this->version = '0.2';
+		$this->version = '0.3.1';
 		$this->author = 'PrestaShop';
 
 		$this->push_filename = _PS_CACHE_DIR_.'push/activity';
@@ -106,7 +106,8 @@ class DashProducts extends Module
 			array('title' => $this->l('Action'), 'class' => 'text-center'),
 		);
 
-		$orders = Order::getOrdersWithInformations((int)Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER', 10));
+		$limit = (int)Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER') ? (int)Configuration::get('DASHPRODUCT_NBR_SHOW_LAST_ORDER') : 10;
+		$orders = Order::getOrdersWithInformations($limit);
 
 		$body = array();
 		foreach ($orders as $order)
@@ -285,7 +286,7 @@ class DashProducts extends Module
 			),
 			array(
 				'id' => 'rate',
-				'title' => $this->l('Rate'),
+				'title' => $this->l('Percentage'),
 				'class' => 'text-center',
 			)
 		);

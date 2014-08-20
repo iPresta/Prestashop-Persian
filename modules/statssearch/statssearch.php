@@ -37,7 +37,7 @@ class StatsSearch extends ModuleGraph
 	{
 		$this->name = 'statssearch';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.3';
+		$this->version = '1.3.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -54,7 +54,7 @@ class StatsSearch extends ModuleGraph
 				ORDER BY occurences DESC';
 
 		$this->displayName = $this->l('Shop search');
-		$this->description = $this->l('Adds a tab showing which keywords have been searched by your store\'s visitors.');
+		$this->description = $this->l('Adds a tab to the Stats dashboard, showing which keywords have been searched by your store\'s visitors.');
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 
@@ -133,7 +133,7 @@ class StatsSearch extends ModuleGraph
 								<i class="icon-cloud-upload"></i> '.$this->l('CSV Export').'
 							</a>'.$table;
 		else
-			$this->html .= '<p>'.$this->l('No keywords searched more than once have been found.').'</p>';
+			$this->html .= '<p>'.$this->l('Cannot find any keywords that have been searched for more than once.').'</p>';
 
 		return $this->html;
 	}

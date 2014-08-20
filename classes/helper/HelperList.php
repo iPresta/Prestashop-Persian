@@ -170,8 +170,8 @@ class HelperListCore extends Helper
 		$tpl_enable->assign(array(
 			'ajax' => $ajax,
 			'enabled' => (bool)$value,
-			'url_enable' => Tools::safeOutput($this->currentIndex.'&'.$this->identifier.'='.(int)$id.'&'.$active.$this->table.($ajax ? '&action='.$active.$this->table.'&ajax='.(int)$ajax : '').
-				((int)$id_category && (int)$id_product ? '&id_category='.(int)$id_category : '').'&token='.($token != null ? $token : $this->token))
+			'url_enable' => $this->currentIndex.'&'.$this->identifier.'='.(int)$id.'&'.$active.$this->table.($ajax ? '&action='.$active.$this->table.'&ajax='.(int)$ajax : '').
+				((int)$id_category && (int)$id_product ? '&id_category='.(int)$id_category : '').'&token='.($token != null ? $token : $this->token)
 		));
 		return $tpl_enable->fetch();
 	}
@@ -182,7 +182,7 @@ class HelperListCore extends Helper
 		{
 			if ($this->position_identifier)
 				if (isset($this->position_group_identifier))
-					$position_group_identifier = Tools::getIsset($this->position_group_identifier) ? Tools::getIsset($this->position_group_identifier) : $this->position_group_identifier;
+					$position_group_identifier = Tools::getIsset($this->position_group_identifier) ? Tools::getValue($this->position_group_identifier) : $this->position_group_identifier;
 				else
 					$position_group_identifier = (int)Tools::getValue('id_'.($this->is_cms ? 'cms_' : '').'category', ($this->is_cms ? '1' : Category::getRootCategory()->id ));
 			else
@@ -207,6 +207,7 @@ class HelperListCore extends Helper
 			if ($this->shopLinkType)
 				$this->_list[$index]['short_shop_name'] = Tools::strlen($tr['shop_name']) > 15 ? Tools::substr($tr['shop_name'], 0, 15).'...' : $tr['shop_name'];
 
+			$is_first = true;
 			// Check all available actions to add to the current list row
 			foreach ($this->actions as $action)
 			{
@@ -222,6 +223,17 @@ class HelperListCore extends Helper
 					elseif (method_exists($this, $method_name))
 						$this->_list[$index][$action] = $this->$method_name($this->token, $id, $name);
 				}
+
+				if ($is_first && isset($this->_list[$index][$action])) {
+					$is_first = false;
+
+					if (!preg_match('/a\s*.*class/', $this->_list[$index][$action]))
+						$this->_list[$index][$action] = preg_replace('/href\s*=\s*\"([^\"]*)\"/',
+							'href="$1" class="btn btn-default"', $this->_list[$index][$action]);
+					else if (!preg_match('/a\s*.*class\s*=\s*\".*btn.*\"/', $this->_list[$index][$action]))
+						$this->_list[$index][$action] = preg_replace('/a(\s*.*)class\s*=\s*\"(.*)\"/',
+							'a $1 class="$2 btn btn-default"', $this->_list[$index][$action]);
+				}
 			}
 
 			// @todo skip action for bulk actions
@@ -236,6 +248,8 @@ class HelperListCore extends Helper
 					// If method is defined in calling controller, use it instead of the Helper method
 					if (method_exists($this->context->controller, 'displayEnableLink'))
 						$calling_obj = $this->context->controller;
+					elseif (isset($this->module) && method_exists($this->module, 'displayEnableLink'))
+						$calling_obj = $this->module;
 					else
 						$calling_obj = $this;
 
@@ -352,16 +366,16 @@ class HelperListCore extends Helper
 			self::$cache_lang['Duplicate'] = $this->l('Duplicate', 'Helper');
 
 		if (!array_key_exists('Copy images too?', self::$cache_lang))
-			self::$cache_lang['Copy images too?'] = $this->l('Copy images too?', 'Helper');
+			self::$cache_lang['Copy images too?'] = $this->l('This will copy the images too. If you wish to proceed, click "OK". If not, click "Cancel".', 'Helper');
 
 		$duplicate = $this->currentIndex.'&'.$this->identifier.'='.$id.'&duplicate'.$this->table;
 
 		$tpl->assign(array(
-			'href' => Tools::safeOutput($this->currentIndex.'&'.$this->identifier.'='.$id.'&view'.$this->table.'&token='.($token != null ? $token : $this->token)),
+			'href' => $this->currentIndex.'&'.$this->identifier.'='.$id.'&view'.$this->table.'&token='.($token != null ? $token : $this->token),
 			'action' => self::$cache_lang['Duplicate'],
 			'confirm' => self::$cache_lang['Copy images too?'],
-			'location_ok' => Tools::safeOutput($duplicate.'&token='.($token != null ? $token : $this->token)),
-			'location_ko' => Tools::safeOutput($duplicate.'&noimage=1&token='.($token ? $token : $this->token)),
+			'location_ok' => $duplicate.'&token='.($token != null ? $token : $this->token),
+			'location_ko' => $duplicate.'&noimage=1&token='.($token ? $token : $this->token),
 		));
 
 		return $tpl->fetch();
@@ -398,10 +412,10 @@ class HelperListCore extends Helper
 			$ajax_params['action'] = 'details';
 
 		$tpl->assign(array(
-			'id' => Tools::safeOutput($id),
-			'href' => Tools::safeOutput($this->currentIndex.'&'.$this->identifier.'='.$id.'&details'.$this->table.'&token='.($token != null ? $token : $this->token)),
+			'id' => $id,
+			'href' => $this->currentIndex.'&'.$this->identifier.'='.$id.'&details'.$this->table.'&token='.($token != null ? $token : $this->token),
 			'controller' => str_replace('Controller', '', get_class($this->context->controller)),
-			'token' => Tools::safeOutput($token != null ? $token : $this->token),
+			'token' => $token != null ? $token : $this->token,
 			'action' => self::$cache_lang['Details'],
 			'params' => $ajax_params,
 			'json_params' => Tools::jsonEncode($ajax_params)
@@ -419,7 +433,7 @@ class HelperListCore extends Helper
 			self::$cache_lang['View'] = $this->l('View', 'Helper');
 
 		$tpl->assign(array(
-			'href' => Tools::safeOutput($this->currentIndex.'&'.$this->identifier.'='.$id.'&view'.$this->table.'&token='.($token != null ? $token : $this->token)),
+			'href' => $this->currentIndex.'&'.$this->identifier.'='.$id.'&view'.$this->table.'&token='.($token != null ? $token : $this->token),
 			'action' => self::$cache_lang['View'],
 		));
 
@@ -466,7 +480,7 @@ class HelperListCore extends Helper
 
 		$data = array(
 			$this->identifier => $id,
-			'href' => Tools::safeOutput($this->currentIndex.'&'.$this->identifier.'='.$id.'&delete'.$this->table.'&token='.($token != null ? $token : $this->token)),
+			'href' => $this->currentIndex.'&'.$this->identifier.'='.$id.'&delete'.$this->table.'&token='.($token != null ? $token : $this->token),
 			'action' => self::$cache_lang['Delete'],
 		);
 
@@ -488,9 +502,9 @@ class HelperListCore extends Helper
 			self::$cache_lang['Default'] = $this->l('Default', 'Helper');
 
 		$tpl->assign(array_merge($this->tpl_delete_link_vars, array(
-			'href' => Tools::safeOutput($this->currentIndex).'&'.Tools::safeOutput($this->identifier).'='.(int)$id.'&delete'.Tools::safeOutput($this->table).'&token='.Tools::safeOutput(($token != null ? $token : $this->token)),
+			'href' => $this->currentIndex.'&'.$this->identifier.'='.(int)$id.'&delete'.$this->table.'&token='.($token != null ? $token : $this->token),
 			'action' => self::$cache_lang['Default'],
-			'name' => Tools::safeOutput($name),
+			'name' => $name,
 		)));
 
 		return $tpl->fetch();
@@ -527,8 +541,12 @@ class HelperListCore extends Helper
 
 		/* Determine current page number */
 		$page = (int)Tools::getValue('submitFilter'.$this->list_id);
+
 		if (!$page)
 			$page = 1;
+
+		if ($page > $total_pages)
+			$page = $total_pages;
 
 		/* Choose number of results per page */
 		$selected_pagination = Tools::getValue($this->list_id.'_pagination',
@@ -590,6 +608,7 @@ class HelperListCore extends Helper
 		}
 
 		$has_value = false;
+		$has_search_field = false;
 
 		foreach ($this->fields_list as $key => $field)
 		{
@@ -601,6 +620,8 @@ class HelperListCore extends Helper
 				$has_value = true;
 				break;
 			}
+			if (!(isset($field['search']) && $field['search'] === false))
+				$has_search_field = true;
 		}
 
 		Context::getContext()->smarty->assign(array(
@@ -619,10 +640,10 @@ class HelperListCore extends Helper
 			'has_bulk_actions' => $this->hasBulkActions($has_value),
 		));
 
-		$this->header_tpl->assign(array_merge($this->tpl_vars, array(
+		$this->header_tpl->assign(array_merge(array(
 			'ajax' => $ajax,
 			'title' => array_key_exists('title', $this->tpl_vars) ? $this->tpl_vars['title'] : $this->title,
-			'show_filters' => (count($this->_list) <= 1 && !$has_value) ? false : true,
+			'show_filters' => ((count($this->_list) > 1 && $has_search_field) || $has_value ),
 			'filters_has_value' => $has_value,
 			'currentIndex' => $this->currentIndex,
 			'action' => $action,
@@ -641,7 +662,7 @@ class HelperListCore extends Helper
 			'name_id' => isset($name_id) ? $name_id : null,
 			'row_hover' => $this->row_hover,
 			'list_id' => isset($this->list_id) ? $this->list_id : $this->table
-		)));
+		), $this->tpl_vars));
 
 		return $this->header_tpl->fetch();
 	}

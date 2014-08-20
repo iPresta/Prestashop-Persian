@@ -42,7 +42,7 @@ class GraphNvD3 extends ModuleGraphEngine
 
 		$this->name = 'graphnvd3';
 		$this->tab = 'administration';
-		$this->version = 1.1;
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -50,7 +50,6 @@ class GraphNvD3 extends ModuleGraphEngine
 			
 		$this->displayName = $this->l('NVD3 Charts');
 		$this->description = '';
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
     }
 
 	function install()

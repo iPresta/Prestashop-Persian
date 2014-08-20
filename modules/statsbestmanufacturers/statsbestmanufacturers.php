@@ -41,7 +41,7 @@ class StatsBestManufacturers extends ModuleGrid
 	{
 		$this->name = 'statsbestmanufacturers';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -102,10 +102,12 @@ class StatsBestManufacturers extends ModuleGrid
 			$this->csvExport($engine_params);
 
 		$this->html = '
-		<fieldset><legend><img src="../modules/'.$this->name.'/logo.gif" /> '.$this->displayName.'</legend>
-			'.$this->engine($engine_params).'
-			<br /><a href="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'&export=1"><img src="../img/admin/asterisk.gif" />'.$this->l('CSV Export').'</a>
-		</fieldset>';
+		<fieldset>
+			<legend><img src="../modules/'.$this->name.'/logo.gif" /> '.$this->displayName.'</legend>
+			'.$this->engine($engine_params).'<br />
+			<a href="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'&export=1"><img src="../img/admin/asterisk.gif" />'.$this->l('CSV Export').'</a>
+		</fieldset>
+		';
 
 		return $this->html;
 	}
@@ -140,14 +142,17 @@ class StatsBestManufacturers extends ModuleGrid
 					AND o.valid = 1
 					AND m.id_manufacturer IS NOT NULL
 				GROUP BY p.id_manufacturer';
+
 		if (Validate::IsName($this->_sort))
 		{
-			$this->query .= ' ORDER BY `'.$this->_sort.'`';
+			$this->query .= ' ORDER BY `'.bqSQL($this->_sort).'`';
 			if (isset($this->_direction) && Validate::isSortDirection($this->_direction))
 				$this->query .= ' '.$this->_direction;
 		}
+
 		if (($this->_start === 0 || Validate::IsUnsignedInt($this->_start)) && Validate::IsUnsignedInt($this->_limit))
-			$this->query .= ' LIMIT '.$this->_start.', '.($this->_limit);
+			$this->query .= ' LIMIT '.(int)$this->_start.', '.(int)$this->_limit;
+
 		$this->_values = Db::getInstance()->executeS($this->query);
 	}
 }

@@ -167,7 +167,7 @@ class AdminBackupControllerCore extends AdminController
 
 		// Test if the backup dir is writable
 		if (!is_writable(PrestaShopBackup::getBackupPath()))
-			$this->warnings[] = $this->l('The "Backups" directory located in the admin directory must be writeable 
+			$this->warnings[] = $this->l('The "Backups" directory located in the admin directory must be writable 
 				(CHMOD 755 / 777).');
 		elseif ($this->display == 'add')
 			{
@@ -245,7 +245,7 @@ class AdminBackupControllerCore extends AdminController
 		}
 		while (($file = readdir($dh)) !== false)
 		{
-			if (preg_match('/^([\d]+-[a-z\d]+)\.sql(\.gz|\.bz2)?$/', $file, $matches) == 0)
+			if (preg_match('/^([_a-zA-Z0-9\-]*[\d]+-[a-z\d]+)\.sql(\.gz|\.bz2)?$/', $file, $matches) == 0)
 				continue;
 			$timestamp = (int)$matches[1];
 			$date = date('Y-m-d H:i:s', $timestamp);

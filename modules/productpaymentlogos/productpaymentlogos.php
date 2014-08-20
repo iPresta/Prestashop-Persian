@@ -33,7 +33,7 @@ class ProductPaymentLogos extends Module
 	{
 		$this->name = 'productpaymentlogos';
 		$this->tab = 'front_office_features';
-		$this->version = 1.3;
+		$this->version = '1.3.5';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -42,7 +42,6 @@ class ProductPaymentLogos extends Module
 
 		$this->displayName = $this->l('Product payment logos block');
 		$this->description = $this->l('Displays the logos of the available payment systems on the product page.');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
@@ -74,13 +73,6 @@ class ProductPaymentLogos extends Module
 			$this->smarty->assign('banner_img', 'img/'.Configuration::get('PRODUCTPAYMENTLOGOS_IMG'));
 			$this->smarty->assign('banner_link', Configuration::get('PRODUCTPAYMENTLOGOS_LINK'));
 			$this->smarty->assign('banner_title', Configuration::get('PRODUCTPAYMENTLOGOS_TITLE'));
-			$sql = 'SELECT COUNT(*)
-					FROM '._DB_PREFIX_.'store s'
-				.Shop::addSqlAssociation('store', 's');
-			$total = Db::getInstance()->getValue($sql);
-
-			if ($total <= 0)
-				return false;
 		}
 
 		return $this->display(__FILE__, 'productpaymentlogos.tpl', $this->getCacheId());

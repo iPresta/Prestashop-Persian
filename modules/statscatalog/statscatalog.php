@@ -36,7 +36,7 @@ class StatsCatalog extends Module
 	{
 		$this->name = 'statscatalog';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.1;
+		$this->version = '1.2.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -44,7 +44,6 @@ class StatsCatalog extends Module
 
 		$this->displayName = $this->l('Catalog statistics');
 		$this->description = $this->l('Adds a tab containing general statistics about your catalog to the Stats dashboard.');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 	}
 
 	public function install()
