@@ -1,4 +1,8 @@
-About PrestaShop
+پرستاشاپ
+======
+![PrestaShop](http://www.prestashop.com/images/banners/general/banner-github-165_728x90.png "PrestaShop")
+
+درباره پرستاشاپ
 --------
 
 PrestaShop is a free and open-source e-commerce web application, committed to providing the best shopping cart experience for both merchants and customers. It is written in PHP, is highly customizable, supports all the major payment services, is translated in many languages and localized for many countries, is fully responsive (both front- and back-office), etc. [See all the available features][1].
@@ -7,7 +11,8 @@ PrestaShop is a free and open-source e-commerce web application, committed to pr
   <img src="http://www.prestashop.com/images/banners/general/ps16-screenshot-github.png" alt="PrestaShop's back-office dashboard"/>
 </p>
 
-To download the latest stable version of PrestaShop, go to [the download page][2] on the official PrestaShop site.
+دانلود آخرین نسخه پرستاشاپ پارسی:
+[the download page][2]
 
 
 About this repository
@@ -70,7 +75,7 @@ If you need help using PrestaShop 1.6, contact the PrestaShop support team: http
 Thank you for downloading and using the PrestaShop e-commerce Open-source solution!
 
 [1]: http://www.prestashop.com/en/features
-[2]: http://www.prestashop.com/en/download
+[2]: https://github.com/PrestaShopIran/Prestashop-Persian/releases
 [3]: http://www.prestashop.com/en/progress-1-6
 [4]: http://doc.prestashop.com/display/PS16/Misc.+information#Misc.information-ActivatingPHP5
 [5]: http://www.prestabox.com
