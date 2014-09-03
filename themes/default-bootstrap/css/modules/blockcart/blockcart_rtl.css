@@ -40,7 +40,7 @@
         display: none !important; } }
     .shopping_cart > a:first-child b {
       color: white;
-      font: 600 18px/22px "byekan", sans-serif;
+      font: 600 18px/22px "Droid Naskh", sans-serif;
       padding-left: 5px; }
     .shopping_cart > a:first-child:before {
       content: "\f07a";

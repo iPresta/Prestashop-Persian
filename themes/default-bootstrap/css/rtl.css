@@ -4,8 +4,6 @@
 body {
   direction: rtl;}
 
-#page {
-  }
 .bx-viewport {
   direction: ltr}
 
@@ -91,11 +89,11 @@ textarea.uniform ,div.selector select,div.button span{font-family: tahoma,"Helve
 .content_scene_cat .content_scene_cat_bg {padding: 18px 42px 10px 10px}
 @media (max-width: 1199px) {
 	.content_scene_cat .content_scene_cat_bg {padding: 10px 15px 10px 10px}
-	.content_scene_cat span.category-name {font: 600 42px/51px "byekan", sans-serif}
+	.content_scene_cat span.category-name {font: 600 42px/51px "Droid Naskh", sans-serif}
 }
 #subcategories ul {margin: 0 -20px 0 0}
 #subcategories ul li {float: right; margin: 0 20px 13px 0;}
-#subcategories ul li .subcategory-name {font: 600 18px/22px "byekan", sans-serif;}
+#subcategories ul li .subcategory-name {font: 600 18px/22px "Droid Naskh", sans-serif;}
 
 /**** css/cms.css ****/
 #cms #center_column .list-1 li em {padding-left: 15px; padding-right: 0}
@@ -110,9 +108,9 @@ textarea.uniform ,div.selector select,div.button span{font-family: tahoma,"Helve
 #cms #center_column #admin-action-cms p .button.lnk_view {background: -webkit-gradient(linear, right top, right bottom, color-stop(0%, #f7f7f7), color-stop(100%, #ededed))}
 
 /**** css/comparator.css ****/
-table#product_comparison tbody tr td.td_empty > span {font: 600 18px/22px "byekan", sans-serif}
+table#product_comparison tbody tr td.td_empty > span {font: 600 18px/22px "Droid Naskh", sans-serif}
 table#product_comparison .remove {text-align: left}
-table#product_comparison .comparison_unit_price {font-family: "byekan", sans-serif}
+table#product_comparison .comparison_unit_price {font-family: "Droid Naskh", sans-serif}
 @media (max-width: 767px) {
 	#product_comparison thead tr {left: auto; right: -9999px}
 	#product_comparison td {float: right}
@@ -135,11 +133,11 @@ table#product_comparison .comparison_unit_price {font-family: "byekan", sans-ser
 @media (min-width: 1200px) {
     #maintenance {padding: 91px 297px 365px 48px; background: url(../../img/bg_maintenance_rtl.png) no-repeat} 
 }
-#maintenance h1 {font: 600 28px/34px "byekan", sans-serif}
-#maintenance #message {font: 600 16px/31px "byekan", sans-serif; padding: 0 18px 0 0}
+#maintenance h1 {font: 600 28px/34px "Droid Naskh", sans-serif}
+#maintenance #message {font: 600 16px/31px "Droid Naskh", sans-serif; padding: 0 18px 0 0}
 
 /**** css/my-account.css ****/
-#my-account ul.myaccount-link-list li a {font: 600 16px/20px "byekan", sans-serif}
+#my-account ul.myaccount-link-list li a {font: 600 16px/20px "Droid Naskh", sans-serif}
 #my-account ul.myaccount-link-list li a i {left: auto; right: 0;
       -webkit-border-top-right-radius: 4px;
       border-top-right-radius: 4px;

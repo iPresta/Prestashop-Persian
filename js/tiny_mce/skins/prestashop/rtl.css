@@ -1,0 +1,7 @@
+body {
+    direction: rtl;
+}
+
+body,td,th {
+    font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif;
+}
