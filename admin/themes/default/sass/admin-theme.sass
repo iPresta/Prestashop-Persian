@@ -56,7 +56,7 @@
 	@import "vendor/bootstrap-sass/close"
 	// Components w/ JavaScript
 	@import "vendor/bootstrap-sass/tooltip"
-	//@import "vendor/bootstrap-sass/popovers"
+	@import "vendor/bootstrap-sass/popovers"
 	//Utility classes
 	@import "vendor/bootstrap-sass/utilities"
 	@import "vendor/bootstrap-sass/responsive-utilities"
@@ -83,6 +83,7 @@
 	@import "partials/toolbar"
 	@import "partials/date-range-picker"
 	@import "partials/multistore"
+	@import "partials/product"
 
 	//Controllers
 	@import "controllers/carrier-wizard"
@@ -92,12 +93,19 @@
 	@import "controllers/search"
 	@import "controllers/translations"
 	@import "controllers/customer-thread"
+	@import "controllers/themes"
+	@import "controllers/order"
 
 //Plug-ins
 @import "partials/tinymce"
 @import "partials/growl"
 @import "partials/chosen"
 @import "partials/ladda"
+@import "partials/date-picker"
+@import "partials/select2"
 
 //Backward compatibility
 @import "partials/backward"
+
+//Print support
+@import "partials/print"
