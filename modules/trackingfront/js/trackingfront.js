@@ -26,7 +26,6 @@
 $(function () {
 
     updateValues();
-    showProductLines();
 
     $("#datepickerFrom").datepicker({
         prevText: "",
@@ -41,10 +40,13 @@ $(function () {
 });
 
 function updateValues() {
-    $.getJSON("stats.php", {ajaxProductFilter: 1, id_referrer: 1, token: "8d03a885ac0bd21f1a11c5b8f4e674ac", id_product: 0},
+    $.getJSON("stats.php", {ajaxProductFilter: 1, id_referrer: referrer_id, token: token, id_product: 0},
         function (j) {
             $.each(display_tab, function (index, value) {
-                $("#" + value).html(j[0][value]);
+				if (value == 'reg_rate' || value == 'order_rate')
+					 $("#" + value).html(parseFloat(j[0][value] * 100).toFixed(2) + ' %');
+				else
+					$("#" + value).html(j[0][value]);
             });
         }
     )

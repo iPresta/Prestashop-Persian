@@ -36,7 +36,7 @@ class BlockLink extends Module
 	{
 		$this->name = 'blocklink';
 		$this->tab = 'front_office_features';
-		$this->version = '1.5.2';
+		$this->version = '1.5.6';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -57,14 +57,14 @@ class BlockLink extends Module
 		$success = Configuration::updateValue('PS_BLOCKLINK_TITLE', array('1' => 'Block link', '2' => 'Bloc lien'));
 		$success &= Db::getInstance()->execute('
 		CREATE TABLE '._DB_PREFIX_.'blocklink (
-		`id_blocklink` int(10) NOT NULL AUTO_INCREMENT, 
+		`id_blocklink` int(10) NOT NULL AUTO_INCREMENT,
 		`url` varchar(254) NOT NULL,
 		`new_window` TINYINT(1) NOT NULL,
 		PRIMARY KEY(`id_blocklink`))
 		ENGINE='._MYSQL_ENGINE_.' default CHARSET=utf8');
 		$success &= Db::getInstance()->execute('
 		CREATE TABLE '._DB_PREFIX_.'blocklink_shop (
-		`id_blocklink` int(10) NOT NULL AUTO_INCREMENT, 
+		`id_blocklink` int(10) NOT NULL AUTO_INCREMENT,
 		`id_shop` int(10) NOT NULL,
 		PRIMARY KEY(`id_blocklink`, `id_shop`))
 		ENGINE='._MYSQL_ENGINE_.' default CHARSET=utf8');
@@ -89,7 +89,7 @@ class BlockLink extends Module
 		)
 		{
 			// If there are no colums implemented by the template, throw an error and uninstall the module
-			$this->_errors[] = $this->l('This module need to be hooked in a column and your theme does not implement one');
+			$this->_errors[] = $this->l('This module needs to be hooked to a column, but your theme does not implement one');
 			parent::uninstall();
 
 			return false;
@@ -147,7 +147,7 @@ class BlockLink extends Module
 	{
 		if ((int)$id > 0)
 		{
-			$sql = 'SELECT b.`id_blocklink`, b.`url`, b.`new_window` FROM `'._DB_PREFIX_.'blocklink` b WHERE b.id_blocklink='.$id;
+			$sql = 'SELECT b.`id_blocklink`, b.`url`, b.`new_window` FROM `'._DB_PREFIX_.'blocklink` b WHERE b.id_blocklink='.(int)$id;
 
 			if (!$results = Db::getInstance()->getRow($sql))
 				return false;
@@ -187,13 +187,17 @@ class BlockLink extends Module
 			$result[$i]['newWindow'] = $link['new_window'];
 			// Get multilingual text
 
-			if (!$texts = Db::getInstance()->executeS('SELECT `id_lang`, `text` 
-																	FROM '._DB_PREFIX_.'blocklink_lang 
-																	WHERE `id_blocklink`='.(int)$link['id_blocklink'])
+			if (!$texts = Db::getInstance()->executeS('
+					SELECT `id_lang`, `text`
+					FROM '._DB_PREFIX_.'blocklink_lang
+					WHERE `id_blocklink`='.(int)$link['id_blocklink']
+				)
 			)
 				return false;
+
 			foreach ($texts as $text)
 				$result[$i]['text_'.$text['id_lang']] = $text['text'];
+
 			$i++;
 		}
 
@@ -209,7 +213,7 @@ class BlockLink extends Module
 		if ((int)Tools::getValue('id_blocklink') > 0)
 		{
 			$id_link = (int)Tools::getValue('id_blocklink');
-			if (!Db::getInstance()->execute('UPDATE '._DB_PREFIX_.'blocklink SET `url` = \''.pSQL(Tools::getValue('url')).'\', `new_window` = '.(isset($_POST['newWindow']) ? 1 : 0).' WHERE `id_blocklink` = '.(int)$id_link))
+			if (!Db::getInstance()->execute('UPDATE '._DB_PREFIX_.'blocklink SET `url` = \''.pSQL(Tools::getValue('url')).'\', `new_window` = '.pSQL((int)Tools::getValue('newWindow')).' WHERE `id_blocklink` = '.(int)$id_link))
 				return false;
 			if (!Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'blocklink_lang WHERE `id_blocklink` = '.(int)$id_link))
 				return false;
@@ -226,7 +230,7 @@ class BlockLink extends Module
 		}
 		else
 		{
-			if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink (`id_blocklink`, `url`, `new_window`) 
+			if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink (`id_blocklink`, `url`, `new_window`)
 														VALUES (NULL, \''.pSQL(Tools::getValue('url')).'\', '.((isset($_POST['newWindow']) && Tools::getValue('newWindow')) == 'on' ? 1 : 0).')') ||
 				!$id_link = Db::getInstance()->Insert_ID()
 			)
@@ -235,7 +239,7 @@ class BlockLink extends Module
 			foreach ($languages as $language)
 				if (!empty($_POST['text_'.$language['id_lang']]))
 				{
-					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang (`id_blocklink`, `id_lang`, `text`) 
+					if (!Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'blocklink_lang (`id_blocklink`, `id_lang`, `text`)
 																VALUES ('.(int)$id_link.', '.(int)$language['id_lang'].', \''.pSQL(Tools::getValue('text_'.$language['id_lang'])).'\')')
 					)
 						return false;
@@ -247,7 +251,8 @@ class BlockLink extends Module
 
 		Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'blocklink_shop WHERE id_blocklink='.(int)$id_link);
 
-		if (!Shop::isFeatureActive())
+		$shops = Shop::getShops(true, null, true);
+		if (!Shop::isFeatureActive() || (Shop::isFeatureActive() && count($shops) == 1))
 		{
 			Db::getInstance()->insert('blocklink_shop', array(
 				'id_blocklink' => (int)$id_link,
@@ -344,118 +349,19 @@ class BlockLink extends Module
 		return $this->_html;
 	}
 
-	private function _displayForm()
-	{
-		/* Language */
-		$id_lang_default = (int)Configuration::get('PS_LANG_DEFAULT');
-		$languages = Language::getLanguages(false);
-		$divLangName = 'text¤title';
-		/* Title */
-		$title_url = Configuration::get('PS_BLOCKLINK_URL');
-		if (!Tools::isSubmit('submitLinkAdd'))
-		{
-			if ($id_link = (int)Tools::getValue('id_link'))
-			{
-				$res = Db::getInstance()->executeS('
-				SELECT *
-				FROM '._DB_PREFIX_.'blocklink b
-				LEFT JOIN '._DB_PREFIX_.'blocklink_lang bl ON (b.id_blocklink = bl.id_blocklink)
-				WHERE b.id_blocklink='.(int)$id_link);
-				if ($res)
-					foreach ($res as $row)
-					{
-						$links['text'][(int)$row['id_lang']] = $row['text'];
-						$links['url'] = $row['url'];
-						$links['new_window'] = $row['new_window'];
-					}
-			}
-		}
-		$this->_html .= '
-		<script type="text/javascript">
-			id_language = Number('.(int)$id_lang_default.');
-		</script>
-		<fieldset>
-			<legend><img src="'.$this->_path.'add.png" alt="" title="" /> '.$this->l('Add a new link').'</legend>
-			<form method="post" action="index.php?controller=adminmodules&configure='.Tools::safeOutput(Tools::getValue('configure')).'&token='.Tools::safeOutput(Tools::getValue('token')).'&tab_module='.Tools::safeOutput(Tools::getValue('tab_module')).'&module_name='.Tools::safeOutput(Tools::getValue('module_name')).'">
-				<input type="hidden" name="id_link" value="'.(int)Tools::getValue('id_link').'" />
-				<label>'.$this->l('Text:').'</label>
-				<div class="margin-form">';
-		foreach ($languages as $language)
-			$this->_html .= '
-					<div id="text_'.$language['id_lang'].'" style="display: '.($language['id_lang'] == $id_lang_default ? 'block' : 'none').'; float: left;">
-						<input type="text" name="text_'.$language['id_lang'].'" id="textInput_'.$language['id_lang'].'" value="'.((isset($links) && isset($links['text'][$language['id_lang']])) ? $links['text'][$language['id_lang']] : '').'" /><sup> *</sup>
-					</div>';
-		$this->_html .= $this->displayFlags($languages, $id_lang_default, $divLangName, 'text', true);
-		$this->_html .= '
-					<div class="clear"></div>
-				</div>
-				<label>'.$this->l('URL:').'</label>
-				<div class="margin-form"><input type="text" name="url" id="url" value="'.(isset($links) && isset($links['url']) ? Tools::safeOutput($links['url']) : '').'" /><sup> *</sup></div>
-				<label>'.$this->l('Open in a new window:').'</label>
-				<div class="margin-form"><input type="checkbox" name="newWindow" id="newWindow" '.((isset($links) && $links['new_window']) ? 'checked="checked"' : '').' /></div>';
-		$shops = Shop::getShops(true, null, true);
-		if (Shop::isFeatureActive() && count($shops) > 1)
-		{
-			$helper = new HelperForm();
-			$helper->id = (int)Tools::getValue('id_link');
-			$helper->table = 'blocklink';
-			$helper->identifier = 'id_blocklink';
-
-			$this->_html .= '<label for="shop_association">'.$this->l('Shop association:').'</label><div id="shop_association" class="margin-form">'.$helper->renderAssoShop().'</div>';
-		}
-		$this->_html .= '
-				<div class="margin-form">
-					<input type="submit" class="button" name="submitLinkAdd" value="'.$this->l('Add this link').'" />
-				</div>
-			</form>
-		</fieldset>
-		<fieldset class="space">
-			<legend><img src="'.$this->_path.'logo.gif" alt="" title="" /> '.$this->l('Block title').'</legend>
-			<form method="post" action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'">
-				<label>'.$this->l('Block title:').'</label>
-				<div class="margin-form">';
-		foreach ($languages as $language)
-			$this->_html .= '
-					<div id="title_'.$language['id_lang'].'" style="display: '.($language['id_lang'] == $id_lang_default ? 'block' : 'none').'; float: left;">
-						<input type="text" name="title_'.$language['id_lang'].'" value="'.Tools::safeOutput(($this->error && isset($_POST['title'])) ? $_POST['title'] : Configuration::get('PS_BLOCKLINK_TITLE', $language['id_lang'])).'" /><sup> *</sup>
-					</div>';
-		$this->_html .= $this->displayFlags($languages, $id_lang_default, $divLangName, 'title', true);
-		$this->_html .= '
-				<div class="clear"></div>
-				</div>
-				<label>'.$this->l('Block URL:').'</label>
-				<div class="margin-form"><input type="text" name="title_url" value="'.Tools::safeOutput(($this->error && isset($_POST['title_url'])) ? Tools::getValue('title_url') : $title_url).'" /></div>
-				<div class="margin-form"><input type="submit" class="button" name="submitTitle" value="'.$this->l('Update').'" /></div>
-			</form>
-		</fieldset>
-		<fieldset class="space">
-			<legend><img src="'.$this->_path.'prefs.gif" alt="" title="" /> '.$this->l('Settings').'</legend>
-			<form method="post" action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'">
-				<label>'.$this->l('Order list by:').'</label>
-				<div class="margin-form">
-					<select name="orderWay">
-						<option value="0"'.(!Configuration::get('PS_BLOCKLINK_ORDERWAY') ? 'selected="selected"' : '').'>'.$this->l('most recent links').'</option>
-						<option value="1"'.(Configuration::get('PS_BLOCKLINK_ORDERWAY') ? 'selected="selected"' : '').'>'.$this->l('oldest links').'</option>
-					</select>
-				</div>
-				<div class="margin-form"><input type="submit" class="button" name="submitOrderWay" value="'.$this->l('Update').'" /></div>
-			</form>
-		</fieldset>';
-	}
-
 	public function renderList()
 	{
 		$fields_list = array(
 			'id' => array(
-				'title' => $this->l('Id'),
+				'title' => $this->l('Link ID'),
 				'type' => 'text',
 			),
 			'text_'.$this->context->language->id => array(
-				'title' => $this->l('Text'),
+				'title' => $this->l('Link text'),
 				'type' => 'text',
 			),
 			'url' => array(
-				'title' => $this->l('Url'),
+				'title' => $this->l('URL'),
 				'type' => 'text',
 			),
 		);
@@ -493,13 +399,13 @@ class BlockLink extends Module
 					),
 					array(
 						'type' => 'text',
-						'label' => $this->l('Text'),
+						'label' => $this->l('Link text'),
 						'name' => 'text',
 						'lang' => true,
 					),
 					array(
 						'type' => 'text',
-						'label' => $this->l('Url'),
+						'label' => $this->l('URL'),
 						'name' => 'url',
 					),
 					array(
@@ -529,7 +435,6 @@ class BlockLink extends Module
 			),
 		);
 
-		$shops = Shop::getShops(true, null, true);
 		if (Shop::isFeatureActive())
 		{
 			$fields_form_1['form']['input'][] = array(
@@ -542,19 +447,19 @@ class BlockLink extends Module
 		$fields_form_2 = array(
 			'form' => array(
 				'legend' => array(
-					'title' => $this->l('Add a new block'),
+					'title' => $this->l('Block settings'),
 					'icon' => 'icon-plus-sign-alt'
 				),
 				'input' => array(
 					array(
 						'type' => 'text',
-						'label' => $this->l('Title'),
+						'label' => $this->l('Block title'),
 						'name' => 'title',
 						'lang' => true,
 					),
 					array(
 						'type' => 'text',
-						'label' => $this->l('Url'),
+						'label' => $this->l('URL for the block\'s title'),
 						'name' => 'title_url',
 					),
 				),
@@ -568,23 +473,23 @@ class BlockLink extends Module
 		$fields_form_3 = array(
 			'form' => array(
 				'legend' => array(
-					'title' => $this->l('Settings'),
+					'title' => $this->l('Link display settings'),
 					'icon' => 'icon-cogs'
 				),
 				'input' => array(
 					array(
 						'type' => 'select',
-						'label' => $this->l('Order list'),
+						'label' => $this->l('List order'),
 						'name' => 'orderWay',
 						'options' => array(
 							'query' => array(
 								array(
 									'id' => 0,
-									'name' => $this->l('by most recent links')
+									'name' => $this->l('most recent links first')
 								),
 								array(
 									'id' => 1,
-									'name' => $this->l('by oldest links')
+									'name' => $this->l('oldest links first')
 								)
 							),
 							'id' => 'id',

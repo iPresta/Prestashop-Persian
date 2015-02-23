@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -358,6 +358,15 @@ class EmployeeCore extends ObjectModel
 		}
 		$this->id = null;
 	}
+	
+	public function favoriteModulesList()
+	{
+		return Db::getInstance()->executeS('
+			SELECT module
+			FROM `'._DB_PREFIX_.'module_preference` 
+			WHERE `id_employee` = '.(int)$this->id.' AND `favorite` = 1 AND (`interest` = 1 OR `interest` IS NULL)'
+		);
+	}
 
 	/**
 	 * Check if the employee is associated to a specific shop
@@ -440,5 +449,14 @@ class EmployeeCore extends ObjectModel
 			$max = 0;
 
 		return (int)$max;
+	}
+
+	public static function setLastConnectionDate($id_employee)
+	{
+		return  Db::getInstance()->execute('
+			UPDATE `'._DB_PREFIX_.'employee`
+			SET `last_connection_date` = CURRENT_DATE()
+			WHERE `id_employee` = '.(int)$id_employee.' AND `last_connection_date`< CURRENT_DATE()
+		');
 	}
 }

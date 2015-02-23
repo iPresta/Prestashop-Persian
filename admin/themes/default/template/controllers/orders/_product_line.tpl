@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
@@ -30,20 +30,20 @@
 	{assign var=product_price value=$product['unit_price_tax_incl']}
 {/if}
 
-{if ($product['product_quantity'] > $product['customizationQuantityTotal'])}
-<tr class="product-line-row" {if isset($product.image) && $product.image->id && isset($product.image_size)} height="{$product['image_size'][1] + 7}"{/if}>
+{if ($product['product_quantity'] > $product['customized_product_quantity'])}
+<tr class="product-line-row">
 	<td>{if isset($product.image) && $product.image->id}{$product.image_tag}{/if}</td>
 	<td>
 		<a href="index.php?controller=adminproducts&amp;id_product={$product['product_id']}&amp;updateproduct&amp;token={getAdminToken tab='AdminProducts'}">
 			<span class="productName">{$product['product_name']}</span><br />
-			{if $product.product_reference}{l s='Ref:'} {$product.product_reference}<br />{/if}
-			{if $product.product_supplier_reference}{l s='Ref Supplier:'} {$product.product_supplier_reference}{/if}
+			{if $product.product_reference}{l s='Reference number:'} {$product.product_reference}<br />{/if}
+			{if $product.product_supplier_reference}{l s='Supplier reference:'} {$product.product_supplier_reference}{/if}
 		</a>
 	</td>
 	<td>
 		<span class="product_price_show">{displayPrice price=$product_price currency=$currency->id}</span>
 		{if $can_edit}
-		<span class="product_price_edit" style="display:none;">
+		<div class="product_price_edit" style="display:none;">
 			<input type="hidden" name="product_id_order_detail" class="edit_product_id_order_detail" value="{$product['id_order_detail']}" />
 			<div class="form-group">
 				<div class="fixed-width-xl">
@@ -54,7 +54,7 @@
 					</div>
 				</div>
 				<br/>
-				<div class="fixed-width-xl">				
+				<div class="fixed-width-xl">
 					<div class="input-group">
 						{if $currency->format % 2}<div class="input-group-addon">{$currency->sign} {l s='tax incl.'}</div>{/if}
 						<input type="text" name="product_price_tax_incl" class="edit_product_price_tax_incl edit_product_price" value="{Tools::ps_round($product['unit_price_tax_incl'], 2)}"/>
@@ -62,11 +62,11 @@
 					</div>
 				</div>
 			</div>
-		</span>
+		</div>
 		{/if}
 	</td>
 	<td class="productQuantity text-center">
-		<span class="product_quantity_show{if (int)$product['product_quantity'] > 1} badge{/if}">{$product['product_quantity']}</span>
+		<span class="product_quantity_show{if (int)$product['product_quantity'] - (int)$product['customized_product_quantity'] > 1} badge{/if}">{(int)$product['product_quantity'] - (int)$product['customized_product_quantity']}</span>
 		{if $can_edit}
 		<span class="product_quantity_edit" style="display:none;">
 			<input type="text" name="product_quantity" class="edit_product_quantity" value="{$product['product_quantity']|htmlentities}"/>
@@ -80,12 +80,12 @@
 			{if count($product['refund_history'])}
 				<span class="tooltip">
 					<span class="tooltip_label tooltip_button">+</span>
-					<div class="tooltip_content">
+					<span class="tooltip_content">
 					<span class="title">{l s='Refund history'}</span>
 					{foreach $product['refund_history'] as $refund}
 						{l s='%1s - %2s' sprintf=[{dateFormat date=$refund.date_add}, {displayPrice price=$refund.amount_tax_incl}]}<br />
 					{/foreach}
-					</div>
+					</span>
 				</span>
 			{/if}
 		</td>
@@ -96,12 +96,12 @@
 			{if count($product['return_history'])}
 				<span class="tooltip">
 					<span class="tooltip_label tooltip_button">+</span>
-					<div class="tooltip_content">
+					<span class="tooltip_content">
 					<span class="title">{l s='Return history'}</span>
 					{foreach $product['return_history'] as $return}
 						{l s='%1s - %2s - %3s' sprintf=[{dateFormat date=$return.date_add}, $return.product_quantity, $return.state]}<br />
 					{/foreach}
-					</div>
+					</span>
 				</span>
 			{/if}
 		</td>
@@ -116,7 +116,7 @@
 		<input type="hidden" name="totalQty" id="totalQty" value="{$product['product_quantity']}" />
 		<input type="hidden" name="productName" id="productName" value="{$product['product_name']}" />
 	{if ((!$order->hasBeenDelivered() OR Configuration::get('PS_ORDER_RETURN')) AND (int)($product['product_quantity_return']) < (int)($product['product_quantity']))}
-		<input type="checkbox" name="id_order_detail[{$product['id_order_detail']}]" id="id_order_detail[{$product['id_order_detail']}]" value="{$product['id_order_detail']}" onchange="setCancelQuantity(this, {$product['id_order_detail']}, {$product['product_quantity'] - $product['customizationQuantityTotal'] - $product['product_quantity_return']})" {if ($product['product_quantity_return'] + $product['product_quantity_refunded'] >= $product['product_quantity'])}disabled="disabled" {/if}/>
+		<input type="checkbox" name="id_order_detail[{$product['id_order_detail']}]" id="id_order_detail[{$product['id_order_detail']}]" value="{$product['id_order_detail']}" onchange="setCancelQuantity(this, {$product['id_order_detail']}, {$product['product_quantity'] - $product['customizationQuantityTotal'] - $product['product_quantity_return'] - $product['product_quantity_refunded']})" {if ($product['product_quantity_return'] + $product['product_quantity_refunded'] >= $product['product_quantity'])}disabled="disabled" {/if}/>
 	{else}
 		--
 	{/if}
@@ -125,7 +125,7 @@
 	{if ($product['product_quantity_return'] + $product['product_quantity_refunded'] >= $product['product_quantity'])}
 		<input type="hidden" name="cancelQuantity[{$product['id_order_detail']}]" value="0" />
 	{elseif (!$order->hasBeenDelivered() OR Configuration::get('PS_ORDER_RETURN'))}
-		<input type="text" id="cancelQuantity_{$product['id_order_detail']}" name="cancelQuantity[{$product['id_order_detail']}]" onclick="selectCheckbox(this);" value="" />
+		<input type="text" id="cancelQuantity_{$product['id_order_detail']}" name="cancelQuantity[{$product['id_order_detail']}]" onchange="checkTotalRefundProductQuantity(this)" value="" />
 	{/if}
 
 	{if $product['customizationQuantityTotal']}
@@ -142,7 +142,7 @@
 		0/{$productQuantity}
 	{/if}
 	</td>
-	<td class="partial_refund_fields current-edit" style="display:none; width: 250px" colspan="2">
+	<td class="partial_refund_fields current-edit" style="display:none; width: 250px;">
 		<div class="form-group">
 			<div class="col-lg-4">
 				<label class="control-label">
@@ -162,7 +162,7 @@
 					<input onchange="checkPartialRefundProductAmount(this)" type="text" name="partialRefundProduct[{$product['id_order_detail']}]" />
 					{if !$currency->format % 2}<div class="input-group-addon">{$currency->sign} {l s='tax incl.'}</div>{/if}
 				</div>
-				<p class="help-block"><i class="icon-warning-sign"></i> {l s='(Max %s)' sprintf=$product['amount_refundable']}</p>
+				<p class="help-block"><i class="icon-warning-sign"></i> {l s='(Max %s excl tax)' sprintf=$product['amount_refundable']}</p>
 			</div>
 		</div>
 
@@ -171,12 +171,12 @@
 				({l s='%s refund' sprintf=$product['amount_refund']})
 			{/if}
 			<input type="hidden" value="{$product['quantity_refundable']}" class="partialRefundProductQuantity" />
-			<input type="hidden" value="{$product['amount_refundable']}" class="partialRefundProductAmount" />		
+			<input type="hidden" value="{$product['amount_refundable']}" class="partialRefundProductAmount" />
 		</div>
-	
+
 	</td>
 	{if ($can_edit && !$order->hasBeenDelivered())}
-	<td class="product_invoice" colspan="2" style="display: none;">
+	<td class="product_invoice" style="display: none;">
 		{if sizeof($invoices_collection)}
 		<select name="product_invoice" class="edit_product_invoice">
 			{foreach from=$invoices_collection item=invoice}

@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -34,7 +34,7 @@ if (Tools::getValue('token') == Tools::getAdminToken('AdminReferrers'.(int)Tab::
 			(int)Tools::getValue('id_product'),
 			new Employee((int)Tools::getValue('id_employee'))
 		);
-	else if (Tools::isSubmit('ajaxFillProducts'))
+	elseif (Tools::isSubmit('ajaxFillProducts'))
 	{
 		$json_array = array();
 		$result = Db::getInstance()->executeS('
@@ -90,7 +90,7 @@ class AdminReferrersControllerCore extends AdminController
 				'align' => 'center'
 			),
 			'cache_orders' => array(
-				'title' => $this->l('Ord.'),
+				'title' => $this->l('Orders'),
 				'width' => 30,
 				'align' => 'center'
 			),
@@ -232,7 +232,7 @@ class AdminReferrersControllerCore extends AdminController
 			);
 		else
 			$this->fields_form[0]['form']['desc'] = array(
-				sprintf($this->l('Please install the "%s" module in order to let your affiliates access their own statistics.'), Module::getModuleName('trackingfront'))
+				sprintf($this->l('Please install the "%s" module in order to give your affiliates access their own statistics.'), Module::getModuleName('trackingfront'))
 			);
 
 		$this->fields_form[1] = array('form' => array(
@@ -414,7 +414,13 @@ class AdminReferrersControllerCore extends AdminController
 		{
 			$tpl = $this->createTemplate('form_settings.tpl');
 
+			$statsdata = Module::getInstanceByName('statsdata');
+
+			$statsdata_name = false;
+			if (Validate::isLoadedObject($statsdata))
+				$statsdata_name = $statsdata->displayName;
 			$tpl->assign(array(
+				'statsdata_name' => $statsdata_name,
 				'current' => self::$currentIndex,
 				'token' => $this->token,
 				'tracking_dt' => (int)Tools::getValue('tracking_dt', Configuration::get('TRACKING_DIRECT_TRAFFIC'))

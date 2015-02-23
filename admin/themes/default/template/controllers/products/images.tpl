@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,14 +18,14 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
 {if isset($id_product) && isset($product)}
 <div id="product-images" class="panel product-tab">
-	<input type="hidden" name="submitted_tabs[]" value="Images" />	
+	<input type="hidden" name="submitted_tabs[]" value="Images" />
 	<div class="panel-heading tab" >
 		{l s='Images'}
 		<span class="badge" id="countImage">{$countImages}</span>
@@ -47,7 +47,7 @@
 				<span class="label-tooltip" data-toggle="tooltip"
 					title="{l s='Invalid characters:'} <>;=#{}">
 					{l s='Caption'}
-				</span>			
+				</span>
 			</label>
 			<div class="col-lg-9">
 			{foreach from=$languages item=language}
@@ -55,12 +55,7 @@
 				<div class="translatable-field row lang-{$language.id_lang}">
 					<div class="col-lg-6">
 				{/if}
-						<input type="text"
-						id="legend_{$language.id_lang}"
-						{if isset($input_class)}class="{$input_class}"{/if}
-						name="legend_{$language.id_lang}"
-						value="{$product->name[$language.id_lang]|escape:'html':'UTF-8'}"
-						{if !$product->id}disabled="disabled"{/if} />
+						<input type="text" id="legend_{$language.id_lang}"{if isset($input_class)} class="{$input_class}"{/if} name="legend_{$language.id_lang}" value="{if $images|count}{$images[0]->legend[$language.id_lang]|escape:'html':'UTF-8'}{else}{$product->name[$language.id_lang]|escape:'html':'UTF-8'}{/if}"{if !$product->id} disabled="disabled"{/if}/>
 				{if $languages|count > 1}
 					</div>
 					<div class="col-lg-2">
@@ -84,7 +79,7 @@
 	</div>
 	<table class="table tableDnD" id="imageTable">
 		<thead>
-			<tr class="nodrag nodrop"> 
+			<tr class="nodrag nodrop">
 				<th class="fixed-width-lg"><span class="title_box">{l s='Image'}</span></th>
 				<th class="fixed-width-lg"><span class="title_box">{l s='Caption'}</span></th>
 				<th class="fixed-width-xs"><span class="title_box">{l s='Position'}</span></th>
@@ -113,7 +108,11 @@
 			</td>
 			<td>legend</td>
 			<td id="td_image_id" class="pointer dragHandle center positionImage">
-				image_position
+				<div class="dragGroup">
+					<div class="positions">
+						image_position
+                                        </div>
+                                </div>
 			</td>
 			{if $shops}
 				{foreach from=$shops item=shop}
@@ -140,9 +139,9 @@
 		</tr>
 	</table>
 	<div class="panel-footer">
-		<a href="{$link->getAdminLink('AdminProducts')}" class="btn btn-default"><i class="process-icon-cancel"></i> {l s='Cancel'}</a>
-		<button type="submit" name="submitAddproduct" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save'}</button>
-		<button type="submit" name="submitAddproductAndStay" class="btn btn-default pull-right"><i class="process-icon-save"></i> {l s='Save and stay'}</button>
+		<a href="{$link->getAdminLink('AdminProducts')|escape:'html':'UTF-8'}" class="btn btn-default"><i class="process-icon-cancel"></i> {l s='Cancel'}</a>
+		<button type="submit" name="submitAddproduct" class="btn btn-default pull-right" disabled="disabled"><i class="process-icon-loading"></i> {l s='Save'}</button>
+		<button type="submit" name="submitAddproductAndStay" class="btn btn-default pull-right" disabled="disabled"><i class="process-icon-loading"></i> {l s='Save and stay'}</button>
 	</div>
 	<script type="text/javascript">
 		var upbutton = '{l s='Upload an image'}';
@@ -199,16 +198,22 @@
 			var originalOrder = false;
 
 			$("#imageTable").tableDnD(
-			{	onDragStart: function(table, row) {
-					originalOrder = $.tableDnD.serialize();
-				},
+			{	dragHandle: 'dragHandle',
+                                onDragClass: 'myDragClass',
+                                onDragStart: function(table, row) {
+                                        originalOrder = $.tableDnD.serialize();
+                                        reOrder = ':even';
+                                        if (table.tBodies[0].rows[1] && $('#' + table.tBodies[0].rows[1].id).hasClass('alt_row'))
+                                                reOrder = ':odd';
+                                        $(table).find('#' + row.id).parent('tr').addClass('myDragClass');
+                                },
 				onDrop: function(table, row) {
 					if (originalOrder != $.tableDnD.serialize()) {
 						current = $(row).attr("id");
 						stop = false;
 						image_up = "{";
 						$("#imageList").find("tr").each(function(i) {
-							$("#td_" +  $(this).attr("id")).html(i + 1);
+							$("#td_" +  $(this).attr("id")).html('<div class="dragGroup"><div class="positions">'+(i + 1)+'</div></div>');
 							if (!stop || (i + 1) == 2)
 								image_up += '"' + $(this).attr("id") + '" : ' + (i + 1) + ',';
 						});
@@ -219,7 +224,7 @@
 				}
 			});
 			/**
-			 * on success function 
+			 * on success function
 			 */
 			function afterDeleteProductImage(data)
 			{
@@ -252,12 +257,12 @@
 						"id_image":id,
 						"id_product" : {/literal}{$id_product}{literal},
 						"id_category" : {/literal}{$id_category_default}{literal},
-						"token" : "{/literal}{$token}{literal}",
+						"token" : "{/literal}{$token|escape:'html':'UTF-8'}{literal}",
 						"tab" : "AdminProducts",
 						"ajax" : 1 }, afterDeleteProductImage
 				);
 			});
-			
+
 			$('.covered').die().live('click', function(e)
 			{
 				e.preventDefault();
@@ -275,12 +280,12 @@
 					"action":"UpdateCover",
 					"id_image":id,
 					"id_product" : {/literal}{$id_product}{literal},
-					"token" : "{/literal}{$token}{literal}",
+					"token" : "{/literal}{$token|escape:'html':'UTF-8'}{literal}",
 					"controller" : "AdminProducts",
 					"ajax" : 1 }
 				);
 			});
-			
+
 			$('.image_shop').die().live('click', function()
 			{
 				active = false;
@@ -295,31 +300,31 @@
 					"id_product":id_product,
 					"id_shop": id_shop,
 					"active":active,
-					"token" : "{/literal}{$token}{literal}",
+					"token" : "{/literal}{$token|escape:'html':'UTF-8'}{literal}",
 					"tab" : "AdminProducts",
-					"ajax" : 1 
+					"ajax" : 1
 				});
 			});
-			
+
 			function updateImagePosition(json)
 			{
 				doAdminAjax(
 				{
 					"action":"updateImagePosition",
 					"json":json,
-					"token" : "{/literal}{$token}{literal}",
+					"token" : "{/literal}{$token|escape:'html':'UTF-8'}{literal}",
 					"tab" : "AdminProducts",
 					"ajax" : 1
 				});
 			}
-			
+
 			function delQueue(id)
 			{
 				$("#img" + id).fadeOut("slow");
 				$("#img" + id).remove();
 			}
-			
-			
+
+
 			$('.fancybox').fancybox();
 		});
 

@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -46,11 +46,11 @@ class AdminStockConfigurationControllerCore extends AdminController
 			'id_stock_mvt_reason' => array(
 				'title' => $this->l('ID'),
 				'align' => 'center',
+				'class' => 'fixed-width-xs',
 				'search' => false,
-				'class' => 'fixed-width-xs'
 			),
 			'sign' => array(
-				'title' => $this->l('Sign'),
+				'title' => $this->l('Action'),
 				'align' => 'center',
 				'type' => 'select',
 				'filter_key' => 'a!sign',
@@ -63,11 +63,13 @@ class AdminStockConfigurationControllerCore extends AdminController
 					1 => 'add_stock.png'
 				),
 				'orderby' => false,
-				'class' => 'fixed-width-sm'
+				'class' => 'fixed-width-sm',
+				'search' => false,
 			),
 			'name' => array(
 				'title' => $this->l('Name'),
-				'filter_key' => 'b!name'
+				'filter_key' => 'b!name',
+				'search' => false,
 			),
 		);
 
@@ -185,7 +187,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 							'id' => 'id',
 							'name' => 'name'
 						),
-						'hint' => $this->l('Select the corresponding action: Increase or decrease stock?')
+						'desc' => $this->l('Does this label indicate a stock increase or a stock decrease?')
 					),
 				),
 				'submit' => array(
@@ -194,7 +196,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 			);
 		}
 		// else, if we are managing Supply Order Status
-		else if (Tools::isSubmit('addsupply_order_state') ||
+		elseif (Tools::isSubmit('addsupply_order_state') ||
 				 Tools::isSubmit('updatesupply_order_state') ||
 				 Tools::isSubmit('submitAddsupply_order_state') ||
 				 Tools::isSubmit('submitUpdatesupply_order_state'))
@@ -276,11 +278,11 @@ class AdminStockConfigurationControllerCore extends AdminController
 									'label' => $this->l('No')
 								)
 							),
-							'hint' => $this->l('Define if products have been either partially or completely received. This will allow you to know if ordered products have to be added to the corresponding warehouse.'),
+							'hint' => $this->l('Indicates whether the supplies have been either partially or completely received. This will allow you to know if ordered products have to be added to the corresponding warehouse.'),
 						),
 						array(
 							'type' => 'switch',
-							'label' => $this->l('Pending receipt'),
+							'label' => $this->l('Awaiting delivery'),
 							'name' => 'pending_receipt',
 							'required' => true,
 							'is_bool' => true,
@@ -296,7 +298,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 									'label' => $this->l('No')
 								)
 							),
-							'hint' => $this->l('The customer is awaiting delivery.')
+							'hint' => $this->l('Indicates that you are awaiting delivery of supplies.')
 						),
 					),
 					'submit' => array(
@@ -394,7 +396,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 		 * Supply Order Status/State
 		 */
 		$second_list = null;
-		unset($this->_select, $this->_where, $this->_join, $this->_group, $this->_filterHaving, $this->_filter, $this->list_skip_actions['delete'], $this->list_skip_actions['edit']);
+		unset($this->_select, $this->_where, $this->_join, $this->_group, $this->_filterHaving, $this->_filter, $this->list_skip_actions['delete'], $this->list_skip_actions['edit'], $this->list_id);
 
 		// generates the actual second list
 		$second_list = $this->initSupplyOrderStatusList();
@@ -428,6 +430,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 			'name' => array(
 				'title' => $this->l('Name'),
 				'color' => 'color',
+				'search' => false,
 			),
 			'editable' => array(
 				'title' => $this->l('Supply order can be edited?'),
@@ -436,7 +439,8 @@ class AdminStockConfigurationControllerCore extends AdminController
 				'type' => 'bool',
 				'orderby' => false,
 				'class' => 'fixed-width-sm',
-				'ajax' => true
+				'ajax' => true,
+				'search' => false,
 			),
 			'delivery_note' => array(
 				'title' => $this->l('Delivery note is available?'),
@@ -445,7 +449,8 @@ class AdminStockConfigurationControllerCore extends AdminController
 				'type' => 'bool',
 				'orderby' => false,
 				'class' => 'fixed-width-sm',
-				'ajax' => true
+				'ajax' => true,
+				'search' => false,
 			),
 			'pending_receipt' => array(
 				'title' => $this->l('Delivery is expected?'),
@@ -454,7 +459,8 @@ class AdminStockConfigurationControllerCore extends AdminController
 				'type' => 'bool',
 				'orderby' => false,
 				'class' => 'fixed-width-sm',
-				'ajax' => true
+				'ajax' => true,
+				'search' => false,
 			),
 			'receipt_state' => array(
 				'title' => $this->l('Stock has been delivered?'),
@@ -463,7 +469,8 @@ class AdminStockConfigurationControllerCore extends AdminController
 				'type' => 'bool',
 				'orderby' => false,
 				'class' => 'fixed-width-sm',
-				'ajax' => true
+				'ajax' => true,
+				'search' => false,
 			),
 			'enclosed' => array(
 				'title' => $this->l('Order is closed?'),
@@ -472,7 +479,8 @@ class AdminStockConfigurationControllerCore extends AdminController
 				'type' => 'bool',
 				'orderby' => false,
 				'class' => 'fixed-width-sm',
-				'ajax' => true
+				'ajax' => true,
+				'search' => false,
 			),
 		);
 
@@ -500,7 +508,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 		 	$this->_defaultOrderBy = 'id_supply_order_state';
 		}
 		// StockMvtReason
-		else if (Tools::isSubmit('delete'.$this->table))
+		elseif (Tools::isSubmit('delete'.$this->table))
 			$this->deleted = true;
 
 		return parent::postProcess();
@@ -534,7 +542,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 	{
 		if (!Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT'))
 		{
-			$this->warnings[md5('PS_ADVANCED_STOCK_MANAGEMENT')] = $this->l('You need to activate advanced stock management before using this feature.');
+			$this->warnings[md5('PS_ADVANCED_STOCK_MANAGEMENT')] = $this->l('You need to activate the Advanced Stock Management feature before you can use this feature.');
 			return false;
 		}
 		parent::initContent();
@@ -544,7 +552,7 @@ class AdminStockConfigurationControllerCore extends AdminController
 	{
 		if (!Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT'))
 		{
-			$this->warnings[md5('PS_ADVANCED_STOCK_MANAGEMENT')] = $this->l('You need to activate advanced stock management before using this feature.');
+			$this->warnings[md5('PS_ADVANCED_STOCK_MANAGEMENT')] = $this->l('You need to activate the Advanced Stock Management feature before you can use this feature.');
 			return false;
 		}
 		parent::initProcess();	

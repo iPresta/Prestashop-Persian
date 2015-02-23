@@ -1,5 +1,5 @@
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -58,19 +58,21 @@ function initTableDnD(table)
 				var ids = row.id.split('_');
 				var tableDrag = table;
 				var params = '';
-
+				table.id = table.id.replace('table-', '');
 				if (table.id == 'cms_block_0' || table.id == 'cms_block_1')
 					params = {
 						updatePositions: true,
 						configure: 'blockcms'
 					};
 				else if (table.id == 'category')
+				{
 					params = {
 						action: 'updatePositions',
 						id_category_parent: ids[1],
 						id_category_to_move: ids[2],
 						way: way
 					};
+				}
 				else if (table.id == 'cms_category')
 					params = {
 						action: 'updateCmsCategoriesPositions',

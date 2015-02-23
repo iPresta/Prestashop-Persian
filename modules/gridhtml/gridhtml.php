@@ -40,15 +40,14 @@ class GridHtml extends ModuleGridEngine
 		{
 			$this->name = 'gridhtml';
 			$this->tab = 'administration';
-			$this->version = 1.1;
+			$this->version = '1.2.2';
 			$this->author = 'PrestaShop';
 			$this->need_instance = 0;
 			
 			Module::__construct();
 			
 			$this->displayName = $this->l('Simple HTML table display');
-			$this->description = 'Allows the statistics system to display data in a grid.';
-			$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
+			$this->description = $this->l('Allows the statistics system to display data in a grid.');
 		}
 	}
 	
@@ -64,23 +63,16 @@ class GridHtml extends ModuleGridEngine
 			$params['emptyMsg'] = 'Empty';
 
 		$html = '
-			<table class="table" id="grid_1">
-				<thead>
-					<tr>';
-					foreach ($params['columns'] as $column)
-						$html .= '<th class="center">
-									<span class="title_box active">'.$column['header'].'</span>
-								</th>';
-					$html .= '
-					</tr>
-				</thead>
-				<tbody></tbody>
-				<tfoot>
-					<tr>
-						<th colspan="'.count($params['columns']).'"></th>
-					</tr>
-				</tfoot>
-			</table>
+		<table class="table" id="grid_1">
+			<thead>
+				<tr>';
+		foreach ($params['columns'] as $column)
+			$html .= '<th class="center"><span class="title_box active">'.$column['header'].'</span></th>';
+		$html .= '</tr>
+			</thead>
+			<tbody></tbody>
+			<tfoot><tr><th colspan="'.count($params['columns']).'"></th></tr></tfoot>
+		</table>
 		<script type="text/javascript">
 			function getGridData(url)
 			{

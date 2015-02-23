@@ -33,7 +33,7 @@ class BlockManufacturer extends Module
     {
         $this->name = 'blockmanufacturer';
         $this->tab = 'front_office_features';
-        $this->version = 1.2;
+        $this->version = '1.2.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 

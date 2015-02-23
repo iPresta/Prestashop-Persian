@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -60,15 +60,15 @@ class AdminCustomerPreferencesControllerCore extends AdminController
 						'identifier' => 'value'
 					),
 					'PS_ONE_PHONE_AT_LEAST' => array(
-						'title' => $this->l('Phone number'),
+						'title' => $this->l('Phone number is mandatory'),
 						'hint' => $this->l('If you chose yes, your customer will have to provide at least one phone number to register.'),
 						'validation' => 'isBool',
 						'cast' => 'intval',
 						'type' => 'bool'
 					),
 					'PS_CART_FOLLOWING' => array(
-						'title' => $this->l('Cart re-display at login'),
-						'hint' => $this->l('After customer logs in, you can recall and display the content of his/her last shopping cart.'),
+						'title' => $this->l('Re-display cart at login'),
+						'hint' => $this->l('After a customer logs in, you can recall and display the content of his/her last shopping cart.'),
 						'validation' => 'isBool',
 						'cast' => 'intval',
 						'type' => 'bool'
@@ -81,8 +81,8 @@ class AdminCustomerPreferencesControllerCore extends AdminController
 						'type' => 'bool'
 					),
 					'PS_PASSWD_TIME_FRONT' => array(
-						'title' => $this->l('Regenerate password'),
-						'hint' => $this->l('Minimum time required to regenerate a password.'),
+						'title' => $this->l('Password reset delay'),
+						'hint' => $this->l('Minimum time required between two requests for a password reset.'),
 						'validation' => 'isUnsignedInt',
 						'cast' => 'intval',
 						'size' => 5,

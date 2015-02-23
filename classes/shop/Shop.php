@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -132,14 +132,14 @@ class ShopCore extends ObjectModel
 		if ($this->id)
 			$this->setUrl();
 	}
-	
+
 	/**
 	 * Initialize an array with all the multistore associations in the database
 	 */
 	protected static function init()
 	{
 		Shop::$id_shop_default_tables = array('product', 'category');
-		
+
 		$asso_tables = array(
 			'carrier' => array('type' => 'shop'),
 			'carrier_lang' => array('type' => 'fk_shop'),
@@ -178,7 +178,7 @@ class ShopCore extends ObjectModel
 			'manufacturer' => array('type' => 'shop'),
 			'supplier' => array('type' => 'shop'),
 		);
-		
+
 		foreach ($asso_tables as $table_name => $table_details)
 			Shop::addTableAssociation($table_name, $table_details);
 
@@ -327,11 +327,14 @@ class ShopCore extends ObjectModel
 					ORDER BY LENGTH(CONCAT(su.physical_uri, su.virtual_uri)) DESC';
 
 			$result = Db::getInstance()->executeS($sql);
+
+			$through = false;
 			foreach ($result as $row)
 			{
 				// An URL matching current shop was found
 				if (preg_match('#^'.preg_quote($row['uri'], '#').'#i', $request_uri))
 				{
+					$through = true;
 					$id_shop = $row['id_shop'];
 					$found_uri = $row['uri'];
 					if ($row['main'])
@@ -341,8 +344,9 @@ class ShopCore extends ObjectModel
 			}
 
 			// If an URL was found but is not the main URL, redirect to main URL
-			if ($id_shop && !$is_main_uri)
+			if ($through && $id_shop && !$is_main_uri)
 			{
+
 				foreach ($result as $row)
 				{
 					if ($row['id_shop'] == $id_shop && $row['main'])
@@ -359,7 +363,10 @@ class ShopCore extends ObjectModel
 			}
 		}
 
-		if ((!$id_shop && defined('_PS_ADMIN_DIR_')) || Tools::isPHPCLI() || in_array(Tools::getHttpHost(), array(_MEDIA_SERVER_1_, _MEDIA_SERVER_2_, _MEDIA_SERVER_3_)))
+		$http_host = Tools::getHttpHost();
+		$all_media = array_merge(Configuration::getMultiShopValues('PS_MEDIA_SERVER_1'), Configuration::getMultiShopValues('PS_MEDIA_SERVER_2'), Configuration::getMultiShopValues('PS_MEDIA_SERVER_3'));
+
+		if ((!$id_shop && defined('_PS_ADMIN_DIR_')) || Tools::isPHPCLI() || in_array($http_host, $all_media))
 		{
 			// If in admin, we can access to the shop without right URL
 			if ((!$id_shop && Tools::isPHPCLI()) || defined('_PS_ADMIN_DIR_'))
@@ -369,9 +376,8 @@ class ShopCore extends ObjectModel
 			if (!Validate::isLoadedObject($shop))
 				$shop = new Shop((int)Configuration::get('PS_SHOP_DEFAULT'));
 
-			$shop->physical_uri = preg_replace('#/+#', '/', str_replace('\\', '/', dirname(dirname($_SERVER['SCRIPT_NAME']))).'/');
 			$shop->virtual_uri = '';
-			
+
 			// Define some $_SERVER variables like HTTP_HOST if PHP is launched with php-cli
 			if (Tools::isPHPCLI())
 			{
@@ -416,6 +422,12 @@ class ShopCore extends ObjectModel
 				header('location: http://'.$url);
 				exit;
 			}
+			elseif (defined('_PS_ADMIN_DIR_') && empty($shop->physical_uri))
+			{
+				$shop_default = new Shop((int)Configuration::get('PS_SHOP_DEFAULT'));
+				$shop->physical_uri = $shop_default->physical_uri;
+				$shop->virtual_uri = $shop_default->virtual_uri;
+			}
 		}
 
 		self::$context_id_shop = $shop->id;
@@ -459,7 +471,7 @@ class ShopCore extends ObjectModel
 
 	/**
 	 * Get shop URI
-	 *
+ 	 *
 	 * @return string
 	 */
 	public function getBaseURI()
@@ -536,7 +548,7 @@ class ShopCore extends ObjectModel
 			Shop::init();
 		return (isset(Shop::$asso_tables[$table]) ? Shop::$asso_tables[$table] : false);
 	}
-	
+
 	/**
 	 * check if the table has an id_shop_default
 	 *
@@ -560,7 +572,7 @@ class ShopCore extends ObjectModel
 			Shop::init();
 		return Shop::$asso_tables;
 	}
-	
+
 	/**
 	 * Add table associated to shop
 	 *
@@ -576,7 +588,7 @@ class ShopCore extends ObjectModel
 			return false;
 		return true;
 	}
-	
+
 	/**
 	 * Check if given table is associated to shop
 	 *
@@ -689,12 +701,12 @@ class ShopCore extends ObjectModel
 
 		return $results;
 	}
-	
+
 	public function getUrlsSharedCart()
 	{
 		if (!$this->getGroup()->share_order)
 			return false;
-		
+
 		$query = new DbQuery();
 		$query->select('domain');
 		$query->from('shop_url');
@@ -903,7 +915,7 @@ class ShopCore extends ObjectModel
 
 		return self::$context_id_shop_group;
 	}
-	
+
 	public static function getContextShopGroup()
 	{
 		static $context_shop_group = null;
@@ -998,7 +1010,8 @@ class ShopCore extends ObjectModel
 		static $feature_active = null;
 
 		if ($feature_active === null)
-			$feature_active = Configuration::getGlobalValue('PS_MULTISHOP_FEATURE_ACTIVE') && (Db::getInstance()->getValue('SELECT COUNT(*) FROM '._DB_PREFIX_.'shop') > 1);
+			$feature_active = (bool)Db::getInstance()->getValue('SELECT value FROM `'._DB_PREFIX_.'configuration` WHERE `name` LIKE "PS_MULTISHOP_FEATURE_ACTIVE"')
+				&& (Db::getInstance()->getValue('SELECT COUNT(*) FROM '._DB_PREFIX_.'shop') > 1);
 
 		return $feature_active;
 	}

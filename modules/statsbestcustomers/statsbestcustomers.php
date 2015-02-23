@@ -41,7 +41,7 @@ class StatsBestCustomers extends ModuleGrid
 	{
 		$this->name = 'statsbestcustomers';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.4.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -114,8 +114,10 @@ class StatsBestCustomers extends ModuleGrid
 			'emptyMessage' => $this->empty_message,
 			'pagingMessage' => $this->paging_message
 		);
+
 		if (Tools::getValue('export'))
 			$this->csvExport($engine_params);
+
 		$this->html = '
 		<div class="panel-heading">
 			'.$this->displayName.'
@@ -123,7 +125,7 @@ class StatsBestCustomers extends ModuleGrid
 		<h4>'.$this->l('Guide').'</h4>
 			<div class="alert alert-warning">
 				<h4>'.$this->l('Develop clients\' loyalty').'</h4>
-				<p>
+				<div>
 					'.$this->l('Keeping a client can be more profitable than gaining a new one. That is one of the many reasons it is necessary to cultivate customer loyalty.').' <br />
 					'.$this->l('Word of mouth is also a means for getting new, satisfied clients. A dissatisfied customer can hurt your e-reputation and obstruct future sales goals.').'<br />
 					'.$this->l('In order to achieve this goal, you can organize:').'
@@ -132,10 +134,10 @@ class StatsBestCustomers extends ModuleGrid
 						<li>'.$this->l('Sustainable operations: loyalty points or cards, which not only justify communication between merchant and client, but also offer advantages to clients (private offers, discounts).').'</li>
 					</ul>
 					'.$this->l('These operations encourage clients to buy products and visit your online store more regularly.').'
-				</p>
+				</div>
 			</div>
 		'.$this->engine($engine_params).'
-		<a class="btn btn-default export-csv" href="'.htmlentities($_SERVER['REQUEST_URI']).'&export=1">
+		<a class="btn btn-default export-csv" href="'.Tools::safeOutput($_SERVER['REQUEST_URI'].'&export=').'1">
 			<i class="icon-cloud-upload"></i> '.$this->l('CSV Export').'
 		</a>';
 
@@ -148,8 +150,9 @@ class StatsBestCustomers extends ModuleGrid
 		SELECT SQL_CALC_FOUND_ROWS c.`id_customer`, c.`lastname`, c.`firstname`, c.`email`,
 			COUNT(co.`id_connections`) as totalVisits,
 			IFNULL((
-				SELECT ROUND(SUM(IFNULL(o.`total_paid_real`, 0) / cu.conversion_rate), 2) 
+				SELECT ROUND(SUM(IFNULL(op.`amount`, 0) / cu.conversion_rate), 2)
 				FROM `'._DB_PREFIX_.'orders` o
+				LEFT JOIN `'._DB_PREFIX_.'order_payment` op ON o.reference = op.order_reference
 				LEFT JOIN `'._DB_PREFIX_.'currency` cu ON o.id_currency = cu.id_currency
 				WHERE o.id_customer = c.id_customer
 				AND o.invoice_date BETWEEN '.$this->getDate().'
@@ -168,14 +171,17 @@ class StatsBestCustomers extends ModuleGrid
 		WHERE co.date_add BETWEEN '.$this->getDate()
 			.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER, 'c').
 			'GROUP BY c.`id_customer`, c.`lastname`, c.`firstname`, c.`email`';
+
 		if (Validate::IsName($this->_sort))
 		{
-			$this->query .= ' ORDER BY `'.$this->_sort.'`';
+			$this->query .= ' ORDER BY `'.bqSQL($this->_sort).'`';
 			if (isset($this->_direction) && Validate::isSortDirection($this->_direction))
 				$this->query .= ' '.$this->_direction;
 		}
+
 		if (($this->_start === 0 || Validate::IsUnsignedInt($this->_start)) && Validate::IsUnsignedInt($this->_limit))
-			$this->query .= ' LIMIT '.$this->_start.', '.($this->_limit);
+			$this->query .= ' LIMIT '.(int)$this->_start.', '.(int)$this->_limit;
+
 		$this->_values = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($this->query);
 		$this->_totalCount = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('SELECT FOUND_ROWS()');
 	}

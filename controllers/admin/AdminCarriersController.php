@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -30,10 +30,10 @@ class AdminCarriersControllerCore extends AdminController
 
 	public function __construct()
 	{
-		
-		if ($id_carrier = Tools::getValue('id_carrier') && !Tools::isSubmit('deletecarrier') && !Tools::isSubmit('statuscarrier'))
+
+		if ($id_carrier = Tools::getValue('id_carrier') && !Tools::isSubmit('deletecarrier') && !Tools::isSubmit('statuscarrier') && !Tools::isSubmit('isFreecarrier') && !Tools::isSubmit('onboarding_carrier'))
 			Tools::redirectAdmin(Context::getContext()->link->getAdminLink('AdminCarrierWizard').'&id_carrier='.(int)$id_carrier);
-		
+
 		$this->bootstrap = true;
 		$this->table = 'carrier';
 		$this->className = 'Carrier';
@@ -106,36 +106,46 @@ class AdminCarriersControllerCore extends AdminController
 			)
 		);
 		parent::__construct();
+		
+		if (Tools::isSubmit('onboarding_carrier'))
+			$this->display = 'view';
 	}
 
 	public function initToolbar()
 	{
 		parent::initToolbar();
 		
-		if (isset($this->toolbar_btn['new']))
-			$this->toolbar_btn['new']['href'] = $this->context->link->getAdminLink('AdminCarrierWizard');
+		if (isset($this->toolbar_btn['new']) && $this->display != 'view')
+			$this->toolbar_btn['new']['href'] = $this->context->link->getAdminLink('AdminCarriers').'&onboarding_carrier';
 	}
 
 	public function initPageHeaderToolbar()
 	{
 		$this->page_header_toolbar_title = $this->l('Carriers');
-		$this->page_header_toolbar_btn['new_carrier'] = array(
-			'href' => $this->context->link->getAdminLink('AdminCarrierWizard'),
-			'desc' => $this->l('Add new carrier', null, null, false),
-			'icon' => 'process-icon-new'
-		);
+		if ($this->display != 'view')
+			$this->page_header_toolbar_btn['new_carrier'] = array(
+				'href' => $this->context->link->getAdminLink('AdminCarriers').'&onboarding_carrier',
+				'desc' => $this->l('Add new carrier', null, null, false),
+				'icon' => 'process-icon-new'
+			);
 
 		parent::initPageHeaderToolbar();
 	}
-
+	
+	public function renderView()
+	{
+		$this->initTabModuleList();
+		$this->filterTabModuleList();
+		$this->context->smarty->assign('panel_title', $this->l('Use one of our recommended carrier modules'));
+		$this->tpl_view_vars = array('modules_list' => $this->renderModulesList());
+		unset($this->page_header_toolbar_btn['modules-list']);
+		return parent::renderView();
+	}
+	
 	public function renderList()
 	{
 		$this->_select = 'b.*';
-		$this->_join = 'LEFT JOIN `'._DB_PREFIX_.'carrier_lang` b ON a.id_carrier = b.id_carrier'.Shop::addSqlRestrictionOnLang('b').'
-							LEFT JOIN `'._DB_PREFIX_.'carrier_tax_rules_group_shop` ctrgs ON (a.`id_carrier` = ctrgs.`id_carrier`
-								AND ctrgs.id_shop='.(int)$this->context->shop->id.')';
-		$this->_where = 'AND b.id_lang = '.$this->context->language->id;
-
+		$this->_join = 'LEFT JOIN `'._DB_PREFIX_.'carrier_lang` b ON a.id_carrier = b.id_carrier'.Shop::addSqlRestrictionOnLang('b').' AND b.id_lang = '.$this->context->language->id.' LEFT JOIN `'._DB_PREFIX_.'carrier_tax_rules_group_shop` ctrgs ON (a.`id_carrier` = ctrgs.`id_carrier` AND ctrgs.id_shop='.(int)$this->context->shop->id.')';
 		return parent::renderList();
 	}
 
@@ -394,6 +404,9 @@ class AdminCarriersControllerCore extends AdminController
 
 	public function postProcess()
 	{
+		if (Tools::getValue('action') == 'GetModuleQuickView' && Tools::getValue('ajax') == '1')
+			$this->ajaxProcessGetModuleQuickView();
+		
 		if (Tools::getValue('submitAdd'.$this->table))
 		{
 			/* Checking fields validity */
@@ -478,7 +491,7 @@ class AdminCarriersControllerCore extends AdminController
 			parent::postProcess();
 		}
 		/*
-else if ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tools::getValue($this->identifier))
+elseif ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tools::getValue($this->identifier))
 		{
 			if ($this->tabAccess['edit'] === '1')
 			{
@@ -491,7 +504,7 @@ else if ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tool
 				$this->errors[] = Tools::displayError('You do not have permission to edit this.');
 		}
 */
-		else if (isset($_GET['isFree'.$this->table]))
+		elseif (isset($_GET['isFree'.$this->table]))
 		{
 			$this->processIsFree();
 		}
@@ -512,7 +525,7 @@ else if ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tool
 					$carrier = new Carrier((int)$id);
 					Warehouse::removeCarrier($carrier->id_reference);
 				}
-				else if (Tools::isSubmit($this->table.'Box') && count(Tools::isSubmit($this->table.'Box')) > 0)
+				elseif (Tools::isSubmit($this->table.'Box') && count(Tools::isSubmit($this->table.'Box')) > 0)
 				{
 					$ids = Tools::getValue($this->table.'Box');
 					array_walk($ids, 'intval');
@@ -707,7 +720,15 @@ else if ((isset($_GET['status'.$this->table]) || isset($_GET['status'])) && Tool
 		else
 			return;
 	}
-
+	
+	protected function initTabModuleList()
+	{
+		if (Tools::isSubmit('onboarding_carrier'))
+		{
+			parent::initTabModuleList();
+			$this->filter_modules_list = $this->tab_modules_list['default_list'] = $this->tab_modules_list['slider_list'];
+		}
+	}
 }
 
 

@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -34,6 +34,13 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 	 	$this->table = 'specific_price_rule';
 		$this->className = 'SpecificPriceRule';
 	 	$this->lang = false;
+
+		/* if $_GET['id_shop'] is transmitted, virtual url can be loaded in config.php, so we wether transmit shop_id in herfs */
+		if ($this->id_shop = (int)Tools::getValue('shop_id'))
+		{
+			$_GET['id_shop'] = $this->id_shop;
+			$_POST['id_shop'] = $this->id_shop;
+		}
 
 	 	$this->list_reduction_type = array(
 			'percentage' => $this->l('Percentage'),
@@ -141,7 +148,7 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 		foreach ($this->_list as $k => $list)
 			if ($list['reduction_type'] == 'amount')
 				$this->_list[$k]['reduction_type'] = $this->list_reduction_type['amount'];
-			else if ($list['reduction_type'] == 'percentage')
+			elseif ($list['reduction_type'] == 'percentage')
 				$this->_list[$k]['reduction_type'] = $this->list_reduction_type['percentage'];
 	}
 
@@ -156,7 +163,7 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 
 		$this->fields_form = array(
 			'legend' => array(
-				'title' => $this->l('Specific price rules'),
+				'title' => $this->l('Catalog price rules'),
 				'icon' => 'icon-dollar'
 			),
 			'input' => array(
@@ -171,7 +178,7 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 				array(
 					'type' => 'select',
 					'label' => $this->l('Shop'),
-					'name' => 'id_shop',
+					'name' => 'shop_id',
 					'options' => array(
 						'query' => $shops,
 						'id' => 'id_shop',
@@ -263,6 +270,20 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 					),
 				),
 				array(
+					'type' => 'select',
+					'label' => $this->l('Reduction with or without taxes'),
+					'name' => 'reduction_tax',
+					'align' => 'center',
+					'options' => array(
+						'query' => array(
+										array('lab' => $this->l('Tax included'), 'val' => 1),
+										array('lab' => $this->l('Tax excluded'), 'val' => 0),
+									),
+						'id' => 'val',
+						'name' => 'lab',
+					)
+				),
+				array(
 					'type' => 'text',
 					'label' => $this->l('Reduction'),
 					'name' => 'reduction',
@@ -273,17 +294,17 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 				'title' => $this->l('Save')
 			),
 		);
-		if (($value = $this->getFieldValue($this->object, 'price')) != -1)	
+		if (($value = $this->getFieldValue($this->object, 'price')) != -1)
 			$price = number_format($value, 6);
 		else
 			$price = '';
 
 		$this->fields_value = array(
-										'price' => $price,
-										'from_quantity' => (($value = $this->getFieldValue($this->object, 'from_quantity')) ? $value : 1),
-										'reduction' => number_format((($value = $this->getFieldValue($this->object, 'reduction')) ? $value : 0), 6),
-										'leave_bprice_on' => $price ? 0 : 1
-									);
+			'price' => $price,
+			'from_quantity' => (($value = $this->getFieldValue($this->object, 'from_quantity')) ? $value : 1),
+			'reduction' => number_format((($value = $this->getFieldValue($this->object, 'reduction')) ? $value : 0), 6),
+			'leave_bprice_on' => $price ? 0 : 1
+		);
 
 		$attribute_groups = array();
 		$attributes = Attribute::getAttributes((int)$this->context->language->id);
@@ -291,27 +312,27 @@ class AdminSpecificPriceRuleControllerCore extends AdminController
 		{
 			if (!isset($attribute_groups[$attribute['id_attribute_group']]))
 				$attribute_groups[$attribute['id_attribute_group']]  = array(
-																							'id_attribute_group' => $attribute['id_attribute_group'],
-																							'name' => $attribute['attribute_group']
-																						);
+					'id_attribute_group' => $attribute['id_attribute_group'],
+					'name' => $attribute['attribute_group']
+				);
 			$attribute_groups[$attribute['id_attribute_group']]['attributes'][] = array(
-																											'id_attribute' => $attribute['id_attribute'],
-																											'name' => $attribute['name']
-																										);
+				'id_attribute' => $attribute['id_attribute'],
+				'name' => $attribute['name']
+			);
 		}
 		$features = Feature::getFeatures((int)$this->context->language->id);
 		foreach ($features as &$feature)
 			$feature['values'] = FeatureValue::getFeatureValuesWithLang((int)$this->context->language->id, $feature['id_feature'], true);
 
 		$this->tpl_form_vars = array(
-										'manufacturers' => Manufacturer::getManufacturers(),
-										'suppliers' => Supplier::getSuppliers(),
-										'attributes_group' => $attribute_groups,
-										'features' => $features,
-										'categories' => Category::getSimpleCategories((int)$this->context->language->id),
-										'conditions' => $this->object->getConditions(),
-										'is_multishop' => Shop::isFeatureActive()
-										);
+			'manufacturers' => Manufacturer::getManufacturers(),
+			'suppliers' => Supplier::getSuppliers(),
+			'attributes_group' => $attribute_groups,
+			'features' => $features,
+			'categories' => Category::getSimpleCategories((int)$this->context->language->id),
+			'conditions' => $this->object->getConditions(),
+			'is_multishop' => Shop::isFeatureActive()
+			);
 		return parent::renderForm();
 	}
 

@@ -1,5 +1,5 @@
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -45,36 +45,41 @@ $(document).ready(function(){
 	/* roll over cart */
 	var cart_block = new HoverWatcher('#header .cart_block');
 	var shopping_cart = new HoverWatcher('#header .shopping_cart');
+	var is_touch_enabled = false;
 
 	if ('ontouchstart' in document.documentElement)
-	{
-		$('.shopping_cart > a:first').on('click', function(e){
-			e.preventDefault();
-		});
+		is_touch_enabled = true;
 
-		$(document).on('touchstart', '#header .shopping_cart a:first', function(){
-			if ($(this).next('.cart_block:visible').length)
+	$(document).on('click', '#header .shopping_cart > a:first', function(e){
+		e.preventDefault();
+		e.stopPropagation();
+
+		// Simulate hover when browser says device is touch based
+		if (is_touch_enabled)
+		{
+			if ($(this).next('.cart_block:visible').length && !cart_block.isHoveringOver())
 				$("#header .cart_block").stop(true, true).slideUp(450);
-			else
+			else if (ajaxCart.nb_total_products > 0 || cart_qty > 0)
 				$("#header .cart_block").stop(true, true).slideDown(450);
-			e.preventDefault();
-			e.stopPropagation();
-		});
-	}
-	else
-		$("#header .shopping_cart a:first").hover(
-			function(){
-				if (ajaxCart.nb_total_products > 0 || cart_qty > 0)
-					$("#header .cart_block").stop(true, true).slideDown(450);
-			},
-			function(){
-				setTimeout(function(){
-					if (!shopping_cart.isHoveringOver() && !cart_block.isHoveringOver())
-						$("#header .cart_block").stop(true, true).slideUp(450);
-						
-				}, 200);
-			}
-		);
+
+			return;
+		}
+		else
+			window.location.href = $(this).attr('href');
+	});
+
+	$("#header .shopping_cart a:first").hover(
+		function(){
+			if (ajaxCart.nb_total_products > 0 || cart_qty > 0)
+				$("#header .cart_block").stop(true, true).slideDown(450);
+		},
+		function(){
+			setTimeout(function(){
+				if (!shopping_cart.isHoveringOver() && !cart_block.isHoveringOver())
+					$("#header .cart_block").stop(true, true).slideUp(450);				
+			}, 200);
+		}
+	);
 
 	$("#header .cart_block").hover(
 		function(){
@@ -128,14 +133,17 @@ var ajaxCart = {
 		//for every 'add' buttons...
 		$(document).on('click', '.ajax_add_to_cart_button', function(e){
 			e.preventDefault();
-			var idProduct =  $(this).data('id-product');
+			var idProduct =  parseInt($(this).data('id-product'));
+			var minimalQuantity =  parseInt($(this).data('minimal_quantity'));
+			if (!minimalQuantity)
+				minimalQuantity = 1;
 			if ($(this).prop('disabled') != 'disabled')
-				ajaxCart.add(idProduct, null, false, this);
+				ajaxCart.add(idProduct, null, false, this, minimalQuantity);
 		});
 		//for product page 'add' button...
 		$(document).on('click', '#add_to_cart button', function(e){
 			e.preventDefault();
-			ajaxCart.add( $('#product_page_product_id').val(), $('#idCombination').val(), true, null, $('#quantity_wanted').val(), null);
+			ajaxCart.add($('#product_page_product_id').val(), $('#idCombination').val(), true, null, $('#quantity_wanted').val(), null);
 		});
 
 		//for 'delete' buttons in the cart block...
@@ -189,6 +197,7 @@ var ajaxCart = {
 			$('.cart_block_list.collapsed').slideDown({
 				duration: 450,
 				complete: function(){
+					$(this).parent().show(); // parent is hidden in global.js::accordion()
 					$(this).addClass('expanded').removeClass('collapsed');
 				}
 			});
@@ -272,6 +281,13 @@ var ajaxCart = {
 	add : function(idProduct, idCombination, addedFromProductPage, callerElement, quantity, whishlist){
 		if (addedFromProductPage && !checkCustomizations())
 		{
+			if (contentOnly) 
+			{
+				var productUrl = window.document.location.href + '';
+				var data = productUrl.replace('content_only=1', '');
+				window.parent.document.location.href = data;
+				return;
+			}
 			if (!!$.prototype.fancybox)
 			    $.fancybox.open([
 			        {
@@ -293,7 +309,6 @@ var ajaxCart = {
 		{
 			$('#add_to_cart button').prop('disabled', 'disabled').addClass('disabled');
 			$('.filled').removeClass('filled');
-
 		}
 		else
 			$(callerElement).prop('disabled', 'disabled');
@@ -301,6 +316,7 @@ var ajaxCart = {
 		if ($('.cart_block_list').hasClass('collapsed'))
 			this.expand();
 		//send the ajax request to the server
+
 		$.ajax({
 			type: 'POST',
 			headers: { "cache-control": "no-cache" },
@@ -317,7 +333,10 @@ var ajaxCart = {
 				
 				if (!jsonData.hasError)
 				{
-					window.parent.ajaxCart.updateCartInformation(jsonData, addedFromProductPage);
+					if (contentOnly)
+						window.parent.ajaxCart.updateCartInformation(jsonData, addedFromProductPage);
+					else
+						ajaxCart.updateCartInformation(jsonData, addedFromProductPage);
 
 					if (jsonData.crossSelling)
 						$('.crossseling').html(jsonData.crossSelling);
@@ -325,18 +344,28 @@ var ajaxCart = {
 					if (idCombination)
 						$(jsonData.products).each(function(){
 							if (this.id != undefined && this.id == parseInt(idProduct) && this.idCombination == parseInt(idCombination))
-								window.parent.ajaxCart.updateLayer(this);
+								if (contentOnly)
+									window.parent.ajaxCart.updateLayer(this);	
+								else
+									ajaxCart.updateLayer(this);
 						});
 					else
 						$(jsonData.products).each(function(){
 							if (this.id != undefined && this.id == parseInt(idProduct))
-								window.parent.ajaxCart.updateLayer(this);
+								if (contentOnly)
+									window.parent.ajaxCart.updateLayer(this);
+								else
+									ajaxCart.updateLayer(this);					
 						});
 					if (contentOnly)
 						parent.$.fancybox.close();
 				}
 				else 
 				{
+					if (contentOnly)
+						window.parent.ajaxCart.updateCart(jsonData);
+					else
+						ajaxCart.updateCart(jsonData);	
 					if (addedFromProductPage)
 						$('#add_to_cart button').removeProp('disabled').removeClass('disabled');
 					else

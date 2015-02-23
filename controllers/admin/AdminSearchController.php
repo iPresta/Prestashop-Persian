@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -38,12 +38,7 @@ class AdminSearchControllerCore extends AdminController
 		$this->query = trim(Tools::getValue('bo_query'));
 		$searchType = (int)Tools::getValue('bo_search_type');
 		/* Handle empty search field */
-		if (empty($this->query))
-		{
-			$this->errors[] = Tools::displayError('Please complete the search form first.');
-			return;
-		}
-		else
+		if (!empty($this->query))
 		{
 			if (!$searchType && strlen($this->query) > 1)
 				$this->searchFeatures();
@@ -287,7 +282,7 @@ class AdminSearchControllerCore extends AdminController
 		}
 		$this->fields_list['customers'] = (array(
 			'id_customer' => array('title' => $this->l('ID'), 'align' => 'center', 'width' => 25),
-			'id_gender' => array('title' => $this->l('Titles'), 'align' => 'center', 'icon' => $genders_icon, 'list' => $genders, 'width' => 25),
+			'id_gender' => array('title' => $this->l('Social title'), 'align' => 'center', 'icon' => $genders_icon, 'list' => $genders, 'width' => 25),
 			'firstname' => array('title' => $this->l('First Name'), 'align' => 'left', 'width' => 150),
 			'lastname' => array('title' => $this->l('Name'), 'align' => 'left', 'width' => 'auto'),
 			'email' => array('title' => $this->l('Email address'), 'align' => 'left', 'width' => 250),

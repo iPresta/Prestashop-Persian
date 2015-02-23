@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -76,10 +76,10 @@ class FileUploaderCore
 		$pathinfo = pathinfo($this->file->getName());
 		$these = implode(', ', $this->allowedExtensions);
 		if (!isset($pathinfo['extension']))
-			return array('error' => Tools::displayError('File has an invalid extension, it should be one of').$these.'.');
+			return array('error' => sprintf(Tools::displayError('File has an invalid extension, it should be one of these: %s.'), $these));
 		$ext = $pathinfo['extension'];
 		if ($this->allowedExtensions && !in_array(strtolower($ext), $this->allowedExtensions))
-			return array('error' => Tools::displayError('File has an invalid extension, it should be one of').$these.'.');
+			return array('error' => sprintf(Tools::displayError('File has an invalid extension, it should be one of these: %s.'), $these));
 
 		return $this->file->save();
 
@@ -108,11 +108,14 @@ class QqUploadedFileForm
 					if (Validate::isGenericName($legend))
 						$image->legend[(int)$key] = $legend;
 					else
-						return array('error' => sprintf(Tools::displayError('Error on image legend "%1s" is not a valid legend.'), Tools::safeOutput($legend)));
+						return array('error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend)));
 			if (!Image::getCover($image->id_product))
 				$image->cover = 1;
 			else
 				$image->cover = 0;
+
+			if (($validate = $image->validateFieldsLang(false, true)) !== true)
+				return array('error' => Tools::displayError($validate));
 			if (!$image->add())
 				return array('error' => Tools::displayError('Error while creating additional image'));
 			else
@@ -197,11 +200,14 @@ class QqUploadedFileXhr
 					if (Validate::isGenericName($legend))
 						$image->legend[(int)$key] = $legend;
 					else
-						return array('error' => sprintf(Tools::displayError('Error on image legend "%1s" is not a valid legend.'), Tools::safeOutput($legend)));
+						return array('error' => sprintf(Tools::displayError('Error on image caption: "%1s" is not a valid caption.'), Tools::safeOutput($legend)));
 			if (!Image::getCover($image->id_product))
 				$image->cover = 1;
 			else
 				$image->cover = 0;
+			
+			if (($validate = $image->validateFieldsLang(false, true)) !== true)
+				return array('error' => Tools::displayError($validate));
 			if (!$image->add())
 				return array('error' => Tools::displayError('Error while creating additional image'));
 			else

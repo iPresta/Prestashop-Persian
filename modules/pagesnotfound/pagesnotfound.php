@@ -35,15 +35,14 @@ class PagesNotFound extends Module
 	{
 		$this->name = 'pagesnotfound';
 		$this->tab = 'analytics_stats';
-		$this->version = 1.2;
+		$this->version = '1.3.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		parent::__construct();
 
 		$this->displayName = $this->l('Pages not found');
-		$this->description = $this->l('Displays the pages requested by your visitors that have not been found.');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
+		$this->description = $this->l('Adds a tab to the Stats dashboard, showing the pages requested by your visitors that have not been found.');
 	}
 
 	public function install()
@@ -107,7 +106,7 @@ class PagesNotFound extends Module
 				'DELETE FROM `'._DB_PREFIX_.'pagenotfound`
 				WHERE date_add BETWEEN '.ModuleGraph::getDateBetween()
 			);
-			$this->html .= '<div class="alert alert-warning"> '.$this->l('Pages not found have been deleted.').'</div>';
+			$this->html .= '<div class="alert alert-warning"> '.$this->l('The "pages not found" cache has been deleted.').'</div>';
 		}
 
 		$this->html .= '
@@ -118,24 +117,17 @@ class PagesNotFound extends Module
 			<div class="alert alert-warning">
 				<h4>'.$this->l('404 errors').'</h4>
 				<p>'
-			.$this->l(
-				'A 404 error is an HTTP error code which means that the file requested by the user cannot be found.
-				In your case it means that one of your visitors entered a wrong URL in the address bar,or that you or another website has a dead link.
-				When possible, the referrer is shown so you can find the page/site which contains the dead link.
-				If not, it generally means that it is a direct access, so someone may have bookmarked a link which doesn\'t exist anymore.'
-			).'
+			.$this->l('A 404 error is an HTTP error code which means that the file requested by the user cannot be found. In your case it means that one of your visitors entered a wrong URL in the address bar, or that you or another website has a dead link. When possible, the referrer is shown so you can find the page/site which contains the dead link. If not, it generally means that it is a direct access, so someone may have bookmarked a link which doesn\'t exist anymore.').'
 				</p>
 				<p>&nbsp;</p>
 				<h4>'.$this->l('How to catch these errors?').'</h4>
 				<p>'
-			.$this->l('If your webhost supports .htaccess files, you can create one in the root directory of PrestaShop and insert the following line inside:').'
-					<i>ErrorDocument 404 '.__PS_BASE_URI__.'404.php</i>. '.
-			$this->l('A user requesting a page which doesn\'t exist will be redirected to the following page.').' <i>'.__PS_BASE_URI__.'404.php</i>. '.
-			$this->l('This module logs access to this page.').'
+			.sprintf($this->l('If your webhost supports .htaccess files, you can create one in the root directory of PrestaShop and insert the following line inside: "%s".'), 'ErrorDocument 404 '.__PS_BASE_URI__.'404.php').'<br />'.
+			sprintf($this->l('A user requesting a page which doesn\'t exist will be redirected to the following page: %s. This module logs access to this page.'), __PS_BASE_URI__.'404.php').'
 				</p>
 			</div>';
-		if (!file_exists(dirname(__FILE__).'/../../.htaccess'))
-			$this->html .= '<div class="alert alert-warning">'.$this->l('You must use a .htaccess file to redirect 404 errors to the page "404.php"').'</div>';
+		if (!file_exists($this->_normalizeDirectory(_PS_ROOT_DIR_).'.htaccess'))
+			$this->html .= '<div class="alert alert-warning">'.$this->l('You must use a .htaccess file to redirect 404 errors to the "404.php" page.').'</div>';
 
 		$pages = $this->getPages();
 		if (count($pages))
@@ -163,17 +155,17 @@ class PagesNotFound extends Module
 				</tbody>
 			</table>';
 		} else
-			$this->html .= '<div class="alert alert-warning"> '.$this->l('No pages registered').'</div>';
+			$this->html .= '<div class="alert alert-warning"> '.$this->l('No "page not found" issue registered for now.').'</div>';
 
 		if (count($pages))
 			$this->html .= '
 				<h4>'.$this->l('Empty database').'</h4>
 				<form action="'.Tools::htmlEntitiesUtf8($_SERVER['REQUEST_URI']).'" method="post">
 					<button type="submit" class="btn btn-default" name="submitDeletePNF">
-						<i class="icon-remove"></i> '.$this->l('Empty ALL pages not found for this period').'
+						<i class="icon-remove"></i> '.$this->l('Empty ALL "pages not found" notices for this period').'
 					</button>
 					<button type="submit" class="btn btn-default" name="submitTruncatePNF">
-						<i class="icon-remove"></i> '.$this->l('Empty ALL pages not found').'
+						<i class="icon-remove"></i> '.$this->l('Empty ALL "pages not found" notices').'
 					</button>
 				</form>';
 
@@ -200,6 +192,20 @@ class PagesNotFound extends Module
 				);
 			}
 		}
+	}
+
+	private function _normalizeDirectory($directory)
+	{
+		$last = $directory[strlen($directory) - 1];
+
+		if (in_array($last, array('/', '\\')))
+		{
+			$directory[strlen($directory) - 1] = DIRECTORY_SEPARATOR;
+			return $directory;
+		}
+
+		$directory .= DIRECTORY_SEPARATOR;
+		return $directory;
 	}
 }
 

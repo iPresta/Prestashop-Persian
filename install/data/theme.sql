@@ -25,12 +25,12 @@ UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_DISPLAY_JQZOOM';
 UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_BLOCK_BESTSELLERS_DISPLAY';
 UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_BLOCK_NEWPRODUCTS_DISPLAY';
 UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_BLOCK_SPECIALS_DISPLAY';
-UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_TAX_DISPLAY';
 UPDATE `PREFIX_configuration` SET value = '1' WHERE name = 'PS_STORES_DISPLAY_CMS';
 UPDATE `PREFIX_configuration` SET value = '1' WHERE name = 'PS_STORES_DISPLAY_FOOTER';
 UPDATE `PREFIX_configuration` SET value = '350' WHERE name = 'SHOP_LOGO_WIDTH';
 UPDATE `PREFIX_configuration` SET value = '99' WHERE name = 'SHOP_LOGO_HEIGHT';
 UPDATE `PREFIX_configuration` SET value = '1' WHERE name = 'PS_DISPLAY_SUPPLIERS';
+UPDATE `PREFIX_configuration` SET value = '1' WHERE name = 'PS_DISPLAY_BEST_SELLERS';
 UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'PS_LEGACY_IMAGES';
 UPDATE `PREFIX_configuration` SET value = 'jpg' WHERE name = 'PS_IMAGE_QUALITY';
 UPDATE `PREFIX_configuration` SET value = '7' WHERE name = 'PS_PNG_QUALITY';
@@ -46,14 +46,15 @@ UPDATE `PREFIX_configuration` SET value = '10' WHERE name = 'BLOCKTAGS_NBR';
 UPDATE `PREFIX_configuration` SET value = '0_3|0_4' WHERE name = 'FOOTER_CMS';
 UPDATE `PREFIX_configuration` SET value = '0_3|0_4' WHERE name = 'FOOTER_BLOCK_ACTIVATION';
 UPDATE `PREFIX_configuration` SET value = '1' WHERE name = 'FOOTER_POWEREDBY';
-UPDATE `PREFIX_configuration` SET value = 'http://www.presta-shop.ir' WHERE name = 'BLOCKADVERT_LINK';
+UPDATE `PREFIX_configuration` SET value = 'http://www.ipresta.ir' WHERE name = 'BLOCKADVERT_LINK';
 UPDATE `PREFIX_configuration` SET value = 'store.jpg' WHERE name = 'BLOCKSTORE_IMG';
 UPDATE `PREFIX_configuration` SET value = 'jpg' WHERE name = 'BLOCKADVERT_IMG_EXT';
 UPDATE `PREFIX_configuration` SET value = 'CAT3,CAT8,CAT5,LNK1' WHERE name = 'MOD_BLOCKTOPMENU_ITEMS';
 UPDATE `PREFIX_configuration` SET value = '0' WHERE name = 'MOD_BLOCKTOPMENU_SEARCH';
 UPDATE `PREFIX_configuration` SET value = 'http://www.facebook.com/persianpresta' WHERE name = 'BLOCKSOCIAL_FACEBOOK';
 UPDATE `PREFIX_configuration` SET value = 'http://www.twitter.com/PrestaShopIran' WHERE name = 'BLOCKSOCIAL_TWITTER';
-UPDATE `PREFIX_configuration` SET value = 'http://www.presta-shop.ir/blog/feed/' WHERE name = 'BLOCKSOCIAL_RSS';
+UPDATE `PREFIX_configuration` SET value = 'http://ipresta.ir/blog/' WHERE name = 'BLOCKSOCIAL_RSS';
+UPDATE `PREFIX_configuration` SET value = 'https://www.google.com/+prestashop' WHERE name = 'BLOCKSOCIAL_GOOGLE_PLUS';
 UPDATE `PREFIX_configuration` SET value = 'My Company' WHERE name = 'BLOCKCONTACTINFOS_COMPANY';
 UPDATE `PREFIX_configuration` SET value = '42 avenue des Champs Elysées\n75000 Paris\nFrance' WHERE name = 'BLOCKCONTACTINFOS_ADDRESS';
 UPDATE `PREFIX_configuration` SET value = '0123-456-789' WHERE name = 'BLOCKCONTACTINFOS_PHONE';
@@ -178,7 +179,7 @@ WHERE id_module = (SELECT id_module FROM `PREFIX_module` WHERE name = 'productpa
 AND id_hook = @id_hook;
 
 INSERT INTO `PREFIX_linksmenutop` (`id_linksmenutop`, `id_shop`, `new_window`) VALUES (1, 1, 1);
-INSERT INTO `PREFIX_linksmenutop_lang` (`id_linksmenutop`, `id_lang`, `id_shop`, `label`, `link`) VALUES (1, 1, 1, 'Blog', 'http://www.presta-shop.ir/blog/');
+INSERT INTO `PREFIX_linksmenutop_lang` (`id_linksmenutop`, `id_lang`, `id_shop`, `label`, `link`) VALUES (1, 1, 1, 'Blog', 'http://ipresta.ir/blog/');
 
 INSERT INTO `PREFIX_hook_module_exceptions` (`id_shop`, `id_module`, `id_hook`, `file_name`) 
 (

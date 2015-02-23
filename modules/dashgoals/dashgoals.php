@@ -39,12 +39,13 @@ class DashGoals extends Module
 	public function __construct()
 	{
 		$this->name = 'dashgoals';
-		$this->displayName = 'Dashboard Goals';
 		$this->tab = 'dashboard';
-		$this->version = '0.4';
+		$this->version = '0.6.4';
 		$this->author = 'PrestaShop';
 
 		parent::__construct();
+
+		$this->displayName = $this->l('Dashboard Goals');
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
 		Dashgoals::$month_labels = array(
@@ -206,10 +207,11 @@ class DashGoals extends Module
 					'zone_text' => $stream_zone['text'],
 					'color' => ($stream_zone['zone'] == 'more' ? self::$more_color[$key] : ($stream_zone['zone'] == 'less' ? self::$less_color[$key] : self::$real_color[$key])),
 					'values' => array(),
-					'disabled' => $stream_type['type'] == 'sales' ? false : true
+					'disabled' => (isset($stream_type['type']) && $stream_type['type'] == 'sales') ? false : true
 				);
 
-			$average_goals[$stream_type['type']] = 0;
+			if (isset($stream_type['type']))
+				$average_goals[$stream_type['type']] = 0;
 		}
 
 		if (Configuration::get('PS_DASHBOARD_SIMULATION'))
@@ -247,7 +249,7 @@ class DashGoals extends Module
 				$stream_values['real']['traffic'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['traffic'] = $value;
 				$stream_values['more']['traffic'] = $value;
@@ -273,15 +275,15 @@ class DashGoals extends Module
 				$stream_values['real']['conversion'] = round($value, 2);
 				$stream_values['real']['goal'] = round($month_goal, 2);
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['conversion'] = $value;
 				$stream_values['more']['conversion'] = $value;
 
 				if ($value > 0 && $value < $month_goal)
-					$stream_values['less']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['less']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 				elseif ($value > 0)
-					$stream_values['more']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['more']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				if ($value == 0)
 				{
@@ -299,7 +301,7 @@ class DashGoals extends Module
 				$stream_values['real']['avg_cart_value'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['avg_cart_value'] = $value;
 				$stream_values['more']['avg_cart_value'] = $value;
@@ -326,7 +328,7 @@ class DashGoals extends Module
 				$stream_values['real']['goal'] = $month_goal;
 
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['sales'] = $value;
 				$stream_values['more']['sales'] = $value;
@@ -376,7 +378,7 @@ class DashGoals extends Module
 				$stream_values['real']['traffic'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['traffic'] = $value;
 				$stream_values['more']['traffic'] = $value;
@@ -397,20 +399,20 @@ class DashGoals extends Module
 
 				$month_goal = ConfigurationKPI::get('DASHGOALS_CONVERSION_'.$i.'_'.$year);
 				$value = 100 * ((isset($visits[$timestamp]) && $visits[$timestamp] && isset($orders[$timestamp]) && $orders[$timestamp]) ? ($orders[$timestamp] / $visits[$timestamp]) : 0);
-				$stream_values = $this->getValuesFromGoals($average_goals['conversion'], $month_goal, $value, Dashgoals::$month_labels[$i]);
+				$stream_values = $this->getValuesFromGoals($average_goals['conversion'] * 100, $month_goal, $value, Dashgoals::$month_labels[$i]);
 				$goal_diff = $value - $month_goal;
 				$stream_values['real']['conversion'] = round($value, 2);
 				$stream_values['real']['goal'] = round($month_goal, 2);
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['conversion'] = $value;
 				$stream_values['more']['conversion'] = $value;
 
 				if ($value > 0 && $value < $month_goal)
-					$stream_values['less']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['less']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 				elseif ($value > 0)
-					$stream_values['more']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['more']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				if ($value == 0)
 				{
@@ -428,7 +430,7 @@ class DashGoals extends Module
 				$stream_values['real']['avg_cart_value'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['avg_cart_value'] = $value;
 				$stream_values['more']['avg_cart_value'] = $value;
@@ -448,13 +450,14 @@ class DashGoals extends Module
 					$streams['avg_cart_value'][$stream_zone['zone']]['values'][] = $stream_values[$stream_zone['zone']];
 
 				$month_goal = ConfigurationKPI::get('DASHGOALS_TRAFFIC_'.$i.'_'.$year) * ConfigurationKPI::get('DASHGOALS_CONVERSION_'.$i.'_'.$year) / 100 * ConfigurationKPI::get('DASHGOALS_AVG_CART_VALUE_'.$i.'_'.$year);
+				$value = (isset($sales[$timestamp]) && $sales[$timestamp]) ? $sales[$timestamp] : 0;			
 				$stream_values = $this->getValuesFromGoals($average_goals['sales'], $month_goal, isset($sales[$timestamp]) ? $sales[$timestamp] : 0, Dashgoals::$month_labels[$i]);
 				$goal_diff = $value - $month_goal;
 				$stream_values['real']['sales'] = $value;
 				$stream_values['real']['goal'] = $month_goal;
 
 				if ($value > 0)
-					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / $month_goal, 2);
+					$stream_values['real']['goal_diff'] = round(($goal_diff * 100) / ($month_goal > 0 ? $month_goal : 1), 2);
 
 				$stream_values['less']['sales'] = $value;
 				$stream_values['more']['sales'] = $value;

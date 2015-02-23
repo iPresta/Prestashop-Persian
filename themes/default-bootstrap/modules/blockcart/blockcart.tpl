@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
@@ -207,7 +207,7 @@
 			<div class="layer_cart_product col-xs-12 col-md-6">
 				<span class="cross" title="{l s='Close window' mod='blockcart'}"></span>
 				<h2>
-					<i class="icon-ok"></i>{l s='Product successfully added to your shopping cart' mod='blockcart'}
+					<i class="icon-check"></i>{l s='Product successfully added to your shopping cart' mod='blockcart'}
 				</h2>
 				<div class="product-image-container layer_cart_img">
 				</div>
@@ -239,10 +239,12 @@
 				<div class="layer_cart_row">
 					<strong class="dark">
 						{l s='Total products' mod='blockcart'}
-						{if $priceDisplay == 1}
-							{l s='(tax excl.)' mod='blockcart'}
-						{else}
-							{l s='(tax incl.)' mod='blockcart'}
+						{if $display_tax_label}
+							{if $priceDisplay == 1}
+								{l s='(tax excl.)' mod='blockcart'}
+							{else}
+								{l s='(tax incl.)' mod='blockcart'}
+							{/if}
 						{/if}
 					</strong>
 					<span class="ajax_block_products_total">
@@ -256,10 +258,12 @@
 					<div class="layer_cart_row">
 						<strong class="dark">
 							{l s='Wrapping' mod='blockcart'}
-							{if $priceDisplay == 1}
-								{l s='(tax excl.)' mod='blockcart'}
-							{else}
-								{l s='(tax incl.)' mod='blockcart'}
+							{if $display_tax_label}
+								{if $priceDisplay == 1}
+									{l s='(tax excl.)' mod='blockcart'}
+								{else}
+									{l s='(tax incl.)' mod='blockcart'}
+								{/if}
 							{/if}
 						</strong>
 						<span class="price cart_block_wrapping_cost">
@@ -273,7 +277,7 @@
 				{/if}
 				<div class="layer_cart_row">
 					<strong class="dark">
-						{l s='Total shipping' mod='blockcart'}&nbsp;{l s='(tax excl.)' mod='blockcart'}
+						{l s='Total shipping' mod='blockcart'}&nbsp;{if $display_tax_label}{if $priceDisplay == 1}{l s='(tax excl.)' mod='blockcart'}{else}{l s='(tax incl.)' mod='blockcart'}{/if}{/if}
 					</strong>
 					<span class="ajax_cart_shipping_cost">
 						{if $shipping_cost_float == 0}
@@ -292,10 +296,12 @@
 				<div class="layer_cart_row">	
 					<strong class="dark">
 						{l s='Total' mod='blockcart'}
-						{if $priceDisplay == 1}
-							{l s='(tax excl.)' mod='blockcart'}
-						{else}
-							{l s='(tax incl.)' mod='blockcart'}
+						{if $display_tax_label}
+							{if $priceDisplay == 1}
+								{l s='(tax excl.)' mod='blockcart'}
+							{else}
+								{l s='(tax incl.)' mod='blockcart'}
+							{/if}
 						{/if}
 					</strong>
 					<span class="ajax_block_cart_total">
@@ -328,7 +334,8 @@
 {/if}
 {strip}
 {addJsDef CUSTOMIZE_TEXTFIELD=$CUSTOMIZE_TEXTFIELD}
-{addJsDef img_dir=$img_dir|addslashes}
+{addJsDef img_dir=$img_dir|escape:'quotes':'UTF-8'}
+{addJsDef generated_date=$smarty.now|intval}
 {addJsDef ajax_allowed=$ajax_allowed|boolval}
 
 {addJsDefL name=customizationIdMessage}{l s='Customization #' mod='blockcart' js=1}{/addJsDefL}

@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,15 +18,14 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-{counter name=active_ul assign=active_ul}
 {if isset($new_products) && $new_products}
-	{include file="$tpl_dir./product-list.tpl" products=$new_products class='blocknewproducts tab-pane' id='blocknewproducts' active=$active_ul}
+	{include file="$tpl_dir./product-list.tpl" products=$new_products class='blocknewproducts tab-pane' id='blocknewproducts'}
 {else}
-<ul id="blocknewproducts" class="blocknewproducts tab-pane{if isset($active_ul) && $active_ul == 1} active{/if}">
+<ul id="blocknewproducts" class="blocknewproducts tab-pane">
 	<li class="alert alert-info">{l s='No new products at this time.' mod='blocknewproducts'}</li>
 </ul>
 {/if}

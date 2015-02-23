@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -95,15 +95,16 @@ abstract class InstallControllerHttp
 
 	final public static function execute()
 	{
-		$session = InstallSession::getInstance();
-		if (!$session->last_step || $session->last_step == 'welcome')
-			PrestaShopAutoload::getInstance()->generateIndex();
-
 		if (Tools::getValue('compile_templates'))
 		{
 			require_once (_PS_INSTALL_CONTROLLERS_PATH_.'http/smarty_compile.php');
 			exit;
 		}
+
+		$session = InstallSession::getInstance();
+		if (!$session->last_step || $session->last_step == 'welcome')
+			Tools::generateIndex();
+
 		// Include all controllers
 		foreach (self::$steps as $step)
 		{

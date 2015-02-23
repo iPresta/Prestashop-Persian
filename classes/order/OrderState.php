@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -127,18 +127,20 @@ class OrderStateCore extends ObjectModel
 	}
 
 	/**
-	* Check if we can make a facture when order is in this state
+	* Check if we can make a invoice when order is in this state
 	*
 	* @param integer $id_order_state State ID
 	* @return boolean availability
 	*/
 	public static function invoiceAvailable($id_order_state)
 	{
-		$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-		SELECT `invoice` AS ok
-		FROM `'._DB_PREFIX_.'order_state`
-		WHERE `id_order_state` = '.(int)$id_order_state);
-		return $result['ok'];
+		$result = false;
+		if (Configuration::get('PS_INVOICE'))
+			$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
+			SELECT `invoice`
+			FROM `'._DB_PREFIX_.'order_state`
+			WHERE `id_order_state` = '.(int)$id_order_state);
+		return (bool)$result;
 	}
 
 	public function isRemovable()

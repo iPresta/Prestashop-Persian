@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,15 +18,13 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 <script type="text/javascript">
-	var there_are = '{l s='There are'}';
-	var there_is = '{l s='There is'}';
-	var label_errors = '{l s='errors'}';
-	var label_error = '{l s='error'}';
+	var one_error = '{l s='There is one error.'}';
+	var more_errors = '{l s='There are several errors.'}';
 </script>
 <div id="login-panel">
 	<div id="login-header">
@@ -132,7 +130,7 @@
 		</div>
 		{else}
 		<div class="alert alert-danger">
-			<p>{l s='For security reasons, you cannot connect to the Back Office until you have:'}</p>
+			<p>{l s='For security reasons, you cannot connect to the back-office until you have:'}</p>
 			<ul>
 				{if isset($wrong_install_name) && $wrong_install_name == true}
 					<li>{l s='deleted the /install folder'}</li>
@@ -156,16 +154,16 @@
 			</a>
 		</p>
 		<p class="text-center">
-			<a class="link-social link-twitter" href="https://twitter.com/PrestaShop" target="_blank" title="Twitter">
+			<a class="link-social link-twitter _blank" href="https://twitter.com/PrestaShop" title="Twitter">
 				<i class="icon-twitter"></i>
 			</a>
-			<a class="link-social link-facebook" href="https://www.facebook.com/prestashop" target="_blank" title="Facebook">
+			<a class="link-social link-facebook _blank" href="https://www.facebook.com/prestashop" title="Facebook">
 				<i class="icon-facebook"></i>
 			</a>
-			<a class="link-social link-github" href="https://github.com/PrestaShop/PrestaShop/" target="_blank" title="Github">
+			<a class="link-social link-github _blank" href="https://www.prestashop.com/github" title="Github">
 				<i class="icon-github"></i>
 			</a>
-			<a class="link-social link-google" href="https://plus.google.com/+prestashop/" target="_blank" title="Google">
+			<a class="link-social link-google _blank" href="https://plus.google.com/+prestashop/" title="Google">
 				<i class="icon-google-plus"></i>
 			</a>
 		</p>

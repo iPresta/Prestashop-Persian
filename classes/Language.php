@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -346,7 +346,7 @@ class LanguageCore extends ObjectModel
 					// Lang file
 					if (file_exists($modDir.'/translations/'.(string)$iso_from.'.php'))
 						$files_modules[$modDir.'/translations/'.(string)$iso_from.'.php'] = ($copy ? $modDir.'/translations/'.(string)$iso_to.'.php' : ++$number);
-					else if (file_exists($modDir.'/'.(string)$iso_from.'.php'))
+					elseif (file_exists($modDir.'/'.(string)$iso_from.'.php'))
 						$files_modules[$modDir.'/'.(string)$iso_from.'.php'] = ($copy ? $modDir.'/'.(string)$iso_to.'.php' : ++$number);
 					// Mails files
 					$modMailDirFrom = $modDir.'/mails/'.(string)$iso_from;
@@ -364,7 +364,7 @@ class LanguageCore extends ObjectModel
 				$files = array_merge($files, $files_modules);
 			}
 		}
-		else if ($select == 'mail' || $select == 'tr')
+		elseif ($select == 'mail' || $select == 'tr')
 			return $files;
 
 		// Theme files
@@ -649,9 +649,10 @@ class LanguageCore extends ObjectModel
 		// That way using only one query we get either the exact wanted language
 		// or a close match.
 		$id_lang = Db::getInstance()->getValue(
-			'SELECT `id_lang` FROM ' 
-			.'`'._DB_PREFIX_.'lang` WHERE LEFT(`language_code`,2) = \''.pSQL($lang).'\' '
-			.'ORDER BY language_code = \''.pSQL($code).'\' DESC'
+			'SELECT `id_lang`, IF(language_code = \''.pSQL($code).'\', 0, LENGTH(language_code)) as found
+			FROM `'._DB_PREFIX_.'lang` 
+			WHERE LEFT(`language_code`,2) = \''.pSQL($lang).'\'
+			ORDER BY found ASC'
 		);
 
 		// Instantiate the Language object if we found it.
@@ -688,7 +689,7 @@ class LanguageCore extends ObjectModel
 					$query .= '(';
 					$row2['id_lang'] = $to;
 					foreach ($row2 as $field)
-						$query .= '\''.pSQL($field, true).'\',';
+						$query .= (!is_string($field) && $field == NULL) ? 'NULL,' : '\''.pSQL($field, true).'\',';
 					$query = rtrim($query, ',').'),';
 				}
 				$query = rtrim($query, ',');
@@ -732,8 +733,8 @@ class LanguageCore extends ObjectModel
 
 		// Initialize the language
 		$lang = new Language();
-		$lang->iso_code = $iso_code;
-		$lang->language_code = $iso_code;
+		$lang->iso_code = Tools::strtolower($iso_code);
+		$lang->language_code = $iso_code; // Rewritten afterwards if the language code is available
 		$lang->active = true;
 
 		// If the language pack has not been provided, retrieve it from prestashop.com
@@ -752,8 +753,14 @@ class LanguageCore extends ObjectModel
 				if ($key != 'iso_code' && isset(Language::$definition['fields'][$key]))
 					$lang->$key = $value;
 
-		if (!$lang->add(true, false, $only_add))
+		if (!$lang->name && $lang->iso_code)
+			$lang->name = $lang->iso_code;
+
+		if (!$lang->validateFields() || !$lang->validateFieldsLang() || !$lang->add(true, false, $only_add))
 			return false;
+
+		if (isset($params_lang['allow_accented_chars_url']) && in_array($params_lang['allow_accented_chars_url'], array('1', 'true')))
+			Configuration::updateGlobalValue('PS_ALLOW_ACCENTED_CHARS_URL', 1);
 
 		$flag = Tools::file_get_contents('http://www.prestashop.com/download/lang_packs/flags/jpeg/'.$iso_code.'.jpg');
 		if ($flag != null && !preg_match('/<body>/', $flag))
@@ -826,6 +833,7 @@ class LanguageCore extends ObjectModel
 
 		if ($version == null)
 			$version = _PS_VERSION_;
+
 		$lang_pack = false;
 		$lang_pack_ok = false;
 		$errors = array();

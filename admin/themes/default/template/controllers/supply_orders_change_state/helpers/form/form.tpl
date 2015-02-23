@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
@@ -66,7 +66,7 @@ $(document).ready(function() {
 {if isset($supply_order_state) && $supply_order_state->editable == false && isset($supply_order)}
 <div class="panel">
 	<h3><i class="icon-download-alt"></i> {l s='Print the supply order form'}</h3>
-	<a href="{$link->getAdminLink('AdminPdf')|escape:'html':'UTF-8'}&submitAction=generateSupplyOrderFormPDF&id_supply_order={$supply_order->id}" onclick="return !window.open(this.href);" title="Export as PDF" class="btn btn-default"><i class="icon-download-alt"></i> {l s='Click here to download the supply order form.'}.</a>
+	<a href="{$link->getAdminLink('AdminPdf')|escape:'html':'UTF-8'}&amp;submitAction=generateSupplyOrderFormPDF&amp;id_supply_order={$supply_order->id|intval}" onclick="return !window.open(this.href);" title="Export as PDF" class="btn btn-default"><i class="icon-download-alt"></i> {l s='Click here to download the supply order form.'}.</a>
 </div>
 {/if}
 

@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
@@ -54,15 +54,15 @@
 				{/if}
 			</div>
 		</div>
-		<hr>
+		<hr />
 		<h3>{l s="Description"}</h3>
 		<p class="text-justify">{$description_full}</p>
 		{if isset($additional_description) && trim($additional_description) != ''}
-			<hr>
+			<hr />
 			<h3>{l s="Merchant benefits"}</h3>
 			<p class="text-justify">{$additional_description}</p>
 		{/if}
-		<hr>
+		<hr />
 		{if $is_addons_partner}
 			<a class="btn btn-success btn-lg pull-right" href="{$url}">{l s='Install module'}</a>
 		{else}

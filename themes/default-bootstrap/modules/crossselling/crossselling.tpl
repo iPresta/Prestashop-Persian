@@ -1,5 +1,5 @@
 {*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
@@ -34,17 +34,12 @@
     	<div id="crossselling_list">
             <ul id="crossselling_list_car" class="clearfix">
                 {foreach from=$orderProducts item='orderProduct' name=orderProduct}
-                    <li class="product-box item">
-                        <a 
-                        class="lnk_img product-image" 
-                        href="{$orderProduct.link|escape:'html':'UTF-8'}" 
-                        title="{$orderProduct.name|htmlspecialchars}" >
-                            <img src="{$orderProduct.image}" alt="{$orderProduct.name|htmlspecialchars}" />
+                    <li class="product-box item" itemprop="isRelatedTo" itemscope itemtype="http://schema.org/Product">
+                        <a class="lnk_img product-image" href="{$orderProduct.link|escape:'html':'UTF-8'}" title="{$orderProduct.name|htmlspecialchars}" >
+                            <img itemprop="image" src="{$orderProduct.image}" alt="{$orderProduct.name|htmlspecialchars}" />
                         </a>
-                        <p class="product_name">
-                            <a 
-                            href="{$orderProduct.link|escape:'html':'UTF-8'}" 
-                            title="{$orderProduct.name|htmlspecialchars}">
+                        <p itemprop="name" class="product_name">
+                            <a itemprop="url" href="{$orderProduct.link|escape:'html':'UTF-8'}" title="{$orderProduct.name|htmlspecialchars}">
                                 {$orderProduct.name|truncate:15:'...'|escape:'html':'UTF-8'}
                             </a>
                         </p>

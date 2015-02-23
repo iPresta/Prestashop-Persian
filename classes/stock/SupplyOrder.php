@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -504,6 +504,33 @@ class SupplyOrderCore extends ObjectModel
 		$ref = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
 
 		return (pSQL($ref));
+	}
+
+	public function getAllExpectedQuantity()
+	{
+		return Db::getInstance()->getValue('
+			SELECT SUM(`quantity_expected`)
+			FROM `'._DB_PREFIX_.'supply_order_detail`
+			WHERE `id_supply_order` = '.(int)$this->id
+		);
+	}
+
+	public function getAllReceivedQuantity()
+	{
+		return Db::getInstance()->getValue('
+			SELECT SUM(`quantity_received`)
+			FROM `'._DB_PREFIX_.'supply_order_detail`
+			WHERE `id_supply_order` = '.(int)$this->id
+		);
+	}
+
+	public function getAllPendingQuantity()
+	{
+		return Db::getInstance()->getValue('
+			SELECT (SUM(`quantity_expected`) - SUM(`quantity_received`))
+			FROM `'._DB_PREFIX_.'supply_order_detail`
+			WHERE `id_supply_order` = '.(int)$this->id
+		);
 	}
 
 	/*********************************\

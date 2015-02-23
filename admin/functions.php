@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -60,7 +60,7 @@ function includeDatepicker($id, $time = false)
 	Tools::displayAsDeprecated();
 	echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/ui/jquery.ui.core.min.js"></script>';
 	echo '<link type="text/css" rel="stylesheet" href="'.__PS_BASE_URI__.'js/jquery/ui/themes/ui-lightness/jquery.ui.theme.css" />';
-	echo '<link type="text/css" rel="stylesheet" href="'.__PS_BASE_URI__.'js/jquery/ui/themes/ui-lightness/jquery.ui.datepicker.css" />';	
+	echo '<link type="text/css" rel="stylesheet" href="'.__PS_BASE_URI__.'js/jquery/ui/themes/ui-lightness/jquery.ui.datepicker.css" />';
 	$iso = Db::getInstance()->getValue('SELECT iso_code FROM '._DB_PREFIX_.'lang WHERE `id_lang` = '.(int)Context::getContext()->language->id);
 	if ($iso != 'en')
 		echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/ui/i18n/jquery.ui.datepicker-'.Tools::htmlentitiesUTF8($iso).'.js"></script>';
@@ -83,9 +83,6 @@ function includeDatepicker($id, $time = false)
 function rewriteSettingsFile($baseUrls = null, $theme = null, $arrayDB = null)
 {
  	$defines = array();
-	$defines['_MEDIA_SERVER_1_'] = ($baseUrls && isset($baseUrls['_MEDIA_SERVER_1_'])) ? $baseUrls['_MEDIA_SERVER_1_'] : _MEDIA_SERVER_1_;
-	$defines['_MEDIA_SERVER_2_'] = ($baseUrls && isset($baseUrls['_MEDIA_SERVER_2_'])) ? $baseUrls['_MEDIA_SERVER_2_'] : _MEDIA_SERVER_2_;
-	$defines['_MEDIA_SERVER_3_'] = ($baseUrls && isset($baseUrls['_MEDIA_SERVER_3_'])) ? $baseUrls['_MEDIA_SERVER_3_'] : _MEDIA_SERVER_3_;
 	$defines['_PS_CACHING_SYSTEM_'] = _PS_CACHING_SYSTEM_;
 	$defines['_PS_CACHE_ENABLED_'] = _PS_CACHE_ENABLED_;
 	$defines['_DB_NAME_'] = (($arrayDB && isset($arrayDB['_DB_NAME_'])) ? $arrayDB['_DB_NAME_'] : _DB_NAME_);
@@ -97,7 +94,7 @@ function rewriteSettingsFile($baseUrls = null, $theme = null, $arrayDB = null)
 	$defines['_COOKIE_KEY_'] = addslashes(_COOKIE_KEY_);
 	$defines['_COOKIE_IV_'] = addslashes(_COOKIE_IV_);
 	$defines['_PS_CREATION_DATE_'] = addslashes(_PS_CREATION_DATE_);
-	
+
 	if (defined('_RIJNDAEL_KEY_'))
 		$defines['_RIJNDAEL_KEY_'] = addslashes(_RIJNDAEL_KEY_);
 	if (defined('_RIJNDAEL_IV_'))
@@ -105,7 +102,12 @@ function rewriteSettingsFile($baseUrls = null, $theme = null, $arrayDB = null)
 	$defines['_PS_VERSION_'] = addslashes(_PS_VERSION_);
 	$content = "<?php\n\n";
 	foreach ($defines as $k => $value)
+	{
+		if ($k == '_PS_VERSION_')
+			$content .= 'if (!defined(\''.$k.'\'))'."\n\t";
+
 		$content .= 'define(\''.$k.'\', \''.addslashes($value).'\');'."\n";
+	}
 	copy(_PS_ADMIN_DIR_.'/../config/settings.inc.php', _PS_ADMIN_DIR_.'/../config/settings.old.php');
 	if ($fd = fopen(_PS_ADMIN_DIR_.'/../config/settings.inc.php', 'w'))
 	{
@@ -154,7 +156,7 @@ function getPath($urlBase, $id_category, $path = '', $highlight = '', $categoryT
 					WHERE c.nleft <= '.(int)$category['nleft'].'
 						AND c.nright >= '.(int)$category['nright'].'
 						AND cl.id_lang = '.(int)$context->language->id.
-						($home ? ' AND c.id_category='.$id_category : '').'
+						($home ? ' AND c.id_category='.(int)$id_category : '').'
 						AND c.id_category != '.(int)Category::getTopCategory()->id.'
 					GROUP BY c.id_category
 					ORDER BY c.level_depth ASC
@@ -166,9 +168,9 @@ function getPath($urlBase, $id_category, $path = '', $highlight = '', $categoryT
 			foreach ($categories AS $category)
 			{
 				$link = Context::getContext()->link->getAdminLink('AdminCategories');
-				$edit = '<a href="'.$link.'&id_category='.(int)$category['id_category'].'&'.(($category['id_category'] == 1 || $home) ? 'viewcategory' : 'updatecategory').'" title="'.($category['id_category'] == Category::getRootCategory()->id_category ? 'Home' : 'Modify').'"><i class="icon-'.(($category['id_category'] == Category::getRootCategory()->id_category  || $home) ? 'home' : 'pencil').'"></i></a> ';
+				$edit = '<a href="'.Tools::safeOutput($link.'&id_category='.(int)$category['id_category'].'&'.(($category['id_category'] == 1 || $home) ? 'viewcategory' : 'updatecategory')).'" title="'.($category['id_category'] == Category::getRootCategory()->id_category ? 'Home' : 'Modify').'"><i class="icon-'.(($category['id_category'] == Category::getRootCategory()->id_category  || $home) ? 'home' : 'pencil').'"></i></a> ';
 				$fullPath .= $edit.
-				($n < $nCategories ? '<a href="'.$urlBase.'&id_category='.(int)$category['id_category'].'&viewcategory&token='.Tools::getAdminToken('AdminCategories'.(int)(Tab::getIdFromClassName('AdminCategories')).(int)$context->employee->id).'" title="'.htmlentities($category['name'], ENT_NOQUOTES, 'UTF-8').'">' : '').
+				($n < $nCategories ? '<a href="'.Tools::safeOutput($urlBase.'&id_category='.(int)$category['id_category'].'&viewcategory&token='.Tools::getAdminToken('AdminCategories'.(int)(Tab::getIdFromClassName('AdminCategories')).(int)$context->employee->id)).'" title="'.htmlentities($category['name'], ENT_NOQUOTES, 'UTF-8').'">' : '').
 				(!empty($highlight) ? str_ireplace($highlight, '<span class="highlight">'.htmlentities($highlight, ENT_NOQUOTES, 'UTF-8').'</span>', $category['name']) : $category['name']).
 				($n < $nCategories ? '</a>' : '').
 				(($n++ != $nCategories || !empty($path)) ? ' > ' : '');
@@ -184,12 +186,12 @@ function getPath($urlBase, $id_category, $path = '', $highlight = '', $categoryT
 			return $path;
 
 		$name = ($highlight != null) ? str_ireplace($highlight, '<span class="highlight">'.$highlight.'</span>', CMSCategory::hideCMSCategoryPosition($category->name)) : CMSCategory::hideCMSCategoryPosition($category->name);
-		$edit = '<a href="'.$urlBase.'&id_cms_category='.$category->id.'&addcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id).'">
+		$edit = '<a href="'.Tools::safeOutput($urlBase.'&id_cms_category='.$category->id.'&addcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id)).'">
 				<i class="icon-pencil"></i></a> ';
 		if ($category->id == 1)
-			$edit = '<li><a href="'.$urlBase.'&id_cms_category='.$category->id.'&viewcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id).'">
+			$edit = '<li><a href="'.Tools::safeOutput($urlBase.'&id_cms_category='.$category->id.'&viewcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id)).'">
 					<i class="icon-home"></i></a></li> ';
-		$path = $edit.'<li><a href="'.$urlBase.'&id_cms_category='.$category->id.'&viewcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id).'">
+		$path = $edit.'<li><a href="'.Tools::safeOutput($urlBase.'&id_cms_category='.$category->id.'&viewcategory&token=' . Tools::getAdminToken('AdminCmsContent'.(int)(Tab::getIdFromClassName('AdminCmsContent')).(int)$context->employee->id)).'">
 		'.$name.'</a></li> > '.$path;
 		if ($category->id == 1)
 			return substr($path, 0, strlen($path) - 3);
@@ -234,7 +236,7 @@ function checkPSVersion()
 function translate($string)
 {
 	Tools::displayAsDeprecated();
-	
+
 	global $_LANGADM;
 	if (!is_array($_LANGADM))
 		return str_replace('"', '&quot;', $string);

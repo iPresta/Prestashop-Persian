@@ -41,7 +41,7 @@ class StatsBestCategories extends ModuleGrid
 	{
 		$this->name = 'statsbestcategories';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.2';
+		$this->version = '1.4.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -109,7 +109,7 @@ class StatsBestCategories extends ModuleGrid
 				<i class="icon-sitemap"></i> '.$this->displayName.'
 			</div>
 			'.$this->engine($engine_params).'
-			<a class="btn btn-default export-csv" href="'.htmlentities($_SERVER['REQUEST_URI']).'&export=1">
+			<a class="btn btn-default export-csv" href="'.Tools::safeOutput($_SERVER['REQUEST_URI'].'&export=1').'">
 				<i class="icon-cloud-upload"></i> '.$this->l('CSV Export').'
 			</a>';
 
@@ -184,6 +184,7 @@ class StatsBestCategories extends ModuleGrid
 				FROM `'._DB_PREFIX_.'product` pr
 				LEFT OUTER JOIN `'._DB_PREFIX_.'order_detail` cp ON pr.`id_product` = cp.`product_id`
 				LEFT JOIN `'._DB_PREFIX_.'orders` o ON o.`id_order` = cp.`id_order`
+				'.Shop::addSqlRestriction(Shop::SHARE_ORDER, 'o').'
 				WHERE o.valid = 1
 				AND o.invoice_date BETWEEN '.$date_between.'
 				GROUP BY pr.`id_product`
@@ -192,17 +193,21 @@ class StatsBestCategories extends ModuleGrid
 		'.(($categories) ? 'WHERE ca.id_category IN ('.implode(', ', $categories).')' : '').'
 		GROUP BY ca.`id_category`
 		HAVING ca.`id_category` != 1';
+
 		if (Validate::IsName($this->_sort))
 		{
-			$this->query .= ' ORDER BY `'.$this->_sort.'`';
+			$this->query .= ' ORDER BY `'.bqSQL($this->_sort).'`';
 			if (isset($this->_direction) && Validate::isSortDirection($this->_direction))
 				$this->query .= ' '.$this->_direction;
 		}
+
 		if (($this->_start === 0 || Validate::IsUnsignedInt($this->_start)) && Validate::IsUnsignedInt($this->_limit))
-			$this->query .= ' LIMIT '.$this->_start.', '.($this->_limit);
+			$this->query .= ' LIMIT '.(int)$this->_start.', '.(int)$this->_limit;
+
 		$values = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($this->query);
 		foreach ($values as &$value)
 			$value['totalPriceSold'] = Tools::displayPrice($value['totalPriceSold'], $currency);
+
 		$this->_values = $values;
 		$this->_totalCount = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('SELECT FOUND_ROWS()');
 	}

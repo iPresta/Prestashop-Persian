@@ -1,5 +1,5 @@
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -18,7 +18,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -28,6 +28,8 @@ var categoryMenu = $('ul.sf-menu');
 var mCategoryGrover = $('.sf-contener .cat-title');
 
 $(document).ready(function(){
+	categoryMenu = $('ul.sf-menu');
+	mCategoryGrover = $('.sf-contener .cat-title');
 	responsiveMenu();
 	$(window).resize(responsiveMenu);
 });
@@ -56,36 +58,37 @@ function desktopInit()
 	$('.sf-menu').removeAttr('style');
 	categoryMenu.superfish('init');
 	//add class for width define
-	$('.sf-menu > li > ul').addClass('submenu-container clearfix'); 
+	$('.sf-menu > li > ul').addClass('submenu-container clearfix');
 	 // loop through each sublist under each top list item
     $('.sf-menu > li > ul').each(function(){
         i = 0;
         //add classes for clearing
-        $(this).each(function(){ 
-                if ($(this).attr('id') != "category-thumbnail") 
-                {
-                    i++;
-                    if(i % 2 == 1)
-                        $(this).addClass('first-in-line-xs');
-                    else if (i % 5 == 1)
-                        $(this).addClass('first-in-line-lg');
-                }
+        $(this).each(function(){
+            if ($(this).attr('class') != "category-thumbnail"){
+                i++;
+                if(i % 2 == 1)
+                    $(this).addClass('first-in-line-xs');
+                else if (i % 5 == 1)
+                    $(this).addClass('first-in-line-lg');
+            }
         });
     });
 }
 
 function mobileInit()
 {
+
 	categoryMenu.superfish('destroy');
 	$('.sf-menu').removeAttr('style');
 
-	mCategoryGrover.on('click', function(){
+	mCategoryGrover.on('click', function(e){
 		$(this).toggleClass('active').parent().find('ul.menu-content').stop().slideToggle('medium');
+		return false;
 	});
 
 	$('.sf-menu > li > ul').addClass('menu-mobile clearfix').parent().prepend('<span class="menu-mobile-grover"></span>');
 
-	$(".sf-menu .menu-mobile-grover").on('click touchstart', function(){
+	$(".sf-menu .menu-mobile-grover").on('click', function(e){
 		var catSubUl = $(this).next().next('.menu-mobile');
 		if (catSubUl.is(':hidden'))
 		{
@@ -100,17 +103,32 @@ function mobileInit()
 		return false;
 	});
 
-	if ('ontouchstart' in document.documentElement)
-	{
-		$('#block_top_menu > ul:first > li > a').on('click', function(e){
-			if ($(this).parent('li').find('ul').length)
-				e.preventDefault();
-		});
-	}
+
+	$('#block_top_menu > ul:first > li > a').on('click', function(e){
+		var parentOffset = $(this).prev().offset();
+	   	var relX = parentOffset.left - e.pageX;
+		if ($(this).parent('li').find('ul').length && relX >= 0 && relX <= 20)
+		{
+			e.preventDefault();
+			var mobCatSubUl = $(this).next('.menu-mobile');
+			var mobMenuGrover = $(this).prev();
+			if (mobCatSubUl.is(':hidden'))
+			{
+				mobCatSubUl.slideDown();
+				mobMenuGrover.addClass('active');
+			}
+			else
+			{
+				mobCatSubUl.slideUp();
+				mobMenuGrover.removeClass('active');
+			}
+		}
+	});
+
 }
 
 // change the menu display at different resolutions
 function menuChange(status)
 {
-	status == 'enable'? mobileInit(): desktopInit();
+	status == 'enable' ? mobileInit(): desktopInit();
 }

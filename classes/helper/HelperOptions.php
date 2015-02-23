@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -64,6 +64,13 @@ class HelperOptionsCore extends Helper
 				$category_data['fields'] = array();
 
 			$category_data['hide_multishop_checkbox'] = true;
+
+			if (isset($category_data['tabs']))
+			{
+				$tabs[$category] = $category_data['tabs'];
+				$tabs[$category]['misc'] = $this->l('Miscellaneous');
+			}
+
 			foreach ($category_data['fields'] as $key => $field)
 			{
 				if (empty($field['no_multishop_checkbox']) && !$hide_multishop_checkbox)
@@ -82,7 +89,7 @@ class HelperOptionsCore extends Helper
 						$isDisabled = true;
 						$isInvisible = true;
 					}
-					else if (Shop::getContext() != Shop::CONTEXT_ALL && !Configuration::isOverridenByCurrentContext($key))
+					elseif (Shop::getContext() != Shop::CONTEXT_ALL && !Configuration::isOverridenByCurrentContext($key))
 						$isDisabled = true;
 				}
 				$field['is_disabled'] = $isDisabled;
@@ -91,10 +98,10 @@ class HelperOptionsCore extends Helper
 				$field['required'] = isset($field['required']) ? $field['required'] : $this->required;
 
 				if ($field['type'] == 'color')
-					$this->context->controller->addJS(_PS_JS_DIR_.'jquery/plugins/jquery.colorpicker.js');
+					$this->context->controller->addJqueryPlugin('colorpicker');
 
 				if ($field['type'] == 'texarea' || $field['type'] == 'textareaLang')
-					$this->context->controller->addJS(_PS_JS_DIR_.'jquery/plugins/jquery.autosize.min.js');
+					$this->context->controller->addJqueryPlugin('autosize');
 
 				if ($field['type'] == 'file')
 				{
@@ -203,6 +210,7 @@ class HelperOptionsCore extends Helper
 			'current' => $this->currentIndex,
 			'table' => $this->table,
 			'token' => $this->token,
+			'tabs' => (isset($tabs)) ? $tabs : null,
 			'option_list' => $option_list,
 			'current_id_lang' => $this->context->language->id,
 			'languages' => isset($languages) ? $languages : null,
@@ -267,6 +275,6 @@ class HelperOptionsCore extends Helper
 
 		if (isset($field['defaultValue']) && !$value)
 			$value = $field['defaultValue'];
-		return $value;
+		return Tools::purifyHTML($value);
 	}
 }

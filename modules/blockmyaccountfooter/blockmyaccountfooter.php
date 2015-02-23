@@ -27,13 +27,13 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class Blockmyaccountfooter extends Module
+class BlockMyAccountFooter extends Module
 {
 	public function __construct()
 	{
 		$this->name = 'blockmyaccountfooter';
 		$this->tab = 'front_office_features';
-		$this->version = '1.4';
+		$this->version = '1.5.1';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -46,10 +46,10 @@ class Blockmyaccountfooter extends Module
 
 	public function install()
 	{
-		if (!$this->addMyAccountBlockHook() 
-			|| !parent::install() 
-			|| !$this->registerHook('footer') 
-			|| !$this->registerHook('header') 
+		if (!$this->addMyAccountBlockHook()
+			|| !parent::install()
+			|| !$this->registerHook('footer')
+			|| !$this->registerHook('header')
 			|| !$this->registerHook('actionModuleRegisterHookAfter')
 			|| !$this->registerHook('actionModuleUnRegisterHookAfter')
 		)
@@ -75,13 +75,11 @@ class Blockmyaccountfooter extends Module
 
 	public function hookLeftColumn($params)
 	{
-		global $smarty;
-		
 		if (!$params['cookie']->isLogged())
 			return false;
-		$smarty->assign(array(
+		$this->smarty->assign(array(
 			'voucherAllowed' => CartRule::isFeatureActive(),
-			'returnAllowed' => (int)(Configuration::get('PS_ORDER_RETURN')),
+			'returnAllowed' => (int)Configuration::get('PS_ORDER_RETURN'),
 			'HOOK_BLOCK_MY_ACCOUNT' => Hook::exec('displayMyAccountBlock')
 		));
 		return $this->display(__FILE__, $this->name.'.tpl');
@@ -109,12 +107,10 @@ class Blockmyaccountfooter extends Module
 
 	public function hookFooter($params)
 	{
-		global $smarty;
-		
 		if (!$this->isCached('blockmyaccountfooter.tpl', $this->getCacheId()))
-			$smarty->assign(array(
+			$this->smarty->assign(array(
 				'voucherAllowed' => CartRule::isFeatureActive(),
-				'returnAllowed' => (int)(Configuration::get('PS_ORDER_RETURN')),
+				'returnAllowed' => (int)Configuration::get('PS_ORDER_RETURN'),
 				'HOOK_BLOCK_MY_ACCOUNT' => Hook::exec('displayMyAccountBlockfooter')
 			));
 		return $this->display(__FILE__, 'blockmyaccountfooter.tpl', $this->getCacheId());

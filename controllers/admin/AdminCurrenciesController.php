@@ -1,6 +1,6 @@
 <?php
 /*
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2014 PrestaShop SA
+*  @copyright  2007-2015 PrestaShop SA
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -55,7 +55,7 @@ class AdminCurrenciesControllerCore extends AdminController
 			'change' => array(
 				'title' =>	$this->l('Currency rates'),
 				'image' => '../img/admin/exchangesrate.gif',
-				'description' => $this->l('Use PrestaShop\'s webservice to update your currency exchange rates. Please use caution, however, rates are provided as-is.'),
+				'description' => $this->l('Use PrestaShop\'s webservice to update your currency\'s exchange rates. However, please use caution: rates are provided as-is.'),
 				'submit' => array(
 					'title' => $this->l('Update currency rates'),
 					'name' => 'SubmitExchangesRates'
@@ -64,7 +64,7 @@ class AdminCurrenciesControllerCore extends AdminController
 			'cron' => array(
 				'title' =>	$this->l('Automatically update currency rates'),
 				'image' => '../img/admin/tab-tools.gif',
-				'info' => '<div class="alert alert-block"><p>'.$this->l('Use PrestaShop\'s webservice to update your currency exchange rates. Please use caution, rates are provided as-is. You can place this URL in the crontab,or access it manually:').'</p>
+				'info' => '<div class="alert alert-block"><p>'.$this->l('Use PrestaShop\'s webservice to update your currency exchange rates. However, please use caution: rates are provided as-is.').'<br/>'.$this->l('You can place the following URL in your crontab file, or you can click it yourself regularly:').'</p>
 					<p><strong><a href="'.Tools::getShopDomain(true, true).__PS_BASE_URI__.basename(_PS_ADMIN_DIR_).'/cron_currency_rates.php?secure_key='.md5(_COOKIE_KEY_.Configuration::get('PS_SHOP_NAME')).'" onclick="return !window.open($(this).attr(\'href\'));">'.Tools::getShopDomain(true, true).__PS_BASE_URI__.basename(_PS_ADMIN_DIR_).'/cron_currency_rates.php?secure_key='.md5(_COOKIE_KEY_.Configuration::get('PS_SHOP_NAME')).'</a></strong></p></div>',
 			)
 		);
