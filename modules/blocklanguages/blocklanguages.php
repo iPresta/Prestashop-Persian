@@ -33,7 +33,7 @@ class BlockLanguages extends Module
 	{
 		$this->name = 'blocklanguages';
 		$this->tab = 'front_office_features';
-		$this->version = '1.3.2';
+		$this->version = '1.3.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -49,7 +49,7 @@ class BlockLanguages extends Module
 		return (parent::install() && $this->registerHook('displayNav') && $this->registerHook('displayHeader'));
 	}
 
-	private function _prepareHook($params)
+	protected function _prepareHook($params)
 	{
 		$languages = Language::getLanguages(true, $this->context->shop->id);
 		if (!count($languages))

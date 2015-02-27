@@ -35,14 +35,14 @@ class StatsStock extends Module
 	{
 		$this->name = 'statsstock';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.4.1';
+		$this->version = '1.4.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		parent::__construct();
 
 		$this->displayName = $this->l('Available quantities');
-		$this->description = 'Adds a tab showing the quantity of available products for sale to the Stats dashboard.';
+		$this->description = $this->l('Adds a tab showing the quantity of available products for sale to the Stats dashboard.');
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 	}
 

@@ -33,7 +33,7 @@ class BlockFacebook extends Module
 	{
 		$this->name = 'blockfacebook';
 		$this->tab = 'front_office_features';
-		$this->version = '1.3.2';
+		$this->version = '1.3.3';
 		$this->author = 'PrestaShop';
 
 		$this->bootstrap = true;
@@ -94,11 +94,15 @@ class BlockFacebook extends Module
 
 	public function hookDisplayLeftColumn()
 	{
+		if ($this->page_name !== 'index')
+			$this->_assignMedia();
 		return $this->hookDisplayHome();
 	}
 
 	public function hookDisplayRightColumn()
 	{
+		if ($this->page_name !== 'index')
+			$this->_assignMedia();
 		return $this->hookDisplayHome();
 	}
 
@@ -106,10 +110,13 @@ class BlockFacebook extends Module
 	{
 		$this->page_name = Dispatcher::getInstance()->getController();
 		if ($this->page_name == 'index')
-		{
-			$this->context->controller->addCss(($this->_path).'css/blockfacebook.css');
-			$this->context->controller->addJS(($this->_path).'blockfacebook.js');
-		}
+			$this->_assignMedia();
+	}
+
+	protected function _assignMedia()
+	{
+		$this->context->controller->addCss(($this->_path).'css/blockfacebook.css');
+		$this->context->controller->addJS(($this->_path).'blockfacebook.js');
 	}
 
 	public function renderForm()

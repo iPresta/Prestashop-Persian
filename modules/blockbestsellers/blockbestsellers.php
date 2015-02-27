@@ -35,7 +35,7 @@ class BlockBestSellers extends Module
 	{
 		$this->name = 'blockbestsellers';
 		$this->tab = 'front_office_features';
-		$this->version = '1.5.8';
+		$this->version = '1.6.0';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->bootstrap = true;
@@ -53,6 +53,7 @@ class BlockBestSellers extends Module
 
 		if (!parent::install()
 			|| !$this->registerHook('header')
+			|| !$this->registerHook('leftColumn')
 			|| !$this->registerHook('actionOrderStatusPostUpdate')
 			|| !$this->registerHook('addproduct')
 			|| !$this->registerHook('updateproduct')
@@ -63,18 +64,6 @@ class BlockBestSellers extends Module
 		)
 			return false;
 
-		// Hook the module either on the left or right column
-		$theme = new Theme(Context::getContext()->shop->id_theme);
-		if ((!$theme->default_left_column || !$this->registerHook('leftColumn'))
-			&& (!$theme->default_right_column || !$this->registerHook('rightColumn'))
-		)
-		{
-			// If there are no colums implemented by the template, throw an error and uninstall the module
-			$this->_errors[] = $this->l('This module need to be hooked in a column and your theme does not implement one');
-			parent::uninstall();
-
-			return false;
-		}
 		Configuration::updateValue('PS_BLOCK_BESTSELLERS_TO_DISPLAY', 10);
 
 		return true;
@@ -107,9 +96,9 @@ class BlockBestSellers extends Module
 		$this->_clearCache('*');
 	}
 
-	public function _clearCache($template, $cache_id = NULL, $compile_id = NULL)
+	public function _clearCache($template, $cache_id = null, $compile_id = null)
 	{
-		parent::_clearCache('blockbestsellers.tpl');
+		parent::_clearCache('blockbestsellers.tpl', 'blockbestsellers-col');
 		parent::_clearCache('blockbestsellers-home.tpl', 'blockbestsellers-home');
 		parent::_clearCache('tab.tpl', 'blockbestsellers-tab');
 	}
@@ -225,7 +214,7 @@ class BlockBestSellers extends Module
 		return $this->display(__FILE__, 'tab.tpl', $this->getCacheId('blockbestsellers-tab'));
 	}
 
-	public function hookdisplayHomeTabContent($params)
+	public function hookDisplayHomeTabContent($params)
 	{
 		if (!$this->isCached('blockbestsellers-home.tpl', $this->getCacheId('blockbestsellers-home')))
 		{

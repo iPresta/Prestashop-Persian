@@ -129,15 +129,23 @@ class HomeSlide extends ObjectModel
 		return true;
 	}
 
-	public function getAssociatedIdShop()
+	public static function getAssociatedIdsShop($id_slide)
 	{
 		$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 			SELECT hs.`id_shop`
 			FROM `'._DB_PREFIX_.'homeslider` hs
-			WHERE hs.`id_homeslider_slides` = '.(int)$this->id
+			WHERE hs.`id_homeslider_slides` = '.(int)$id_slide
 		);
 
-		return (int)$result[0]['id_shop'];
+		if (!is_array($result))
+			return false;
+
+		$return = array();
+
+		foreach ($result as $id_shop)
+			$return[] = (int)$id_shop['id_shop'];
+
+		return $return;
 	}
 
 }
