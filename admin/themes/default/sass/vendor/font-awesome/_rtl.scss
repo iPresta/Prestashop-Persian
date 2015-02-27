@@ -1,0 +1,35 @@
+/* Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
+   readers do not read off random characters that represent icons */
+
+.#{$fa-css-prefix}-step-forward:before { content: $fa-var-step-backward; }
+.#{$fa-css-prefix}-fast-forward:before { content: $fa-var-fast-backward; }
+.#{$fa-css-prefix}-forward:before { content: $fa-var-backward; }
+.#{$fa-css-prefix}-backward:before { content: $fa-var-forward; }
+.#{$fa-css-prefix}-fast-backward:before { content: $fa-var-fast-forward; }
+.#{$fa-css-prefix}-step-backward:before { content: $fa-var-step-forward; }
+.#{$fa-css-prefix}-chevron-right:before { content: $fa-var-chevron-left; }
+.#{$fa-css-prefix}-chevron-left:before { content: $fa-var-chevron-right; }
+.#{$fa-css-prefix}-arrow-right:before { content: $fa-var-arrow-left; }
+.#{$fa-css-prefix}-arrow-left:before { content: $fa-var-arrow-right; }
+.#{$fa-css-prefix}-hand-o-left:before { content: $fa-var-hand-o-right; }
+.#{$fa-css-prefix}-hand-o-right:before { content: $fa-var-hand-o-left; }
+.#{$fa-css-prefix}-arrow-circle-right:before { content: $fa-var-arrow-circle-left; }
+.#{$fa-css-prefix}-arrow-circle-left:before { content: $fa-var-arrow-circle-right; }
+.#{$fa-css-prefix}-caret-right:before { content: $fa-var-caret-left; }
+.#{$fa-css-prefix}-caret-left:before { content: $fa-var-caret-right; }
+.#{$fa-css-prefix}-angle-double-right:before { content: $fa-var-angle-double-left; }
+.#{$fa-css-prefix}-angle-double-left:before { content: $fa-var-angle-double-right; }
+.#{$fa-css-prefix}-angle-right:before { content: $fa-var-angle-left; }
+.#{$fa-css-prefix}-angle-left:before { content: $fa-var-angle-right; }
+.#{$fa-css-prefix}-quote-right:before { content: $fa-var-quote-left; }
+.#{$fa-css-prefix}-quote-left:before { content: $fa-var-quote-right; }
+.#{$fa-css-prefix}-chevron-circle-right:before { content: $fa-var-chevron-circle-left; }
+.#{$fa-css-prefix}-chevron-circle-left:before { content: $fa-var-chevron-circle-right; }
+.#{$fa-css-prefix}-toggle-left:before,
+.#{$fa-css-prefix}-caret-square-o-left:before { content: $fa-var-caret-square-o-right; }
+.#{$fa-css-prefix}-long-arrow-right:before { content: $fa-var-long-arrow-left; }
+.#{$fa-css-prefix}-long-arrow-left:before { content: $fa-var-long-arrow-right; }
+.#{$fa-css-prefix}-arrow-circle-o-left:before { content: $fa-var-arrow-circle-o-right; }
+.#{$fa-css-prefix}-arrow-circle-o-right:before { content: $fa-var-arrow-circle-o-left; }
+.#{$fa-css-prefix}-toggle-right:before,
+.#{$fa-css-prefix}-caret-square-o-right:before { content: $fa-var-caret-square-o-left; }

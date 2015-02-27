@@ -7,56 +7,56 @@
   font-family: 'Droid Naskh';
   font-style: normal;
   font-weight: 400;
-  src: url(../font/droidnaskh/DroidNaskh-Regular.eot);
-  src: url(../font/droidnaskh/DroidNaskh-Regular.eot?#iefix) format('embedded-opentype'),
-       url(../font/droidnaskh/DroidNaskh-Regular.woff2) format('woff2'),
-       url(../font/droidnaskh/DroidNaskh-Regular.woff) format('woff'),
-       url(../font/droidnaskh/DroidNaskh-Regular.ttf) format('truetype');
+  src: url(../fonts/droidnaskh/DroidNaskh-Regular.eot);
+  src: url(../fonts/droidnaskh/DroidNaskh-Regular.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/droidnaskh/DroidNaskh-Regular.woff2) format('woff2'),
+       url(../fonts/droidnaskh/DroidNaskh-Regular.woff) format('woff'),
+       url(../fonts/droidnaskh/DroidNaskh-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Droid Naskh';
   font-style: normal;
   font-weight: 700;
-  src: url(../font/droidnaskh/DroidNaskh-Bold.eot);
-  src: url(../font/droidnaskh/DroidNaskh-Bold.eot?#iefix) format('embedded-opentype'),
-       url(../font/droidnaskh/DroidNaskh-Bold.woff2) format('woff2'),
-       url(../font/droidnaskh/DroidNaskh-Bold.woff) format('woff'),
-       url(../font/droidnaskh/DroidNaskh-Bold.ttf) format('truetype');
+  src: url(../fonts/droidnaskh/DroidNaskh-Bold.eot);
+  src: url(../fonts/droidnaskh/DroidNaskh-Bold.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/droidnaskh/DroidNaskh-Bold.woff2) format('woff2'),
+       url(../fonts/droidnaskh/DroidNaskh-Bold.woff) format('woff'),
+       url(../fonts/droidnaskh/DroidNaskh-Bold.ttf) format('truetype');
 }
 
 @font-face {
   font-family: 'Droid Kufi';
   font-style: normal;
   font-weight: 400;
-  src: url(../font/droidkufi/DroidKufi-Regular.eot);
-  src: url(../font/droidkufi/DroidKufi-Regular.eot?#iefix) format('embedded-opentype'),
-       url(../font/droidkufi/DroidKufi-Regular.woff2) format('woff2'),
-       url(../font/droidkufi/DroidKufi-Regular.woff) format('woff'),
-       url(../font/droidkufi/DroidKufi-Regular.ttf) format('truetype');
+  src: url(../fonts/droidkufi/DroidKufi-Regular.eot);
+  src: url(../fonts/droidkufi/DroidKufi-Regular.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/droidkufi/DroidKufi-Regular.woff2) format('woff2'),
+       url(../fonts/droidkufi/DroidKufi-Regular.woff) format('woff'),
+       url(../fonts/droidkufi/DroidKufi-Regular.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Droid Kufi';
   font-style: normal;
   font-weight: 700;
-  src: url(../font/droidkufi/DroidKufi-Bold.eot);
-  src: url(../font/droidkufi/DroidKufi-Bold.eot?#iefix) format('embedded-opentype'),
-       url(../font/droidkufi/DroidKufi-Bold.woff2) format('woff2'),
-       url(../font/droidkufi/DroidKufi-Bold.woff) format('woff'),
-       url(../font/droidkufi/DroidKufi-Bold.ttf) format('truetype');
+  src: url(../fonts/droidkufi/DroidKufi-Bold.eot);
+  src: url(../fonts/droidkufi/DroidKufi-Bold.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/droidkufi/DroidKufi-Bold.woff2) format('woff2'),
+       url(../fonts/droidkufi/DroidKufi-Bold.woff) format('woff'),
+       url(../fonts/droidkufi/DroidKufi-Bold.ttf) format('truetype');
 }
 
 @font-face {
 	font-family: 'byekan';
-	src: url('../font/byekan/BYekan.eot');
-	src: url('../font/byekan/BYekan.eot?#iefix') format('embedded-opentype'), url('../font/byekan/BYekan.ttf') format('truetype'), url('../font/byekan/BYekan.woff') format('woff');
+	src: url('../fonts/byekan/BYekan.eot');
+	src: url('../fonts/byekan/BYekan.eot?#iefix') format('embedded-opentype'), url('../fonts/byekan/BYekan.ttf') format('truetype'), url('../fonts/byekan/BYekan.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'bhoma';
-	src: url('../font/bhoma/BHoma.eot');
-	src: url('../font/bhoma/BHoma.eot?#iefix') format('embedded-opentype'), url('../font/bhoma/BHoma.ttf') format('truetype'), url('../font/bhoma/BHoma.woff') format('woff');
+	src: url('../fonts/bhoma/BHoma.eot');
+	src: url('../fonts/bhoma/BHoma.eot?#iefix') format('embedded-opentype'), url('../fonts/bhoma/BHoma.ttf') format('truetype'), url('../fonts/bhoma/BHoma.woff') format('woff');
 	font-style: normal;
 	font-weight: normal;
 }

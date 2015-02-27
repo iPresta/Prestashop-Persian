@@ -1235,7 +1235,8 @@ abstract class ModuleCore
 
 					// If (false) is a trick to not load the class with "eval".
 					// This way require_once will works correctly
-					if (eval('if (false){	'.$file.' }') !== false)
+					//if (eval('if (false){	'.$file.' }') !== false)
+					if($file)
 						require_once( _PS_MODULE_DIR_.$module.'/'.$module.'.php' );
 					else
 						$errors[] = sprintf(Tools::displayError('%1$s (parse error in %2$s)'), $module, substr($filepath, strlen(_PS_ROOT_DIR_)));

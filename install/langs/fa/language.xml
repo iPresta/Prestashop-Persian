@@ -5,4 +5,5 @@
 	<date_format_lite>Y/m/j</date_format_lite>
 	<date_format_full>Y/m/j H:i:s</date_format_full>
 	<is_rtl>true</is_rtl>
+	<allow_accented_chars_url>1</allow_accented_chars_url>
 </language>

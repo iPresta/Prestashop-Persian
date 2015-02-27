@@ -192,3 +192,6 @@ table#product_comparison .comparison_unit_price {font-family: "Droid Naskh", san
 #stores .radius-input label {margin-left: 10px;  margin-right: auto;}
 #stores #stores_loader {margin-right: 5px;  margin-left: auto;}
 #stores #stores-table tbody td.name span {padding-right: 15px; padding-left: 0}
+
+/* Block Layered */
+#layered_block_left ul li label span:before { content: '‎‏' }

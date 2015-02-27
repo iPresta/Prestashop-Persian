@@ -147,7 +147,7 @@ class MailCore extends ObjectModel
 			$template_vars = array();
 
 		// Do not crash for this error, that may be a complicated customer name
-		if (is_string($to_name) && !empty($to_name) && !Validate::isMailName($to_name))
+		//if (is_string($to_name) && !empty($to_name) && !Validate::isMailName($to_name))
 			$to_name = null;
 
 		if (!Validate::isTplName($template))

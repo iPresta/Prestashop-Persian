@@ -23,19 +23,7 @@ $(document).ready(function () {
         $(this).removeAttr("style");
         $(this).css(styles);
     });
-/* End dmartl.js */
-
-	//fix panel heading action buttons tooltip position
-	var data_p_left = $('.panel-heading-action span[data-placement="left"]');
-	var data_p_right = $('.panel-heading-action span[data-placement="right"]');
-	data_p_left.each(function (){
-		this.setAttribute('data-placement','right');
-    });
-	data_p_right.each(function (){
-		this.setAttribute('data-placement','left');
-	});
 });
-/* continue dmartl.js */
 function makeGeneralRTL(index) {
     var res = index.replace(/right/g, "rtemp");
     res = res.replace(/left/g, "right");
@@ -79,3 +67,15 @@ function tinySetup(config)
     tinyMCE.init(config);
 
 };
+
+//fix panel heading action buttons tooltip position
+$(document).ready(function () {
+	var data_p_left = $('.panel-heading-action span[data-placement="left"]');
+	var data_p_right = $('.panel-heading-action span[data-placement="right"]');
+	data_p_left.each(function (){
+		this.setAttribute('data-placement','right');
+    });
+	data_p_right.each(function (){
+		this.setAttribute('data-placement','left');
+	});
+});
