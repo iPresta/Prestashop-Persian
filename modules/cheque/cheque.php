@@ -40,7 +40,7 @@ class Cheque extends PaymentModule
 	{
 		$this->name = 'cheque';
 		$this->tab = 'payments_gateways';
-		$this->version = '2.5.5';
+		$this->version = '2.5.6';
 		$this->author = 'PrestaShop';
 		$this->controllers = array('payment', 'validation');
 		$this->is_eu_compatible = 1;
@@ -156,7 +156,7 @@ class Cheque extends PaymentModule
 			return;
 
 		return array(
-			'cta_text' => $this->l('Pay by Cheque'),
+			'cta_text' => $this->l('Pay by Check'),
 			'logo' => Media::getMediaPath(dirname(__FILE__).'/cheque.png'),
 			'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true)
 		);

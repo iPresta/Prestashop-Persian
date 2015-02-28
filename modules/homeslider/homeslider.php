@@ -45,7 +45,7 @@ class HomeSlider extends Module
 	{
 		$this->name = 'homeslider';
 		$this->tab = 'front_office_features';
-		$this->version = '1.4.3';
+		$this->version = '1.4.5';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->secure_key = Tools::encrypt($this->name);
@@ -267,18 +267,27 @@ class HomeSlider extends Module
 			}
 			else
 			{
-				$slide = new HomeSlide((int)Tools::getValue('id_slide'));
-				$associated_shop_id = $slide->getAssociatedIdShop();
+				$associated_shop_ids = HomeSlide::getAssociatedIdsShop((int)Tools::getValue('id_slide'));
 				$context_shop_id = (int)Shop::getContextShopID();
 
-				if (Shop::getContext() != Shop::CONTEXT_GROUP && Shop::getContext() != Shop::CONTEXT_ALL && $associated_shop_id == $context_shop_id)
+				if ($associated_shop_ids === false)
+					$this->_html .= $this->getShopAssociationError((int)Tools::getValue('id_slide'));
+				else if (Shop::getContext() != Shop::CONTEXT_GROUP && Shop::getContext() != Shop::CONTEXT_ALL && in_array($context_shop_id, $associated_shop_ids))
+				{
+					if (count($associated_shop_ids) > 1)
+						$this->_html = $this->getSharedSlideWarning();
 					$this->_html .= $this->renderAddForm();
+				}
 				else
 				{
-					$associated_shop = new Shop($associated_shop_id);
-					$this->_html .= $this->getShopContextError($associated_shop->name, $mode);
+					$shops_name_list = array();
+					foreach ($associated_shop_ids as $shop_id)
+					{
+						$associated_shop = new Shop((int)$shop_id);
+						$shops_name_list[] = $associated_shop->name;
+					}
+					$this->_html .= $this->getShopContextError($shops_name_list, $mode);
 				}
-
 			}
 		}
 		else // Default viewport
@@ -461,7 +470,6 @@ class HomeSlider extends Module
 				if (!Validate::isLoadedObject($slide))
 				{
 					$this->_html .= $this->displayError($this->l('Invalid slide ID'));
-
 					return false;
 				}
 			}
@@ -742,7 +750,14 @@ class HomeSlider extends Module
 	{
 		$slides = $this->getSlides();
 		foreach ($slides as $key => $slide)
+		{
 			$slides[$key]['status'] = $this->displayStatus($slide['id_slide'], $slide['active']);
+			$associated_shop_ids = HomeSlide::getAssociatedIdsShop((int)$slide['id_slide']);
+			if ($associated_shop_ids && count($associated_shop_ids) > 1)
+				$slides[$key]['is_shared'] = true;
+			else
+				$slides[$key]['is_shared'] = false;
+		}
 
 		$this->context->smarty->assign(
 			array(
@@ -948,11 +963,14 @@ class HomeSlider extends Module
 
 	public function getConfigFieldsValues()
 	{
+		$id_shop_group = Shop::getContextShopGroupID();
+		$id_shop = Shop::getContextShopID();
+
 		return array(
-			'HOMESLIDER_WIDTH' => Tools::getValue('HOMESLIDER_WIDTH', Configuration::get('HOMESLIDER_WIDTH')),
-			'HOMESLIDER_SPEED' => Tools::getValue('HOMESLIDER_SPEED', Configuration::get('HOMESLIDER_SPEED')),
-			'HOMESLIDER_PAUSE' => Tools::getValue('HOMESLIDER_PAUSE', Configuration::get('HOMESLIDER_PAUSE')),
-			'HOMESLIDER_LOOP' => Tools::getValue('HOMESLIDER_LOOP', Configuration::get('HOMESLIDER_LOOP')),
+			'HOMESLIDER_WIDTH' => Tools::getValue('HOMESLIDER_WIDTH', Configuration::get('HOMESLIDER_WIDTH', null, $id_shop_group, $id_shop)),
+			'HOMESLIDER_SPEED' => Tools::getValue('HOMESLIDER_SPEED', Configuration::get('HOMESLIDER_SPEED', null, $id_shop_group, $id_shop)),
+			'HOMESLIDER_PAUSE' => Tools::getValue('HOMESLIDER_PAUSE', Configuration::get('HOMESLIDER_PAUSE', null, $id_shop_group, $id_shop)),
+			'HOMESLIDER_LOOP' => Tools::getValue('HOMESLIDER_LOOP', Configuration::get('HOMESLIDER_LOOP', null, $id_shop_group, $id_shop)),
 		);
 	}
 
@@ -1004,14 +1022,24 @@ class HomeSlider extends Module
 
 	private function getShopContextError($shop_contextualized_name, $mode)
 	{
+		if (is_array($shop_contextualized_name))
+			$shop_contextualized_name = implode('<br/>', $shop_contextualized_name);
+
 		if ($mode == 'edit')
 			return '<p class="alert alert-danger">'.
-							$this->l(sprintf('You can only edit this slide from the shop context: %s', $shop_contextualized_name)).
+							$this->l(sprintf('You can only edit this slide from the shop(s) context: %s', $shop_contextualized_name)).
 					'</p>';
 		else
 			return '<p class="alert alert-danger">'.
 							$this->l(sprintf('You cannot add slides from a "All Shops" or a "Group Shop" context')).
 					'</p>';
+	}
+
+	private function getShopAssociationError($id_slide)
+	{
+		return '<p class="alert alert-danger">'.
+						$this->l(sprintf('Unable to get slide shop association information (id_slide: %d)', (int)$id_slide)).
+				'</p>';
 	}
 
 
@@ -1034,5 +1062,12 @@ class HomeSlider extends Module
 		}
 		else
 			return '';
+	}
+
+	private function getSharedSlideWarning()
+	{
+		return '<p class="alert alert-warning">'.
+					$this->l('This slide is shared with other shops! All shops associated to this slide will apply modifications made here').
+				'</p>';
 	}
 }

@@ -40,6 +40,8 @@ class Blocknewsletter extends Module
 		$this->tab = 'front_office_features';
 		$this->need_instance = 0;
 
+		$this->controllers = array('verification');
+
 		$this->bootstrap = true;
 		parent::__construct();
 
@@ -48,7 +50,7 @@ class Blocknewsletter extends Module
 		$this->confirmUninstall = $this->l('Are you sure that you want to delete all of your contacts?');
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
-		$this->version = '2.1.3';
+		$this->version = '2.1.5';
 		$this->author = 'PrestaShop';
 		$this->error = false;
 		$this->valid = false;
@@ -301,7 +303,7 @@ class Blocknewsletter extends Module
 	 *                1 = registered in block
 	 *                2 = registered in customer
 	 */
-	private function isNewsletterRegistered($customer_email)
+	protected function isNewsletterRegistered($customer_email)
 	{
 		$sql = 'SELECT `email`
 				FROM '._DB_PREFIX_.'newsletter
@@ -328,7 +330,7 @@ class Blocknewsletter extends Module
 	/**
 	 * Register in block newsletter
 	 */
-	private function newsletterRegistration()
+	protected function newsletterRegistration()
 	{
 		if (empty($_POST['email']) || !Validate::isEmail($_POST['email']))
 			return $this->error = $this->l('Invalid email address.');
@@ -683,7 +685,7 @@ class Blocknewsletter extends Module
 		return $this->hookDisplayLeftColumn($params);
 	}
 
-	private function _prepareHook($params)
+	protected function _prepareHook($params)
 	{
 		if (Tools::isSubmit('submitNewsletter'))
 		{

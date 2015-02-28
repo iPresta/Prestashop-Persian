@@ -1940,12 +1940,14 @@ class ToolsCore
 	{
 		global $current_css_file;
 		$protocol_link = Tools::getCurrentUrlProtocolPrefix();
+
 		if (array_key_exists(1, $matches) && array_key_exists(2, $matches))
 		{
 			if (!preg_match('/^(?:https?:)?\/\//iUs', $matches[2]))
 			{
 				$tmp = dirname($current_css_file).'/'.$matches[2];
-				return $matches[1].$protocol_link.Tools::getMediaServer($tmp).$tmp;
+				$server = Tools::getMediaServer($tmp);
+				return $matches[1].$protocol_link.$server.$tmp;
 			}
 			else
 				return $matches[0];
@@ -2012,7 +2014,7 @@ class ToolsCore
 				self::$_cache_nb_media_servers = 3;
 		}
 
-		if (self::$_cache_nb_media_servers && ($id_media_server = (abs(crc32($filename)) % self::$_cache_nb_media_servers + 1)))
+		if ($filename && self::$_cache_nb_media_servers && ($id_media_server = (abs(crc32($filename)) % self::$_cache_nb_media_servers + 1)))
 			return constant('_MEDIA_SERVER_'.$id_media_server.'_');
 
 		return Tools::usingSecureMode() ? Tools::getShopDomainSSL() : Tools::getShopDomain();
@@ -2055,7 +2057,7 @@ class ToolsCore
 		}
 
 		// Write .htaccess data
-		if (!$write_fd = fopen($path, 'w'))
+		if (!$write_fd = @fopen($path, 'w'))
 			return false;
 		if ($specific_before)
 			fwrite($write_fd, trim($specific_before)."\n\n");
@@ -2126,12 +2128,14 @@ class ToolsCore
 			$physicals = array();
 			foreach ($list_uri as $uri)
 			{
+				fwrite($write_fd, PHP_EOL.PHP_EOL.'#Domain: '.$domain.PHP_EOL);
 				if (Shop::isFeatureActive())
 					fwrite($write_fd, 'RewriteCond %{HTTP_HOST} ^'.$domain.'$'."\n");
 				fwrite($write_fd, 'RewriteRule . - [E=REWRITEBASE:'.$uri['physical'].']'."\n");
 
 				// Webservice
-				fwrite($write_fd, 'RewriteRule ^api/?(.*)$ %{ENV:REWRITEBASE}webservice/dispatcher.php?url=$1 [QSA,L]'."\n\n");
+				fwrite($write_fd, 'RewriteRule ^api$ api/ [L]'."\n\n");
+				fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}webservice/dispatcher.php?url=$1 [QSA,L]'."\n\n");
 
 				if (!$rewrite_settings)
 					$rewrite_settings = (int)Configuration::get('PS_REWRITING_SETTINGS', null, null, (int)$uri['id_shop']);
@@ -2227,7 +2231,12 @@ class ToolsCore
 		fwrite($write_fd, "AddType application/vnd.ms-fontobject .eot\n");
 		fwrite($write_fd, "AddType font/ttf .ttf\n");
 		fwrite($write_fd, "AddType font/otf .otf\n");
-		fwrite($write_fd, "AddType application/x-font-woff .woff\n\n");
+		fwrite($write_fd, "AddType application/x-font-woff .woff\n");
+		fwrite($write_fd, "<IfModule mod_headers.c>
+	<FilesMatch \"\.(ttf|ttc|otf|eot|woff|svg)$\">
+		Header add Access-Control-Allow-Origin \"*\"
+	</FilesMatch>
+</IfModule>\n\n");
 
 		// Cache control
 		if ($cache_control)
@@ -2260,7 +2269,7 @@ class ToolsCore
 FileETag none
 <IfModule mod_deflate.c>
 	<IfModule mod_filter.c>
-		AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/x-javascript
+		AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/x-javascript font/ttf application/x-font-ttf font/otf application/x-font-otf font/opentype
 	</IfModule>
 </IfModule>\n\n";
 			fwrite($write_fd, $cache_control);
@@ -2295,7 +2304,7 @@ FileETag none
 	public static function getDefaultIndexContent()
 	{
 		return '<?php
-/*
+/**
 * 2007-'.date('Y').' PrestaShop
 *
 * NOTICE OF LICENSE
@@ -2314,9 +2323,9 @@ FileETag none
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-'.date('Y').' PrestaShop SA
-*  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-'.date('Y').' PrestaShop SA
+*  @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
@@ -2604,7 +2613,7 @@ exit;
 		switch ($type)
 		{
 			case 'by' :
-				$list = array(0 => 'name', 1 => 'price', 2 => 'date_add', 3 => 'date_upd', 4 => 'position', 5 => 'manufacturer_name', 6 => 'quantity');
+				$list = array(0 => 'name', 1 => 'price', 2 => 'date_add', 3 => 'date_upd', 4 => 'position', 5 => 'manufacturer_name', 6 => 'quantity', 7 => 'reference');
 				$value = (is_null($value) || $value === false || $value === '') ? (int)Configuration::get('PS_PRODUCTS_ORDER_BY') : $value;
 				$value = (isset($list[$value])) ? $list[$value] : ((in_array($value, $list)) ? $value : 'position');
 				$order_by_prefix = '';
@@ -3133,6 +3142,7 @@ exit;
 			$file_attachment['name'] = $_FILES[$input]['name'];
 			$file_attachment['mime'] = $_FILES[$input]['type'];
 			$file_attachment['error'] = $_FILES[$input]['error'];
+			$file_attachment['size'] = $_FILES[$input]['size'];
 		}
 		return $file_attachment;
 	}
@@ -3268,6 +3278,11 @@ exit;
 			if ($purifier === null)
 			{
 				$config = HTMLPurifier_Config::createDefault();
+
+				// Set some HTML5 properties
+				$config->set('HTML.DefinitionID', 'html5-definitions'); // unqiue id
+				$config->set('HTML.DefinitionRev', 1);
+
 				$config->set('Attr.EnableID', true);
 				$config->set('HTML.Trusted', true);
 				$config->set('Cache.SerializerPath', _PS_CACHE_DIR_.'purifier');
@@ -3279,6 +3294,25 @@ exit;
 					$config->set('HTML.SafeObject', true);
 					$config->set('URI.SafeIframeRegexp','/.*/');
 				}
+
+				// http://developers.whatwg.org/the-video-element.html#the-video-element
+				if ($def = $config->maybeGetRawHTMLDefinition())
+				{
+				    $def->addElement('video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common', array(
+						'src' => 'URI',
+						'type' => 'Text',
+						'width' => 'Length',
+						'height' => 'Length',
+						'poster' => 'URI',
+						'preload' => 'Enum#auto,metadata,none',
+						'controls' => 'Bool',
+					));
+				    $def->addElement('source', 'Block', 'Flow', 'Common', array(
+						'src' => 'URI',
+						'type' => 'Text',
+					));
+				}
+
 				$purifier = new HTMLPurifier($config);
 			}
 			if (_PS_MAGIC_QUOTES_GPC_)

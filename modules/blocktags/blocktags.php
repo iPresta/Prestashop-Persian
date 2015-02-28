@@ -33,12 +33,12 @@ class BlockTags extends Module
 	{
 		$this->name = 'blocktags';
 		$this->tab = 'front_office_features';
-		$this->version = '1.2.3';
+		$this->version = '1.2.5';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
 		$this->bootstrap = true;
-		parent::__construct();	
+		parent::__construct();
 
 		$this->displayName = $this->l('Tags block');
 		$this->description = $this->l('Adds a block containing your product tags.');
@@ -47,26 +47,47 @@ class BlockTags extends Module
 
 	function install()
 	{
-		$success = (parent::install() && $this->registerHook('header')
+		$success = (parent::install()
+			&& $this->registerHook('header')
+			&& $this->registerHook('leftColumn')
+			&& $this->registerHook('addproduct')
+			&& $this->registerHook('updateproduct')
+			&& $this->registerHook('deleteproduct')
 			&& Configuration::updateValue('BLOCKTAGS_NBR', 10)
 			&& Configuration::updateValue('BLOCKTAGS_MAX_LEVEL', 3)
 			&& Configuration::updateValue('BLOCKTAGS_RANDOMIZE', false)
 		);
 
-		if ($success)
-		{
-			// Hook the module either on the left or right column
-			$theme = new Theme(Context::getContext()->shop->id_theme);
-			if ((!$theme->default_left_column || !$this->registerHook('leftColumn'))
-				&& (!$theme->default_right_column || !$this->registerHook('rightColumn')))
-			{
-				// If there are no colums implemented by the template, throw an error and uninstall the module
-				$this->_errors[] = $this->l('This module need to be hooked in a column and your theme does not implement one');
-				parent::uninstall();
-				return false;
-			}
-		}
+		$this->_clearCache('*');
+
 		return $success;
+	}
+
+	public function uninstall()
+	{
+		$this->_clearCache('*');
+
+		return parent::uninstall();
+	}
+
+	public function hookAddProduct($params)
+	{
+		$this->_clearCache('*');
+	}
+
+	public function hookUpdateProduct($params)
+	{
+		$this->_clearCache('*');
+	}
+
+	public function hookDeleteProduct($params)
+	{
+		$this->_clearCache('*');
+	}
+
+	public function _clearCache($template, $cache_id = NULL, $compile_id = NULL)
+	{
+		parent::_clearCache('blocktags.tpl');
 	}
 
 	public function getContent()
@@ -86,7 +107,7 @@ class BlockTags extends Module
                                 $errors[] = $this->l('Please complete the "Tags levels" field.');
                         elseif (!Validate::isInt($tagsLevels) || (int)($tagsLevels) <= 0)
                                 $errors[] = $this->l('Invalid value for "Tags levels". Choose a positive integer number.');
-                        
+
                         $randomize = Tools::getValue('BLOCKTAGS_RANDOMIZE');
                         if (!strlen($randomize))
                         	$errors[] = $this->l('Please complete the "Randomize" field.');
@@ -116,34 +137,34 @@ class BlockTags extends Module
 	*/
 	function hookLeftColumn($params)
 	{
-		$tags = Tag::getMainTags((int)($params['cookie']->id_lang), (int)(Configuration::get('BLOCKTAGS_NBR')));
-		
-		$max = -1;
-		$min = -1;
-		foreach ($tags as $tag)
+		if (!$this->isCached('blocktags.tpl', $this->getCacheId('blocktags')))
 		{
-			if ($tag['times'] > $max)
-				$max = $tag['times'];
-			if ($tag['times'] < $min || $min == -1)
-				$min = $tag['times'];
-		}
-		
-		if ($min == $max)
-			$coef = $max;
-		else
-		{
-			$coef = (Configuration::get('BLOCKTAGS_MAX_LEVEL') - 1) / ($max - $min);
-		}
-		
-		if (!sizeof($tags))
-			return false;
-		if (Configuration::get('BLOCKTAGS_RANDOMIZE'))
-			shuffle($tags);
-		foreach ($tags AS &$tag)
-			$tag['class'] = 'tag_level'.(int)(($tag['times'] - $min) * $coef + 1);
-		$this->smarty->assign('tags', $tags);
+			$tags = Tag::getMainTags((int)($params['cookie']->id_lang), (int)(Configuration::get('BLOCKTAGS_NBR')));
 
-		return $this->display(__FILE__, 'blocktags.tpl');
+			$max = -1;
+			$min = -1;
+			foreach ($tags as $tag)
+			{
+				if ($tag['times'] > $max)
+					$max = $tag['times'];
+				if ($tag['times'] < $min || $min == -1)
+					$min = $tag['times'];
+			}
+
+			if ($min == $max)
+				$coef = $max;
+			else
+				$coef = (Configuration::get('BLOCKTAGS_MAX_LEVEL') - 1) / ($max - $min);
+
+			if (!count($tags))
+				return false;
+			if (Configuration::get('BLOCKTAGS_RANDOMIZE'))
+				shuffle($tags);
+			foreach ($tags as &$tag)
+				$tag['class'] = 'tag_level'.(int)(($tag['times'] - $min) * $coef + 1);
+			$this->smarty->assign('tags', $tags);
+		}
+		return $this->display(__FILE__, 'blocktags.tpl', $this->getCacheId('blocktags'));
 	}
 
 	function hookRightColumn($params)
@@ -155,7 +176,7 @@ class BlockTags extends Module
 	{
 		$this->context->controller->addCSS(($this->_path).'blocktags.css', 'all');
 	}
-	
+
 	public function renderForm()
 	{
 		$fields_form = array(
@@ -204,10 +225,10 @@ class BlockTags extends Module
 				)
 			),
 		);
-			
+
 		$helper = new HelperForm();
 		$helper->show_toolbar = false;
-		$helper->table =  $this->table;
+		$helper->table = $this->table;
 		$lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
 		$helper->default_form_language = $lang->id;
 		$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
@@ -223,9 +244,9 @@ class BlockTags extends Module
 
 		return $helper->generateForm(array($fields_form));
 	}
-	
+
 	public function getConfigFieldsValues()
-	{		
+	{
 		return array(
 			'BLOCKTAGS_NBR' => Tools::getValue('BLOCKTAGS_NBR', (int)Configuration::get('BLOCKTAGS_NBR')),
 			'BLOCKTAGS_MAX_LEVEL' => Tools::getValue('BLOCKTAGS_MAX_LEVEL', (int)Configuration::get('BLOCKTAGS_MAX_LEVEL')),
