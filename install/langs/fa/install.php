@@ -142,7 +142,7 @@ return array (
     'Tables prefix' => 'پیشوند جداول',
     'Drop existing tables (mode dev)' => 'حذف جداول موجود',
     'Test your database connection now!' => 'هم اکنون اتصال به دیتابیس را بررسی کن!',
-    'Next' => 'شروع خرید',
+    'Next' => 'بعدی',
     'Back' => 'قبلی',
     'If you need some assistance during the installation process, please call our team at %s and one of our experts will be happy to help.' => 'اگر هنگام نصب با خطایی مواجه شدید، می‌توانید با ما تماس بگیرید. متخصصان ما برای کمک شما آماده هستند.',
     'Official forum' => 'انجمن اختصاصی',

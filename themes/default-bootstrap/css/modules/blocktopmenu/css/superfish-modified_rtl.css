@@ -23,7 +23,7 @@
 .sf-menu ul {
   position: absolute;
   top: -999em;
-  background: white; }
+  background: #fff; }
   @media (max-width: 767px) {
     .sf-menu ul {
       position: relative; } }
@@ -68,7 +68,7 @@
   .sf-menu > li > a:hover, .sf-menu > li.sfHoverForce > a {
     background: #333333;
     border-bottom-color: #666666;
-    color: white; }
+    color: #fff; }
 
 .sf-menu li li li a {
   display: inline-block;
@@ -84,7 +84,7 @@
     font-family: "FontAwesome";
     padding-left: 10px; }
   .sf-menu li li li a:hover {
-    color: #333333; }
+    color: #333; }
 
 .sf-menu li ul {
   display: none;
@@ -105,9 +105,9 @@
   display: block !important;
   opacity: 1 !important;
   background: none;
-  -webkit-box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;
-  -moz-box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px; }
+  -moz-box-shadow: transparent 0px 0px 0px;
+  -webkit-box-shadow: transparent 0px 0px 0px;
+  box-shadow: transparent 0px 0px 0px; }
 
 .sf-menu li li li ul {
   padding: 0 20px 0 0; }
@@ -141,7 +141,7 @@ ul.sf-menu li li li.sfHover ul {
   .sf-menu > li > ul > li > a {
     text-transform: uppercase;
     font: 600 16px/20px "byekan", sans-serif;
-    color: #333333; }
+    color: #333; }
     .sf-menu > li > ul > li > a:hover {
       color: #515151; }
 
@@ -200,7 +200,7 @@ ul.sf-menu li li li.sfHover ul {
       .cat-title:hover {
         background: #333333;
         border-bottom-color: #666666;
-        color: white; }
+        color: #fff; }
       .cat-title:after {
         display: block;
         font-family: "FontAwesome";
@@ -219,7 +219,7 @@ ul.sf-menu li li li.sfHover ul {
     padding: 0 13px;
     height: 30px;
     line-height: 30px;
-    background: white;
+    background: #fff;
     margin: 13px 0 0 10px;
     font-size: 13px;
     color: #9c9b9b;

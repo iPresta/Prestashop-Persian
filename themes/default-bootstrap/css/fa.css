@@ -78,7 +78,7 @@ h3.page-product-heading, .footer-container #footer h4, .cart_voucher h4, #pageno
 #pagenotfound .pagenotfound p, #facebook_block h4, #cmsinfo_block h3, #center_column .page_product_box h3, #instant_search_results a.close, .page-heading span.heading-counter,
 .block .products-block .price-percent-reduction, .sale-label, .new-label,
 .price-percent-reduction.small, .button.lnk_view, .button.ajax_add_to_cart_button,
-.button.button-small {
+.button.button-small, .product-heading-h5 {
 
 	font-family: 'Droid Naskh', 'arial';
 	

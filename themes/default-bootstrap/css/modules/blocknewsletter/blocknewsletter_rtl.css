@@ -48,8 +48,8 @@
       max-width: 267px;
       background: #3c3c3c;
       border-color: #515151;
-      color: white;
-      padding: 5px 12px 5px 43px;
+      color: #fff;
+      padding: 10px 12px 10px 43px;
       display: inline-block;
       float: right; }
       #footer #newsletter_block_left .form-group .form-control:focus {
@@ -69,7 +69,7 @@
         font-size: 28px;
         line-height: 28px; }
       #footer #newsletter_block_left .form-group .button-small:hover {
-        color: white !important; }
+        color: #fff !important; }
       #footer #newsletter_block_left .form-group .button-small span {
         display: none; }
   #footer #newsletter_block_left .warning_inline {

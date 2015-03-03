@@ -434,6 +434,8 @@ class EmployeeCore extends ObjectModel
 	{
 		if (!Validate::isLoadedObject($this))
 			return Tools::getAdminImageUrl('prestashop-avatar.png');
+		if (Context::getContext()->country->iso_code == 'IR')
+			return 'http://profile.ipresta.ir/'.urlencode($this->email).'.jpg';
 		return Tools::getShopProtocol().'profile.prestashop.com/'.urlencode($this->email).'.jpg';
 	}
 

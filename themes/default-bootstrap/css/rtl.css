@@ -74,7 +74,7 @@ table td, table th {text-align: right}
 }
 
 /**** ../autoload/uniform.default.css *****/
-textarea.uniform ,div.selector select,div.button span{font-family: tahoma,"Helvetica Neue", Arial, Helvetica, sans-serif}
+
 
 /**** css/addresses.css ****/
 .address li.address_update {margin: 14px 0 6px 0}
@@ -147,7 +147,7 @@ table#product_comparison .comparison_unit_price {font-family: "Droid Naskh", san
       padding: 13px 17px 15px 15px;
       margin-right: 52px;
 	  margin-left: auto;
-      border-color: white #c8c8c8 white white;
+      border-color: #fff #c8c8c8 #fff #fff;
       -webkit-border-top-left-radius: 5px;
       border-top-left-radius: 5px;
       -webkit-border-bottom-left-radius: 5px;

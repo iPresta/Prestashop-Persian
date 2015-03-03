@@ -9,10 +9,10 @@
   .shop-phone i {
     font-size: 21px;
     line-height: 21px;
-    color: white;
+    color: #fff;
     padding-left: 7px; }
   .shop-phone strong {
-    color: white; }
+    color: #fff; }
 
 #contact-link {
   float: left;
@@ -23,7 +23,7 @@
       text-align: center; } }
   #contact-link a {
     display: block;
-    color: white;
+    color: #fff;
     font-weight: bold;
     padding: 8px 10px 11px 10px;
     text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
@@ -43,12 +43,12 @@
 #contact_block .label {
   display: none; }
 #contact_block .block_content {
-  color: #888888; }
+  color: #888; }
 #contact_block p {
   margin-bottom: 4px; }
 #contact_block p.tel {
   font: 400 17px/21px bhoma,arial, Helvetica, sans-serif;
-  color: #333333;
+  color: #333;
   margin-bottom: 6px; }
   #contact_block p.tel i {
     font-size: 25px;
