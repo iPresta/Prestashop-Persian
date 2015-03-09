@@ -158,8 +158,11 @@ class AdminCartRulesControllerCore extends AdminController
 		foreach (array('country', 'carrier', 'group', 'product_rule_group', 'shop') as $type)
 			Db::getInstance()->delete('cart_rule_'.$type, '`id_cart_rule` = '.(int)$id_cart_rule);
 
-		Db::getInstance()->delete('cart_rule_product_rule', '`id_product_rule_group` NOT IN (SELECT `id_product_rule_group` FROM `'._DB_PREFIX_.'cart_rule_product_rule_group`)');
-		Db::getInstance()->delete('cart_rule_product_rule_value', '`id_product_rule` NOT IN (SELECT `id_product_rule` FROM `'._DB_PREFIX_.'cart_rule_product_rule`)');
+
+		Db::getInstance()->delete('cart_rule_product_rule', 'NOT EXISTS (SELECT 1 FROM `'._DB_PREFIX_.'cart_rule_product_rule_group`
+			WHERE `'._DB_PREFIX_.'cart_rule_product_rule`.`id_product_rule_group` = `'._DB_PREFIX_.'cart_rule_product_rule_group`.`id_product_rule_group`)');
+		Db::getInstance()->delete('cart_rule_product_rule_value', 'NOT EXISTS (SELECT 1 FROM `'._DB_PREFIX_.'cart_rule_product_rule`
+			WHERE `'._DB_PREFIX_.'cart_rule_product_rule_value`.`id_product_rule` = `'._DB_PREFIX_.'cart_rule_product_rule`.`id_product_rule`)');
 		Db::getInstance()->delete('cart_rule_combination', '`id_cart_rule_1` = '.(int)$id_cart_rule.' OR `id_cart_rule_2` = '.(int)$id_cart_rule);
 
 		$this->afterAdd($current_object);
@@ -236,12 +239,17 @@ class AdminCartRulesControllerCore extends AdminController
 			FROM '._DB_PREFIX_.'cart_rule cr
 			WHERE cr.id_cart_rule != '.(int)$currentObject->id.'
 			AND cr.cart_rule_restriction = 0
-			AND cr.id_cart_rule NOT IN (
-				SELECT IF(id_cart_rule_1 = '.(int)$currentObject->id.', id_cart_rule_2, id_cart_rule_1)
+			AND NOT EXISTS (
+				SELECT 1
 				FROM '._DB_PREFIX_.'cart_rule_combination
-				WHERE '.(int)$currentObject->id.' = id_cart_rule_1
-				OR '.(int)$currentObject->id.' = id_cart_rule_2
-			)');
+				WHERE cr.id_cart_rule = '._DB_PREFIX_.'cart_rule_combination.id_cart_rule_2 AND '.(int)$currentObject->id.' = id_cart_rule_1
+			)
+			AND NOT EXISTS (
+				SELECT 1
+				FROM '._DB_PREFIX_.'cart_rule_combination
+				WHERE cr.id_cart_rule = '._DB_PREFIX_.'cart_rule_combination.id_cart_rule_1 AND '.(int)$currentObject->id.' = id_cart_rule_2
+			)
+			');
 			foreach ($ruleCombinations as $incompatibleRule)
 			{
 				Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'cart_rule` SET cart_rule_restriction = 1 WHERE id_cart_rule = '.(int)$incompatibleRule['id_cart_rule'].' LIMIT 1');

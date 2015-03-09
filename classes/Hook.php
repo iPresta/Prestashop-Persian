@@ -153,7 +153,7 @@ class HookCore extends ObjectModel
 			);
 		return Cache::retrieve($cache_id);
 	}
-	
+
 	/**
 	 * Return hook live edit bool from ID
 	 */
@@ -167,7 +167,7 @@ class HookCore extends ObjectModel
 				WHERE `id_hook` = '.(int)$hook_id)
 			);
 		return Cache::retrieve($cache_id);
-	}	
+	}
 
 	/**
 	 * Get list of hook alias
@@ -222,9 +222,9 @@ class HookCore extends ObjectModel
 		{
 			$results = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 			SELECT h.id_hook, h.name as h_name, title, description, h.position, live_edit, hm.position as hm_position, m.id_module, m.name, active
-			FROM `'._DB_PREFIX_.'hook` h
-			INNER JOIN `'._DB_PREFIX_.'hook_module` hm ON (h.id_hook = hm.id_hook AND hm.id_shop = '.(int)Context::getContext()->shop->id.')
-			INNER JOIN `'._DB_PREFIX_.'module` as m ON (m.id_module = hm.id_module)
+			FROM `'._DB_PREFIX_.'hook_module` hm
+			STRAIGHT_JOIN `'._DB_PREFIX_.'hook` h ON (h.id_hook = hm.id_hook AND hm.id_shop = '.(int)Context::getContext()->shop->id.')
+			STRAIGHT_JOIN `'._DB_PREFIX_.'module` as m ON (m.id_module = hm.id_module)
 			ORDER BY hm.position');
 			$list = array();
 			foreach ($results as $result)
@@ -302,7 +302,7 @@ class HookCore extends ObjectModel
 						$groups = array((int)Configuration::get('PS_UNIDENTIFIED_GROUP'));
 				}
 			}
-			
+
 			// SQL Request
 			$sql = new DbQuery();
 			$sql->select('h.`name` as hook, m.`id_module`, h.`id_hook`, m.`name` as module, h.`live_edit`');
@@ -402,7 +402,7 @@ class HookCore extends ObjectModel
 	{
 		if (defined('PS_INSTALLATION_IN_PROGRESS'))
 			return;
-		
+
 		static $disable_non_native_modules = null;
 		if ($disable_non_native_modules === null)
 			$disable_non_native_modules = (bool)Configuration::get('PS_DISABLE_NON_NATIVE_MODULE');
@@ -412,7 +412,7 @@ class HookCore extends ObjectModel
 			throw new PrestaShopException('Invalid id_module or hook_name');
 
 		// If no modules associated to hook_name or recompatible hook name, we stop the function
-		
+
 		if (!$module_list = Hook::getHookModuleExecList($hook_name))
 			return '';
 
@@ -470,14 +470,14 @@ class HookCore extends ObjectModel
 
 				$controller = Dispatcher::getInstance()->getController();
 				$controller_obj = Context::getContext()->controller;
-				
+
 				//check if current controller is a module controller
 				if (isset($controller_obj->module) && Validate::isLoadedObject($controller_obj->module))
 					$controller = 'module-'.$controller_obj->module->name.'-'.$controller;
-				
+
 				if (in_array($controller, $exceptions))
 					continue;
-				
+
 				//retro compat of controller names
 				$matching_name = array(
 					'authentication' => 'auth',
@@ -488,7 +488,7 @@ class HookCore extends ObjectModel
 				if (Validate::isLoadedObject($context->employee) && !Module::getPermissionStatic($array['id_module'], 'view', $context->employee))
 					continue;
 			}
-			
+
 			if (!($moduleInstance = Module::getInstanceByName($array['module'])))
 				continue;
 
@@ -507,9 +507,10 @@ class HookCore extends ObjectModel
 
 				// Call hook method
 				if ($hook_callable)
-					$display = $moduleInstance->{'hook'.$hook_name}($hook_args);
+					$display = Hook::coreCallHook($moduleInstance, 'hook'.$hook_name, $hook_args);
 				elseif ($hook_retro_callable)
-					$display = $moduleInstance->{'hook'.$retro_hook_name}($hook_args);
+					$display = Hook::coreCallHook($moduleInstance, 'hook'.$retro_hook_name, $hook_args);
+
 				// Live edit
 				if (!$array_return && $array['live_edit'] && Tools::isSubmit('live_edit') && Tools::getValue('ad') && Tools::getValue('liveToken') == Tools::getAdminToken('AdminModulesPositions'.(int)Tab::getIdFromClassName('AdminModulesPositions').(int)Tools::getValue('id_employee')))
 				{
@@ -534,6 +535,38 @@ class HookCore extends ObjectModel
 		else
 			return ($live_edit ? '<script type="text/javascript">hooks_list.push(\''.$hook_name.'\');</script>
 				<div id="'.$hook_name.'" class="dndHook" style="min-height:50px">' : '').$output.($live_edit ? '</div>' : '');// Return html string
+	}
+	
+	public static function coreCallHook($module, $method, $params)
+	{
+		// Define if we will log modules performances for this session
+		if (Module::$_log_modules_perfs === null)
+		{
+			$modulo = _PS_DEBUG_PROFILING_ ? 1 : Configuration::get('PS_log_modules_perfs_MODULO');
+			Module::$_log_modules_perfs = ($modulo && mt_rand(0, $modulo - 1) == 0);
+			if (Module::$_log_modules_perfs)
+				Module::$_log_modules_perfs_session = mt_rand();
+		}
+		
+		// Immediately return the result if we do not log performances
+		if (!Module::$_log_modules_perfs)
+			return $module->{$method}($params);
+		
+		// Store time and memory before and after hook call and save the result in the database
+		$time_start = microtime(true);
+		$memory_start = memory_get_usage(true);
+		
+		// Call hook
+		$r = $module->{$method}($params);
+		
+		$time_end = microtime(true);
+		$memory_end = memory_get_usage(true);
+
+		Db::getInstance()->execute('
+		INSERT INTO '._DB_PREFIX_.'modules_perfs (session, module, method, time_start, time_end, memory_start, memory_end)
+		VALUES ('.(int)Module::$_log_modules_perfs_session.', "'.pSQL($module->name).'", "'.pSQL($method).'", "'.pSQL($time_start).'", "'.pSQL($time_end).'", '.(int)$memory_start.', '.(int)$memory_end.')');
+
+		return $r;
 	}
 
 	public static function wrapLiveEdit($display, $moduleInstance, $id_hook)
@@ -704,8 +737,14 @@ class HookCore extends ObjectModel
 	/**
 	 * Called when quantity of a product is updated.
 	 *
-	 * @param Product
-	 * @param Order
+	 * @deprecated 1.5.3.0
+	 * @param Cart $cart
+	 * @param Order $order
+	 * @param Customer $customer
+	 * @param Currency $currency
+	 * @param $orderStatus
+	 * @return string
+	 * @throws PrestaShopException
 	 */
 	public static function newOrder($cart, $order, $customer, $currency, $orderStatus)
 	{

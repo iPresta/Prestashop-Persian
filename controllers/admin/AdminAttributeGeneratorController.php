@@ -81,6 +81,9 @@ class AdminAttributeGeneratorControllerCore extends AdminController
 
 	public function initProcess()
 	{
+		if (!defined('PS_MASS_PRODUCT_CREATION'))
+			define('PS_MASS_PRODUCT_CREATION', true);
+
 		if (Tools::isSubmit('generate'))
 		{
 			if ($this->tabAccess['edit'] === '1')
@@ -124,13 +127,26 @@ class AdminAttributeGeneratorControllerCore extends AdminController
 				$this->product->deleteProductAttributes();
 				$this->product->generateMultipleCombinations($values, $this->combinations);
 
+				// Reset cached default attribute for the product and get a new one
+				Product::getDefaultAttribute($this->product->id, 0, true);
+				Product::updateDefaultAttribute($this->product->id);
+
 				// @since 1.5.0
 				if ($this->product->depends_on_stock == 0)
 				{
 					$attributes = Product::getProductAttributesIds($this->product->id, true);
 					$quantity = (int)Tools::getValue('quantity');
 					foreach ($attributes as $attribute)
-						StockAvailable::setQuantity($this->product->id, $attribute['id_product_attribute'], $quantity);
+						if (Shop::getContext() == Shop::CONTEXT_ALL)
+						{
+							$shops_list = Shop::getShops();
+							if (is_array($shops_list))
+								foreach ($shops_list as $current_shop)
+									if (isset($current_shop['id_shop']) && (int)$current_shop['id_shop'] > 0)
+										StockAvailable::setQuantity($this->product->id, (int)$attribute['id_product_attribute'], $quantity, (int)$current_shop['id_shop']);
+						}
+						else
+							StockAvailable::setQuantity($this->product->id, (int)$attribute['id_product_attribute'], $quantity);
 				}
 				else
 					StockAvailable::synchronize($this->product->id);

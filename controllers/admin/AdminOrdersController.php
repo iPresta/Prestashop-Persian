@@ -783,9 +783,9 @@ class AdminOrdersControllerCore extends AdminController
 					else
 					{
 						if (!empty($refunds))
-							$this->errors[] = Tools::displayError('You have to enter a quantity if you want to create a partial credit slip.');
+							$this->errors[] = Tools::displayError('Please enter a quantity to proceed with your refund.');
 						else
-							$this->errors[] = Tools::displayError('You have to enter an amount if you want to create a partial credit slip.');
+							$this->errors[] = Tools::displayError('Please enter an amount to proceed with your refund.');
 					}
 
 					// Redirect if no errors
@@ -1684,9 +1684,17 @@ class AdminOrdersControllerCore extends AdminController
 			{
 				$warehouse = new Warehouse((int)$product['id_warehouse']);
 				$product['warehouse_name'] = $warehouse->name;
+				$warehouse_location = WarehouseProductLocation::getProductLocation($product['product_id'], $product['product_attribute_id'], $product['id_warehouse']);
+				if (!empty($warehouse_location))
+					$product['warehouse_location'] = $warehouse_location;
+				else
+					$product['warehouse_location'] = false;
 			}
 			else
+			{
 				$product['warehouse_name'] = '--';
+				$product['warehouse_location'] = false;
+			}
 		}
 
 		$gender = new Gender((int)$customer->id_gender, $this->context->language->id);
@@ -2118,9 +2126,17 @@ class AdminOrdersControllerCore extends AdminController
 		{
 			$warehouse = new Warehouse((int)$product['id_warehouse']);
 			$product['warehouse_name'] = $warehouse->name;
+			$warehouse_location = WarehouseProductLocation::getProductLocation($product['product_id'], $product['product_attribute_id'], $product['id_warehouse']);
+			if (!empty($warehouse_location))
+				$product['warehouse_location'] = $warehouse_location;
+			else
+				$product['warehouse_location'] = false;
 		}
 		else
+		{
 			$product['warehouse_name'] = '--';
+			$product['warehouse_location'] = false;
+		}
 
 		// Get invoices collection
 		$invoice_collection = $order->getInvoicesCollection();
@@ -2245,7 +2261,8 @@ class AdminOrdersControllerCore extends AdminController
 			'product' => $product,
 			'tax_rate' => $product->getTaxesRate($address),
 			'price_tax_incl' => Product::getPriceStatic($product->id, true, $order_detail->product_attribute_id, 2),
-			'price_tax_excl' => Product::getPriceStatic($product->id, false, $order_detail->product_attribute_id, 2)
+			'price_tax_excl' => Product::getPriceStatic($product->id, false, $order_detail->product_attribute_id, 2),
+			'reduction_percent' => $order_detail->reduction_percent
 		)));
 	}
 
@@ -2341,6 +2358,7 @@ class AdminOrdersControllerCore extends AdminController
 		$old_quantity = $order_detail->product_quantity;
 
 		$order_detail->product_quantity = $product_quantity;
+		$order_detail->reduction_percent = 0;
 
 		// update taxes
 		$res &= $order_detail->updateTaxAmount($order);
@@ -2377,9 +2395,17 @@ class AdminOrdersControllerCore extends AdminController
 		{
 			$warehouse = new Warehouse((int)$product['id_warehouse']);
 			$product['warehouse_name'] = $warehouse->name;
+			$warehouse_location = WarehouseProductLocation::getProductLocation($product['product_id'], $product['product_attribute_id'], $product['id_warehouse']);
+			if (!empty($warehouse_location))
+				$product['warehouse_location'] = $warehouse_location;
+			else
+				$product['warehouse_location'] = false;
 		}
 		else
+		{
 			$product['warehouse_name'] = '--';
+			$product['warehouse_location'] = false;
+		}
 
 		// Get invoices collection
 		$invoice_collection = $order->getInvoicesCollection();

@@ -118,7 +118,7 @@
 								{/if}
 								<li id="thumbnail_{$image.id_image}"{if $smarty.foreach.thumbnails.last} class="last"{/if}>
 									<a{if $jqZoomEnabled && $have_image && !$content_only} href="javascript:void(0);" rel="{literal}{{/literal}gallery: 'gal1', smallimage: '{$link->getImageLink($product->link_rewrite, $imageIds, 'large_default')|escape:'html':'UTF-8'}',largeimage: '{$link->getImageLink($product->link_rewrite, $imageIds, 'thickbox_default')|escape:'html':'UTF-8'}'{literal}}{/literal}"{else} href="{$link->getImageLink($product->link_rewrite, $imageIds, 'thickbox_default')|escape:'html':'UTF-8'}"	data-fancybox-group="other-views" class="fancybox{if $image.id_image == $cover.id_image} shown{/if}"{/if} title="{$imageTitle}">
-										<img class="img-responsive" id="thumb_{$image.id_image}" src="{$link->getImageLink($product->link_rewrite, $imageIds, 'cart_default')|escape:'html':'UTF-8'}" alt="{$imageTitle}" title="{$imageTitle}" height="{$cartSize.height}" width="{$cartSize.width}" itemprop="image" />
+										<img class="img-responsive" id="thumb_{$image.id_image}" src="{$link->getImageLink($product->link_rewrite, $imageIds, 'cart_default')|escape:'html':'UTF-8'}" alt="{$imageTitle}" title="{$imageTitle}"{if isset($cartSize)} height="{$cartSize.height}" width="{$cartSize.width}"{/if} itemprop="image" />
 									</a>
 								</li>
 							{/foreach}
@@ -211,7 +211,7 @@
 				<span id="availability_value" class="label{if $product->quantity <= 0 && !$allow_oosp} label-danger{elseif $product->quantity <= 0} label-warning{else} label-success{/if}">{if $product->quantity <= 0}{if $PS_STOCK_MANAGEMENT && $allow_oosp}{$product->available_later}{else}{l s='This product is no longer in stock'}{/if}{elseif $PS_STOCK_MANAGEMENT}{$product->available_now}{/if}</span>
 			</p>
 			{if $PS_STOCK_MANAGEMENT}
-				{hook h="displayProductDeliveryTime" product=$product}
+				{if !$product->is_virtual}{hook h="displayProductDeliveryTime" product=$product}{/if}
 				<p class="warning_inline" id="last_quantities"{if ($product->quantity > $last_qties || $product->quantity <= 0) || $allow_oosp || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none"{/if} >{l s='Warning: Last items in stock!'}</p>
 			{/if}
 			<p id="availability_date"{if ($product->quantity > 0) || !$product->available_for_order || $PS_CATALOG_MODE || !isset($product->available_date) || $product->available_date < $smarty.now|date_format:'%Y-%m-%d'} style="display: none;"{/if}>
@@ -277,7 +277,7 @@
 									{/if}
 									</span>
 								{/strip}</p>
-								<p id="old_price"{if (!$product->specificPrice || !$product->specificPrice.reduction) && $group_reduction == 0} class="hidden"{/if}>{strip}
+								<p id="old_price"{if (!$product->specificPrice || !$product->specificPrice.reduction)} class="hidden"{/if}>{strip}
 									{if $priceDisplay >= 0 && $priceDisplay <= 2}
 										{hook h="displayProductPriceBlock" product=$product type="old_price"}
 										<span id="old_price_display">{if $productPriceWithoutReduction > $productPrice}<span class="price">{convertPrice price=$productPriceWithoutReduction}</span>{if $tax_enabled && $display_tax_label == 1} {if $priceDisplay == 1}{l s='tax excl.'}{else}{l s='tax incl.'}{/if}{/if}{/if}</span>
@@ -314,7 +314,7 @@
 						{if !$PS_CATALOG_MODE}
 						<p id="quantity_wanted_p"{if (!$allow_oosp && $product->quantity <= 0) || !$product->available_for_order || $PS_CATALOG_MODE} style="display: none;"{/if}>
 							<label>{l s='Quantity'}</label>
-							<input type="text" name="qty" id="quantity_wanted" class="text" value="{if isset($quantityBackup)}{$quantityBackup|intval}{else}{if $product->minimal_quantity > 1}{$product->minimal_quantity}{else}1{/if}{/if}" />
+							<input type="number" min="1" name="qty" id="quantity_wanted" class="text" value="{if isset($quantityBackup)}{$quantityBackup|intval}{else}{if $product->minimal_quantity > 1}{$product->minimal_quantity}{else}1{/if}{/if}" />
 							<a href="#" data-field-qty="qty" class="btn btn-default button-minus product_quantity_down">
 								<span><i class="icon-minus"></i></span>
 							</a>
@@ -683,7 +683,6 @@
 {addJsDef default_eco_tax=$product->ecotax|floatval}
 {addJsDef displayPrice=$priceDisplay|intval}
 {addJsDef ecotaxTax_rate=$ecotaxTax_rate|floatval}
-{addJsDef group_reduction=$group_reduction}
 {if isset($cover.id_image_only)}
 	{addJsDef idDefaultImage=$cover.id_image_only|intval}
 {else}
@@ -696,12 +695,16 @@
 {addJsDef maxQuantityToAllowDisplayOfLastQuantityMessage=$last_qties|intval}
 {addJsDef minimalQuantity=$product->minimal_quantity|intval}
 {addJsDef noTaxForThisProduct=$no_tax|boolval}
-{addJsDef customerGroupWithoutTax=$customer_group_without_tax|boolval}
+{if isset($customer_group_without_tax)}
+	{addJsDef customerGroupWithoutTax=$customer_group_without_tax|boolval}
+{else}
+	{addJsDef customerGroupWithoutTax=false}
+{/if}
 {addJsDef oosHookJsCodeFunctions=Array()}
 {addJsDef productHasAttributes=isset($groups)|boolval}
 {addJsDef productPriceTaxExcluded=($product->getPriceWithoutReduct(true)|default:'null' - $product->ecotax)|floatval}
-{addJsDef productBasePriceTaxExcluded=($product->base_price - $product->ecotax)|floatval}
-{addJsDef productBasePriceTaxExcl=($product->base_price|floatval)}
+{addJsDef productBasePriceTaxExcluded=($product->getPrice(false, null, 6, null, false, false) - $product->ecotax)|floatval}
+{addJsDef productBasePriceTaxExcl=($product->getPrice(false, null, 6, null, false, false)|floatval)}
 {addJsDef productReference=$product->reference|escape:'html':'UTF-8'}
 {addJsDef productAvailableForOrder=$product->available_for_order|boolval}
 {addJsDef productPriceWithoutReduction=$productPriceWithoutReduction|floatval}

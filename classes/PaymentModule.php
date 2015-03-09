@@ -324,6 +324,7 @@ abstract class PaymentModuleCore extends Module
 					$order->total_paid_tax_incl = (float)Tools::ps_round((float)$this->context->cart->getOrderTotal(true, Cart::BOTH, $order->product_list, $id_carrier), _PS_PRICE_COMPUTE_PRECISION_);
 					$order->total_paid = $order->total_paid_tax_incl;
 					$order->round_mode = Configuration::get('PS_PRICE_ROUND_MODE');
+					$order->round_type = Configuration::get('PS_ROUND_TYPE');
 
 					$order->invoice_date = '0000-00-00 00:00:00';
 					$order->delivery_date = '0000-00-00 00:00:00';
@@ -428,6 +429,8 @@ abstract class PaymentModuleCore extends Module
 							if (self::DEBUG_MODE)
 								PrestaShopLogger::addLog('PaymentModule::validateOrder - Message is about to be added', 1, null, 'Cart', (int)$id_cart, true);
 							$msg->message = $message;
+							$msg->id_cart = (int)$id_cart;
+							$msg->id_customer = intval($order->id_customer);
 							$msg->id_order = intval($order->id);
 							$msg->private = 1;
 							$msg->add();
@@ -551,7 +554,11 @@ abstract class PaymentModuleCore extends Module
 							if ($voucher->reduction_amount <= 0)
 								continue;
 
-							$voucher->id_customer = $order->id_customer;
+							if ($this->context->customer->isGuest())
+								$voucher->id_customer = 0;
+							else
+								$voucher->id_customer = $order->id_customer;
+
 							$voucher->quantity = 1;
 							$voucher->quantity_per_user = 1;
 							$voucher->free_shipping = 0;
@@ -735,7 +742,7 @@ abstract class PaymentModuleCore extends Module
 						'{discounts}' => $cart_rules_list_html,
 						'{discounts_txt}' => $cart_rules_list_txt,
 						'{total_paid}' => Tools::displayPrice($order->total_paid, $this->context->currency, false),
-						'{total_products}' => Tools::displayPrice($order->total_paid - $order->total_shipping - $order->total_wrapping + $order->total_discounts, $this->context->currency, false),
+						'{total_products}' => Tools::displayPrice(Product::getTaxCalculationMethod() == PS_TAX_EXC ? $order->total_products : $order->total_products_wt, $this->context->currency, false),
 						'{total_discounts}' => Tools::displayPrice($order->total_discounts, $this->context->currency, false),
 						'{total_shipping}' => Tools::displayPrice($order->total_shipping, $this->context->currency, false),
 						'{total_wrapping}' => Tools::displayPrice($order->total_wrapping, $this->context->currency, false),
@@ -787,6 +794,8 @@ abstract class PaymentModuleCore extends Module
 							}
 						}
 					}
+
+					$order->updateOrderDetailTax();
 				}
 				else
 				{
@@ -795,13 +804,6 @@ abstract class PaymentModuleCore extends Module
 					die($error);
 				}
 			} // End foreach $order_detail_list
-
-			// Update Order Details Tax in case cart rules have free shipping
-			foreach ($order->getOrderDetailList() as $detail)
-			{
-				$order_detail = new OrderDetail($detail['id_order_detail']);
-					$order_detail->updateTaxAmount($order);
-			}
 
 			// Use the last order as currentOrder
 			if (isset($order) && $order->id)
@@ -820,6 +822,11 @@ abstract class PaymentModuleCore extends Module
 		}
 	}
 
+	/**
+	 * @deprecated 1.6.0.7
+	 * @param mixed $content
+	 * @return mixed
+	 */
 	public function formatProductAndVoucherForEmail($content)
 	{
 		Tools::displayAsDeprecated();

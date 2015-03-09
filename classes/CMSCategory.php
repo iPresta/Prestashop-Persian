@@ -493,7 +493,7 @@ class CMSCategoryCore extends ObjectModel
 			SELECT c.*, cl.*
 			FROM `'._DB_PREFIX_.'cms_category` c
 			LEFT JOIN `'._DB_PREFIX_.'cms_category_lang` cl ON (c.`id_cms_category` = cl.`id_cms_category`)
-			WHERE `name` LIKE \''.pSQL($query).'\'');
+			WHERE `name` = \''.pSQL($query).'\'');
 		else
 			return Db::getInstance()->executeS('
 			SELECT c.*, cl.*
@@ -509,7 +509,7 @@ class CMSCategoryCore extends ObjectModel
 	  * @param string  $CMSCategory_name Searched CMSCategory name
 	  * @param integer $id_parent_CMSCategory parent CMSCategory ID
 	  * @return array Corresponding CMSCategory
-	  *	@deprecated
+	  * @deprecated 1.5.3.0
 	  */
 	public static function searchByNameAndParentCMSCategoryId($id_lang, $CMSCategory_name, $id_parent_CMSCategory)
 	{
@@ -518,7 +518,7 @@ class CMSCategoryCore extends ObjectModel
 		SELECT c.*, cl.*
 	    FROM `'._DB_PREFIX_.'cms_category` c
 	    LEFT JOIN `'._DB_PREFIX_.'cms_category_lang` cl ON (c.`id_cms_category` = cl.`id_cms_category` AND `id_lang` = '.(int)$id_lang.')
-	    WHERE `name`  LIKE \''.pSQL($CMSCategory_name).'\'
+	    WHERE `name` = \''.pSQL($CMSCategory_name).'\'
 		AND c.`id_cms_category` != 1
 		AND c.`id_parent` = '.(int)$id_parent_CMSCategory);
 	}

@@ -1280,6 +1280,9 @@ class AdminThemesControllerCore extends AdminController
 
 		if (count($to_install) > 0)
 		{
+			foreach ($to_install as $module)
+				$fields_value['modulesToExport_module'.$module] = true;
+				
 			$fields_form['form']['input'][] = array(
 				'type' => 'checkbox',
 				'label' => $this->l('Select the theme\'s modules that you wish to export'),
@@ -1914,10 +1917,10 @@ class AdminThemesControllerCore extends AdminController
 	/**
 	 * _checkConfigForFeatures
 	 *
-	 * @param array $arrFeature array of feature code to check
+	 * @param array $arrFeatures array of feature code to check
 	 * @param mixed $configItem will precise the attribute which not matches. If empty, will check every attributes
 	 *
-	 * @return error message, or null if disabled
+	 * @return bool Error message, or null if disabled
 	 */
 	protected function _checkConfigForFeatures($arrFeatures, $configItem = array())
 	{
@@ -1979,7 +1982,7 @@ class AdminThemesControllerCore extends AdminController
 	 */
 	private function getNativeModule($type = 0)
 	{
-		$xml = simplexml_load_string(Tools::file_get_contents('http://api.prestashop.com/xml/modules_list_16.xml'));
+		$xml = simplexml_load_string(Tools::file_get_contents(_PS_API_URL_.'/xml/modules_list_16.xml'));
 
 		if ($xml)
 		{

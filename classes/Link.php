@@ -134,7 +134,7 @@ class LinkCore
 		{
 			$params['category'] = (!$category) ? $product->category : $category;
 			$cats = array();
-			foreach ($product->getParentCategories() as $cat)
+			foreach ($product->getParentCategories($id_lang) as $cat)
 				if (!in_array($cat['id_category'], Link::$category_disable_rewrite))//remove root and home category from the URL
 					$cats[] = $cat['link_rewrite'];
 			$params['categories'] = implode('/', $cats);
@@ -197,7 +197,7 @@ class LinkCore
 		if (!$id_lang)
 			$id_lang = Context::getContext()->language->id;
 
-		$url = $this->getBaseLink($id_shop, null, $relative_protocol = false).$this->getLangLink($id_lang, null, $id_shop);
+		$url = $this->getBaseLink($id_shop, null, $relative_protocol).$this->getLangLink($id_lang, null, $id_shop);
 
 		$dispatcher = Dispatcher::getInstance();
 		if (!is_object($cms_category))
@@ -596,7 +596,7 @@ class LinkCore
 
 		if (!$array)
 			if (count($vars))
-				return $url.(($this->allow == 1 || $url == $this->url) ? '?' : '&').http_build_query($vars, '', '&');
+				return $url.(!strstr($url, '?') && ($this->allow == 1 || $url == $this->url) ? '?' : '&').http_build_query($vars, '', '&');
 			else
 				return $url;
 

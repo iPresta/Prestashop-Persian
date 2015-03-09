@@ -312,6 +312,8 @@ class CartControllerCore extends FrontController
 
 	/**
 	 * Remove discounts on cart
+	 *
+	 * @deprecated 1.5.3.0
 	 */
 	protected function processRemoveDiscounts()
 	{
@@ -367,21 +369,6 @@ class CartControllerCore extends FrontController
 					foreach ($result['customizedDatas'][(int)$product['id_product']][(int)$product['id_product_attribute']] as $addresses)
 						foreach ($addresses as $customization)
 							$product['quantity_without_customization'] -= (int)$customization['quantity'];
-				}
-				$product['price_without_quantity_discount'] = Product::getPriceStatic(
-					$product['id_product'],
-					!Product::getTaxCalculationMethod(),
-					$product['id_product_attribute'],
-					6,
-					null,
-					false,
-					false
-				);
-
-				if ($product['reduction_type'] == 'amount')
-				{
-					$reduction = (float)$product['price_wt'] - (float)$product['price_without_quantity_discount'];
-					$product['reduction_formatted'] = Tools::displayPrice($reduction);
 				}
 			}
 			if ($result['customizedDatas'])

@@ -108,9 +108,10 @@ class AdminTrackingControllerCore extends AdminController
 		$this->clearFilters();
 
 		$this->_join = Shop::addSqlAssociation('category', 'a');
-		$this->_filter = ' AND a.`id_category` NOT IN (
-			SELECT DISTINCT(cp.id_category)
+		$this->_filter = ' AND NOT EXISTS (
+			SELECT 1
 			FROM `'._DB_PREFIX_.'category_product` cp
+			WHERE a.`id_category` = cp.id_category
 		)
 		AND a.`id_category` != '.(int)Configuration::get('PS_ROOT_CATEGORY');
 		$this->toolbar_title = $this->l('List of empty categories:');
@@ -146,13 +147,13 @@ class AdminTrackingControllerCore extends AdminController
 		$this->clearFilters();
 
 		$this->_join = Shop::addSqlAssociation('product', 'a');
-		$this->_filter = 'AND a.id_product IN (
-			SELECT p.id_product
+		$this->_filter = 'AND EXISTS (
+			SELECT 1
 			FROM `'._DB_PREFIX_.'product` p
 			'.Product::sqlStock('p').'
-			WHERE p.id_product IN (
-				SELECT DISTINCT(id_product)
-				FROM `'._DB_PREFIX_.'product_attribute`
+			WHERE a.id_product = p.id_product AND EXISTS (
+				SELECT 1
+				FROM `'._DB_PREFIX_.'product_attribute` WHERE `'._DB_PREFIX_.'product_attribute`.id_product = p.id_product
 			)
 			AND IFNULL(stock.quantity, 0) <= 0
 		)';
@@ -188,13 +189,13 @@ class AdminTrackingControllerCore extends AdminController
 		$this->clearFilters();
 
 		$this->_join = Shop::addSqlAssociation('product', 'a');
-		$this->_filter = 'AND a.id_product IN (
-			SELECT p.id_product
+		$this->_filter = 'AND EXISTS (
+			SELECT 1
 			FROM `'._DB_PREFIX_.'product` p
 			'.Product::sqlStock('p').'
-			WHERE p.id_product NOT IN (
-				SELECT DISTINCT(id_product)
-				FROM `'._DB_PREFIX_.'product_attribute`
+			WHERE a.id_product = p.id_product AND NOT EXISTS (
+				SELECT 1
+				FROM `'._DB_PREFIX_.'product_attribute` pa WHERE pa.id_product = p.id_product
 			)
 			AND IFNULL(stock.quantity, 0) <= 0
 		)';
