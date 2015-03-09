@@ -110,6 +110,7 @@
 							- {displayPrice currency=$order->id_currency price=$order_detail.unit_price_tax_incl}
 							{/if}
 	                    </td>
+
 						<td style="text-align: right; width: 15%">
 							{if $tax_excluded_display}
 							- {displayPrice currency=$order->id_currency price=$order_detail.total_price_tax_excl}

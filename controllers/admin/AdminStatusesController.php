@@ -62,8 +62,7 @@ class AdminStatusesControllerCore extends AdminController
 	{
 		$this->addRowAction('edit');
 		$this->addRowAction('delete');
-		$this->addRowActionSkipList('delete', range(1, 13));
-
+		$this->addRowActionSkipList('delete', range(1, 14));
 		$this->bulk_actions = array(
 			'delete' => array(
 				'text' => $this->l('Delete selected'),
@@ -131,7 +130,7 @@ class AdminStatusesControllerCore extends AdminController
 	protected function initOrdersReturnsList()
 	{
 		$this->table = 'order_return_state';
-		$this->className = 'OrderState';
+		$this->className = 'OrderReturnState';
 		$this->_defaultOrderBy = $this->identifier = 'id_order_return_state';
 		$this->list_id = 'order_return_state';
 		$this->deleted = false;

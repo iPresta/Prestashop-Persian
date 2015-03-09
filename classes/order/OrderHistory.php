@@ -195,8 +195,8 @@ class OrderHistoryCore extends ObjectModel
 							 !StockAvailable::dependsOnStock($product['id_product']))
 							 StockAvailable::updateQuantity($product['product_id'], $product['product_attribute_id'], (int)$product['product_quantity'], $order->id_shop);
 
-					if ((int)$this->id_employee)
-						$this->id_employee = Validate::isLoadedObject(new Employee((int)$this->id_employee)) ? $this->id_employee : 0;
+					if ((int)$this->id_employee && !Validate::isLoadedObject(($employee = new Employee((int)$this->id_employee))))
+						$employee = null;
 
 					// @since 1.5.0 : if the order is being shipped and this products uses the advanced stock management :
 					// decrements the physical stock using $id_warehouse
@@ -214,12 +214,12 @@ class OrderHistoryCore extends ObjectModel
 							$product['product_id'],
 							$product['product_attribute_id'],
 							$warehouse,
-							$product['product_quantity'],
+							($product['product_quantity'] - $product['product_quantity_refunded'] - $product['product_quantity_return']),
 							Configuration::get('PS_STOCK_CUSTOMER_ORDER_REASON'),
 							true,
 							(int)$order->id,
 							0,
-							(int)$this->id_employee
+							$employee
 						);
 					}
 					// @since.1.5.0 : if the order was shipped, and is not anymore, we need to restock products
@@ -248,7 +248,7 @@ class OrderHistoryCore extends ObjectModel
 											null,
 											$mvt['price_te'],
 											true,
-											(int)$this->id_employee
+											$employee
 										);
 									}
 									if (!StockAvailable::dependsOnStock($product['id_product']))
@@ -259,7 +259,10 @@ class OrderHistoryCore extends ObjectModel
 						// else, it's not a pack, re-stock using the last negative stock mvts
 						else
 						{
-							$mvts = StockMvt::getNegativeStockMvts($order->id, $product['product_id'], $product['product_attribute_id'], $product['product_quantity']);
+							$mvts = StockMvt::getNegativeStockMvts($order->id, $product['product_id'],
+								$product['product_attribute_id'],
+								($product['product_quantity'] - $product['product_quantity_refunded'] - $product['product_quantity_return']));
+
 							foreach ($mvts as $mvt)
 							{
 								$manager->addProduct(

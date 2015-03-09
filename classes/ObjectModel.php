@@ -359,11 +359,11 @@ abstract class ObjectModelCore
 			// E.g. if only lang fields are filtered, ignore fields without lang => true
 			if (($type == self::FORMAT_LANG && empty($data['lang']))
 				|| ($type == self::FORMAT_SHOP && empty($data['shop']))
-				|| ($type == self::FORMAT_COMMON && (!empty($data['shop']) || !empty($data['lang']))))
+				|| ($type == self::FORMAT_COMMON && ((!empty($data['shop']) && $data['shop'] != 'both') || !empty($data['lang']))))
 				continue;
 
 			if (is_array($this->update_fields))
-				if ((!empty($data['lang']) || !empty($data['shop'])) && (empty($this->update_fields[$field]) || ($type == self::FORMAT_LANG && empty($this->update_fields[$field][$id_lang]))))
+				if ((!empty($data['lang']) || (!empty($data['shop']) && $data['shop'] != 'both')) && (empty($this->update_fields[$field]) || ($type == self::FORMAT_LANG && empty($this->update_fields[$field][$id_lang]))))
 					continue;
 
 			// Get field value, if value is multilang and field is empty, use value from default lang
@@ -380,7 +380,7 @@ abstract class ObjectModelCore
 
 			$purify = (isset($data['validate']) && Tools::strtolower($data['validate']) == 'iscleanhtml') ? true : false;
 			// Format field value
-			$fields[$field] = ObjectModel::formatValue($value, $data['type'], false, $purify);
+			$fields[$field] = ObjectModel::formatValue($value, $data['type'], false, $purify, !empty($data['allow_null']));
 		}
 
 		return $fields;
@@ -389,11 +389,18 @@ abstract class ObjectModelCore
 	/**
 	 * Format a data
 	 *
-	 * @param mixed $value
-	 * @param int $type
+	 * @param mixed	     $value
+	 * @param int	     $type
+	 * @param bool		 $with_quotes
+	 * @param bool		 $purify
+	 * @param bool		 $allow_null
+	 * @return float|int|string|null
 	 */
-	public static function formatValue($value, $type, $with_quotes = false, $purify = true)
+	public static function formatValue($value, $type, $with_quotes = false, $purify = true, $allow_null = false)
 	{
+		if ($allow_null && $value === null)
+			return array('type' => 'sql', 'value' => 'NULL');
+
 		switch ($type)
 		{
 			case self::TYPE_INT:
@@ -482,7 +489,7 @@ abstract class ObjectModelCore
 
 		// Database insertion
 		if (Shop::checkIdShopDefault($this->def['table']))
-			$this->id_shop_default = min($id_shop_list);
+			$this->id_shop_default = (in_array(Configuration::get('PS_SHOP_DEFAULT'), $id_shop_list) == true) ? Configuration::get('PS_SHOP_DEFAULT') : min($id_shop_list);
 		if (!$result = ObjectModel::$db->insert($this->def['table'], $this->getFields(), $null_values))
 			return false;
 
@@ -560,7 +567,9 @@ abstract class ObjectModelCore
 		unset($res[$definition['primary']]);
 		foreach ($res as $field => &$value)
 			if (isset($definition['fields'][$field]))
-				$value = ObjectModel::formatValue($value, $definition['fields'][$field]['type']);
+				$value = ObjectModel::formatValue($value, $definition['fields'][$field]['type'], false, true,
+												  !empty($definition['fields'][$field]['allow_null']));
+
 
 		if (!Db::getInstance()->insert($definition['table'], $res))
 			return false;
@@ -579,7 +588,8 @@ abstract class ObjectModelCore
 			foreach ($result as &$row)
 				foreach ($row as $field => &$value)
 					if (isset($definition['fields'][$field]))
-						$value = ObjectModel::formatValue($value, $definition['fields'][$field]['type']);
+						$value = ObjectModel::formatValue($value, $definition['fields'][$field]['type'], false, true,
+														  !empty($definition['fields'][$field]['allow_null']));
 
 			// Keep $row2, you cannot use $row because there is an unexplicated conflict with the previous usage of this variable
 			foreach ($result as $row2)
@@ -626,7 +636,7 @@ abstract class ObjectModelCore
 			$id_shop_list = $this->id_shop_list;
 
 		if (Shop::checkIdShopDefault($this->def['table']) && !$this->id_shop_default)
-			$this->id_shop_default = min($id_shop_list);
+			$this->id_shop_default = (in_array(Configuration::get('PS_SHOP_DEFAULT'), $id_shop_list) == true) ? Configuration::get('PS_SHOP_DEFAULT') : min($id_shop_list);
 		// Database update
 		if (!$result = ObjectModel::$db->update($this->def['table'], $this->getFields(), '`'.pSQL($this->def['primary']).'` = '.(int)$this->id, 0, $null_values))
 			return false;

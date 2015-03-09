@@ -199,7 +199,7 @@ class ValidateCore
 	 */
 	public static function isModuleName($module_name)
 	{
-		return (is_string($module_name) && preg_match('/^[a-z0-9_]+$/', $module_name));
+		return (is_string($module_name) && preg_match('/^[a-zA-Z0-9_-]+$/', $module_name));
 	}
 
 	/**
@@ -664,7 +664,7 @@ class ValidateCore
 	 */
 	public static function isUnsignedInt($value)
 	{
-		return (preg_match('#^[0-9]+$#', (string)$value) && $value < 4294967296 && $value >= 0);
+		return ((string)(int)$value === (string)$value && $value < 4294967296 && $value >= 0);
 	}
 
 	/**

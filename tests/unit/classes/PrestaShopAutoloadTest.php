@@ -20,10 +20,14 @@
 *
 *  @author PrestaShop SA <contact@prestashop.com>
 *  @copyright  2007-2015 PrestaShop SA
-*  @version  Release: $Revision$
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
+namespace PrestaShop\PrestaShop\Tests\Unit\Classes;
+
+use PrestaShop\PrestaShop\Tests\TestCase\PrestaShopPHPUnit;
+use PrestaShopAutoload;
 
 class	PrestaShopAutoloadTest extends PrestaShopPHPUnit
 {
@@ -42,7 +46,7 @@ class	PrestaShopAutoloadTest extends PrestaShopPHPUnit
 		$this->assertTrue(file_exists($this->file_index));
 		$this->assertEquals($this->file_index_content, md5(file_get_contents($this->file_index)));
 	}
-	
+
 	public function testLoad()
 	{
 		PrestaShopAutoload::getInstance()->load('RequestSql');

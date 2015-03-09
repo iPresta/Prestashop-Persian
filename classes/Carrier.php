@@ -179,8 +179,10 @@ class CarrierCore extends ObjectModel
 		 */
 		if ($this->id)
 			$this->id_tax_rules_group = $this->getIdTaxRulesGroup(Context::getContext());
+
 		if ($this->name == '0')
-			$this->name = Configuration::get('PS_SHOP_NAME');
+			$this->name = Carrier::getCarrierNameFromShopName();
+
 		$this->image_dir = _PS_SHIP_IMG_DIR_;
 	}
 
@@ -234,7 +236,8 @@ class CarrierCore extends ObjectModel
 	 */
 	public function getDeliveryPriceByWeight($total_weight, $id_zone)
 	{
-		$cache_key = $this->id.'_'.$total_weight.'_'.$id_zone;
+		$id_carrier = (int)$this->id;
+		$cache_key = $id_carrier.'_'.$total_weight.'_'.$id_zone;
 		if (!isset(self::$price_by_weight[$cache_key]))
 		{
 			$sql = 'SELECT d.`price`
@@ -243,7 +246,7 @@ class CarrierCore extends ObjectModel
 					WHERE d.`id_zone` = '.(int)$id_zone.'
 						AND '.(float)$total_weight.' >= w.`delimiter1`
 						AND '.(float)$total_weight.' < w.`delimiter2`
-						AND d.`id_carrier` = '.(int)$this->id.'
+						AND d.`id_carrier` = '.$id_carrier.'
 						'.Carrier::sqlDeliveryRangeShop('range_weight').'
 					ORDER BY w.`delimiter1` ASC';
 			$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
@@ -252,11 +255,17 @@ class CarrierCore extends ObjectModel
 			else
 				self::$price_by_weight[$cache_key] = $result['price'];
 		}
+
+		$price_by_weight = Hook::exec('actionDeliveryPriceByWeight', array('id_carrier' => $id_carrier, 'total_weight' => $total_weight, 'id_zone' => $id_zone));
+		if (is_numeric($price_by_weight))
+			self::$price_by_weight[$cache_key] = $price_by_weight;
+
 		return self::$price_by_weight[$cache_key];
 	}
 
 	public static function checkDeliveryPriceByWeight($id_carrier, $total_weight, $id_zone)
 	{
+		$id_carrier = (int)$id_carrier;
 		$cache_key = $id_carrier.'_'.$total_weight.'_'.$id_zone;
 		if (!isset(self::$price_by_weight2[$cache_key]))
 		{
@@ -266,12 +275,17 @@ class CarrierCore extends ObjectModel
 					WHERE d.`id_zone` = '.(int)$id_zone.'
 						AND '.(float)$total_weight.' >= w.`delimiter1`
 						AND '.(float)$total_weight.' < w.`delimiter2`
-						AND d.`id_carrier` = '.(int)$id_carrier.'
+						AND d.`id_carrier` = '.$id_carrier.'
 						'.Carrier::sqlDeliveryRangeShop('range_weight').'
 					ORDER BY w.`delimiter1` ASC';
 			$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
 			self::$price_by_weight2[$cache_key] = (isset($result['price']));
 		}
+
+		$price_by_weight = Hook::exec('actionDeliveryPriceByWeight', array('id_carrier' => $id_carrier, 'total_weight' => $total_weight, 'id_zone' => $id_zone));
+		if (is_numeric($price_by_weight))
+			self::$price_by_weight2[$cache_key] = $price_by_weight;
+
 		return self::$price_by_weight2[$cache_key];
 	}
 
@@ -302,6 +316,7 @@ class CarrierCore extends ObjectModel
 	 */
 	public function getDeliveryPriceByPrice($order_total, $id_zone, $id_currency = null)
 	{
+		$id_carrier = (int)$this->id;
 		$cache_key = $this->id.'_'.$order_total.'_'.$id_zone.'_'.$id_currency;
 		if (!isset(self::$price_by_price[$cache_key]))
 		{
@@ -314,7 +329,7 @@ class CarrierCore extends ObjectModel
 					WHERE d.`id_zone` = '.(int)$id_zone.'
 						AND '.(float)$order_total.' >= r.`delimiter1`
 						AND '.(float)$order_total.' < r.`delimiter2`
-						AND d.`id_carrier` = '.(int)$this->id.'
+						AND d.`id_carrier` = '.$id_carrier.'
 						'.Carrier::sqlDeliveryRangeShop('range_price').'
 					ORDER BY r.`delimiter1` ASC';
 			$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
@@ -323,6 +338,11 @@ class CarrierCore extends ObjectModel
 			else
 				self::$price_by_price[$cache_key] = $result['price'];
 		}
+
+		$price_by_price = Hook::exec('actionDeliveryPriceByPrice', array('id_carrier' => $id_carrier, 'order_total' => $order_total, 'id_zone' => $id_zone));
+		if (is_numeric($price_by_price))
+			self::$price_by_price[$cache_key] = $price_by_price;
+
 		return self::$price_by_price[$cache_key];
 	}
 
@@ -337,6 +357,7 @@ class CarrierCore extends ObjectModel
 	 */
 	public static function checkDeliveryPriceByPrice($id_carrier, $order_total, $id_zone, $id_currency = null)
 	{
+		$id_carrier = (int)$id_carrier;
 		$cache_key = $id_carrier.'_'.$order_total.'_'.$id_zone.'_'.$id_currency;
 		if (!isset(self::$price_by_price2[$cache_key]))
 		{
@@ -349,12 +370,17 @@ class CarrierCore extends ObjectModel
 					WHERE d.`id_zone` = '.(int)$id_zone.'
 						AND '.(float)$order_total.' >= r.`delimiter1`
 						AND '.(float)$order_total.' < r.`delimiter2`
-						AND d.`id_carrier` = '.(int)$id_carrier.'
+						AND d.`id_carrier` = '.$id_carrier.'
 						'.Carrier::sqlDeliveryRangeShop('range_price').'
 					ORDER BY r.`delimiter1` ASC';
 			$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
 			self::$price_by_price2[$cache_key] = (isset($result['price']));
 		}
+
+		$price_by_price = Hook::exec('actionDeliveryPriceByPrice', array('id_carrier' => $id_carrier, 'order_total' => $order_total, 'id_zone' => $id_zone));
+		if (is_numeric($price_by_price))
+			self::$price_by_price2[$cache_key] = $price_by_price;
+
 		return self::$price_by_price2[$cache_key];
 	}
 
@@ -427,7 +453,9 @@ class CarrierCore extends ObjectModel
 		if ($id_zone)
 			$sql .= ' AND cz.`id_zone` = '.(int)$id_zone.' AND z.`active` = 1 ';
 		if ($ids_group)
-			$sql .= ' AND c.id_carrier IN (SELECT id_carrier FROM '._DB_PREFIX_.'carrier_group WHERE id_group IN ('.implode(',', array_map('intval', $ids_group)).')) ';
+			$sql .= ' AND EXISTS (SELECT 1 FROM '._DB_PREFIX_.'carrier_group
+									WHERE '._DB_PREFIX_.'carrier_group.id_carrier = c.id_carrier
+									AND id_group IN ('.implode(',', array_map('intval', $ids_group)).')) ';
 
 		switch ($modules_filters)
 		{
@@ -456,7 +484,7 @@ class CarrierCore extends ObjectModel
 		$carriers = Cache::retrieve($cache_id);
 		foreach ($carriers as $key => $carrier)
 			if ($carrier['name'] == '0')
-				$carriers[$key]['name'] = Configuration::get('PS_SHOP_NAME');
+				$carriers[$key]['name'] = Carrier::getCarrierNameFromShopName();
 		return $carriers;
 	}
 
@@ -587,7 +615,7 @@ class CarrierCore extends ObjectModel
 				}
 			}
 
-			$row['name'] = (strval($row['name']) != '0' ? $row['name'] : Configuration::get('PS_SHOP_NAME'));
+			$row['name'] = (strval($row['name']) != '0' ? $row['name'] : Carrier::getCarrierNameFromShopName());
 			$row['price'] = (($shipping_method == Carrier::SHIPPING_METHOD_FREE) ? 0 : $cart->getPackageShippingCost((int)$row['id_carrier'], true, null, null, $id_zone));
 			$row['price_tax_exc'] = (($shipping_method == Carrier::SHIPPING_METHOD_FREE) ? 0 : $cart->getPackageShippingCost((int)$row['id_carrier'], false, null, null, $id_zone));
 			$row['img'] = file_exists(_PS_SHIP_IMG_DIR_.(int)$row['id_carrier']).'.jpg' ? _THEME_SHIP_DIR_.(int)$row['id_carrier'].'.jpg' : '';
@@ -1250,9 +1278,16 @@ class CarrierCore extends ObjectModel
 			foreach ($carrier_list as $key => $id_carrier)
 			{
 				$carrier = new Carrier($id_carrier);
-				if (($carrier->max_width > 0 && $carrier->max_width < $product->width)
-					|| ($carrier->max_height > 0 && $carrier->max_height < $product->height)
-					|| ($carrier->max_depth > 0 && $carrier->max_depth < $product->depth)
+
+				// Get the sizes of the carrier and the product and sort them to check if the carrier can take the product.
+				$carrier_sizes = array((int)$carrier->max_width, (int)$carrier->max_height, (int)$carrier->max_depth);
+				$product_sizes = array((int)$product->width, (int)$product->height, (int)$product->depth);
+				rsort($carrier_sizes, SORT_NUMERIC);
+				rsort($product_sizes, SORT_NUMERIC);
+
+				if (($carrier_sizes[0] > 0 && $carrier_sizes[0] < $product_sizes[0])
+					|| ($carrier_sizes[1] > 0 && $carrier_sizes[1] < $product_sizes[1])
+					|| ($carrier_sizes[2] > 0 && $carrier_sizes[2] < $product_sizes[2])
 					|| ($carrier->max_weight > 0 && $carrier->max_weight < $product->weight * $cart_quantity))
 					unset($carrier_list[$key]);
 			}
@@ -1309,5 +1344,21 @@ class CarrierCore extends ObjectModel
 				$sql .= '('.(int)$this->id.', '.(int)$id_group.'),';
 
 		return Db::getInstance()->execute(rtrim($sql, ','));
+	}
+
+	/**
+	 * Return the carrier name from the shop name (e.g. if the carrier name is '0').
+	 *
+	 * The returned carrier name is the shop name without '#' and ';' because this is not the same validation.
+	 *
+	 * @return string Carrier name
+	 */
+	public static function getCarrierNameFromShopName()
+	{
+		return str_replace(
+			array('#', ';'),
+			'',
+			Configuration::get('PS_SHOP_NAME')
+		);
 	}
 }

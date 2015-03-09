@@ -51,7 +51,8 @@ class StockManagerCore implements StockManagerInterface
 							   $price_te,
 							   $is_usable = true,
 							   $id_supply_order = null,
-							   $id_employee = null)
+							   $employee = null
+							  )
 	{
 		if (!Validate::isLoadedObject($warehouse) || !$price_te || !$quantity || !$id_product)
 			return false;
@@ -71,9 +72,9 @@ class StockManagerCore implements StockManagerInterface
 			'price_te' => $price_te,
 			'last_wa' => null,
 			'current_wa' => null,
-			'id_employee' => (int)$context->employee->id ? (int)$context->employee->id : $id_employee,
-			'employee_firstname' => $context->employee->firstname,
-			'employee_lastname' => $context->employee->lastname,
+			'id_employee' => (int)$context->employee->id ? (int)$context->employee->id : $employee->id,
+			'employee_firstname' => $context->employee->firstname ? $context->employee->firstname : $employee->firstname,
+			'employee_lastname' => $context->employee->lastname ? $context->employee->lastname : $employee->lastname,
 			'sign' => 1
 		);
 
@@ -194,7 +195,7 @@ class StockManagerCore implements StockManagerInterface
 								  $is_usable = true,
 								  $id_order = null,
 								  $ignore_pack = 0,
-								  $id_employee = null)
+								  $employee = null)
 	{
 		$return = array();
 
@@ -218,7 +219,20 @@ class StockManagerCore implements StockManagerInterface
 					// Foreach item
 					foreach ($products_pack as $product_pack)
 						if ($product_pack->advanced_stock_management == 1)
-							$return[] = $this->removeProduct($product_pack->id, $product_pack->id_pack_product_attribute, $warehouse, $product_pack->pack_quantity * $quantity, $id_stock_mvt_reason, $is_usable, $id_order);
+						{
+							$product_warehouses = Warehouse::getProductWarehouseList($product_pack->id);
+							$warehouse_stock_found = false;
+							foreach ($product_warehouses as $product_warehouse)
+								if (!$warehouse_stock_found)
+									if (Warehouse::exists($product_warehouse['id_warehouse']))
+									{
+										$current_warehouse = new Warehouse($product_warehouse['id_warehouse']);
+										$return[] = $this->removeProduct($product_pack->id, $product_pack->id_pack_product_attribute, $current_warehouse, $product_pack->pack_quantity * $quantity, $id_stock_mvt_reason, $is_usable, $id_order);
+
+										// The product was found on this warehouse. Stop the stock searching.
+										$warehouse_stock_found = !empty($return[count($return) - 1]);
+									}
+						}
 				}
 				if ($product->pack_stock_type == 0 || $product->pack_stock_type == 2 ||
 					($product->pack_stock_type == 3 && (Configuration::get('PS_PACK_STOCK_TYPE') == 0 || Configuration::get('PS_PACK_STOCK_TYPE') == 2)))
@@ -272,9 +286,9 @@ class StockManagerCore implements StockManagerInterface
 						'price_te' => $stock->price_te,
 						'last_wa' => $stock->price_te,
 						'current_wa' => $stock->price_te,
-						'id_employee' => (int)$context->employee->id ? (int)$context->employee->id : (int)$id_employee,
-						'employee_firstname' => $context->employee->firstname,
-						'employee_lastname' => $context->employee->lastname,
+						'id_employee' => (int)$context->employee->id ? (int)$context->employee->id : $employee->id,
+						'employee_firstname' => $context->employee->firstname ? $context->employee->firstname : $employee->firstname,
+						'employee_lastname' => $context->employee->lastname ? $context->employee->lastname : $employee->lastname,
 						'sign' => -1
 					);
 					$stock_params = array(
@@ -388,7 +402,7 @@ class StockManagerCore implements StockManagerInterface
 									'price_te' => $stock->price_te,
 									'sign' => -1,
 									'referer' => $id_mvt_referrer,
-									'id_employee' => $context->employee->id
+									'id_employee' => (int)$context->employee->id ? (int)$context->employee->id : $employee->id,
 								);
 
 								// saves stock mvt
@@ -651,7 +665,7 @@ class StockManagerCore implements StockManagerInterface
 				'.Shop::addSqlAssociation('product_attribute', 'pa', false).'
 				WHERE sm.`sign` = -1
 				AND sm.`id_stock_mvt_reason` != '.Configuration::get('PS_STOCK_MVT_TRANSFER_FROM').'
-				AND TO_DAYS(NOW()) - TO_DAYS(sm.`date_add`) <= '.(int)$coverage.'
+				AND TO_DAYS("'.date('Y-m-d').' 00:00:00") - TO_DAYS(sm.`date_add`) <= '.(int)$coverage.'
 				AND s.`id_product` = '.(int)$id_product.'
 				AND s.`id_product_attribute` = '.(int)$id_product_attribute.
 				($id_warehouse ? ' AND s.`id_warehouse` = '.(int)$id_warehouse : '').'

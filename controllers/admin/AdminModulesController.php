@@ -59,7 +59,7 @@ class AdminModulesControllerCore extends AdminController
 	protected $iso_default_country;
 	protected $filter_configuration = array();
 
-	protected $xml_modules_list = 'api.prestashop.com/xml/modules_list_16.xml';
+ 	protected $xml_modules_list = _PS_API_MODULES_LIST_16_;
 
 	/**
 	 * Admin Modules Controller Constructor
@@ -761,7 +761,7 @@ class AdminModulesControllerCore extends AdminController
 								$content = Tools::file_get_contents(_PS_ROOT_DIR_.$file);
 								if ($xml = @simplexml_load_string($content, null, LIBXML_NOCDATA))
 									foreach ($xml->module as $modaddons)
-										if ($name == $modaddons->name)
+										if (Tools::strtolower($name) == Tools::strtolower($modaddons->name))
 										{
 											$module_to_update[$name]['id'] = $modaddons->id;
 											$module_to_update[$name]['displayName'] = $modaddons->displayName;

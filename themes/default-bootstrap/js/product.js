@@ -123,7 +123,6 @@ $(document).ready(function()
 			refreshProductImages(0);
 	}
 
-	initLocationChange();
 	serialScrollSetNbImages();
 
 	//init the serialScroll for thumbs
@@ -196,10 +195,13 @@ $(document).ready(function()
 	if (!$('#bxslider li').length)
 		$('.accessories-block').parent().remove();
 
-	if (typeof product_fileDefaultHtml !== 'undefined')
-		$.uniform.defaults.fileDefaultHtml = product_fileDefaultHtml;
-	if (typeof product_fileButtonHtml !== 'undefined')
-		$.uniform.defaults.fileButtonHtml = product_fileButtonHtml;
+	if (!!$.prototype.uniform)
+	{
+		if (typeof product_fileDefaultHtml !== 'undefined')
+			$.uniform.defaults.fileDefaultHtml = product_fileDefaultHtml;
+		if (typeof product_fileButtonHtml !== 'undefined')
+			$.uniform.defaults.fileButtonHtml = product_fileButtonHtml;
+	}
 
 	if ($('#customizationForm').length)
 	{
@@ -213,6 +215,11 @@ $(window).resize(function(){
 	serialScrollSetNbImages();
 	$('#thumbs_list').trigger('goto', 0);
 	serialScrollFixLock('', '', '', '', 0);
+});
+
+$(window).bind('hashchange', function(){
+	checkUrl();
+	findCombination();
 });
 
 //hover 'other views' images management
@@ -488,10 +495,10 @@ function updateDisplay()
 		if (stock_management && availableNowValue != '')
 		{
 			$('#availability_value').removeClass('label-warning').addClass('label-success').text(availableNowValue).show();
-			$('#availability_statut:hidden').show()
+			$('#availability_statut:hidden').show('slow');
 		}
 		else
-			$('#availability_statut:visible').hide();
+			$('#availability_statut:visible').hide('slow');
 
 		//'last quantities' message management
 		if (!allowBuyWhenOutOfStock)
@@ -581,7 +588,10 @@ function updateDisplay()
 			$('#add_to_cart:hidden').fadeIn(600);
 
 			if (stock_management && availableLaterValue != '')
+			{
 				$('#availability_value').addClass('label-warning').text(availableLaterValue).show('slow');
+				$('#availability_statut:hidden').show('slow');
+			}
 			else
 				$('#availability_statut:visible').hide('slow');
 		}
@@ -621,25 +631,18 @@ function updatePrice()
 		return;
 
 	// Set product (not the combination) base price
-	var basePriceWithoutTax = productBasePriceTaxExcl;
+	var basePriceWithoutTax = +productPriceTaxExcluded;
 	var priceWithGroupReductionWithoutTax = 0;
 
-	// Apply combination price impact
+	// Apply combination price impact (only if there is no specific price)
 	// 0 by default, +x if price is inscreased, -x if price is decreased
 	basePriceWithoutTax = basePriceWithoutTax + +combination.price;
 
 	// If a specific price redefine the combination base price
 	if (combination.specific_price && combination.specific_price.price > 0)
-	{
-		if (combination.specific_price.id_product_attribute === 0)
-			basePriceWithoutTax = +combination.specific_price.price;
-		else
-			basePriceWithoutTax = +combination.specific_price.price + +combination.price;
-	}
+		basePriceWithoutTax = +combination.specific_price.price;
 
-	// Apply group reduction
-	priceWithGroupReductionWithoutTax = basePriceWithoutTax * (1 - group_reduction);
-	var priceWithDiscountsWithoutTax = priceWithGroupReductionWithoutTax;
+	var priceWithDiscountsWithoutTax = basePriceWithoutTax;
 
 	// Apply specific price (discount)
 	// We only apply percentage discount and discount amount given before tax
@@ -812,27 +815,34 @@ function displayImage(domAAroundImgThumb, no_animation)
 	}
 }
 
-//update display of the discounts table
+/**
+ * Update display of the discounts table.
+ * @param combination Combination ID.
+ */
 function displayDiscounts(combination)
 {
-	$('#quantityDiscount tbody tr').each(function(){
-		if (($(this).attr('id') != 'quantityDiscount_0') &&
-			($(this).attr('id') != 'quantityDiscount_' + combination) &&
-			($(this).attr('id') != 'noQuantityDiscount'))
-			$(this).fadeOut('slow');
-	 });
+	// Tables & rows selection
+	var quantityDiscountTable = $('#quantityDiscount');
+	var combinationsSpecificQuantityDiscount = $('#quantityDiscount_'+combination, quantityDiscountTable);
+	var allQuantityDiscount = $('#quantityDiscount_0', quantityDiscountTable);
 
-	if ($('#quantityDiscount_' + combination+',.quantityDiscount_' + combination).length != 0
-		|| $('#quantityDiscount_0,.quantityDiscount_0').length != 0)
+	// If there is some combinations specific quantity discount, show them, else, if there are some
+	// products quantity discount: show them. In case of result, show the category.
+	if (combinationsSpecificQuantityDiscount.length != 0)
 	{
-		$('#quantityDiscount').parent().show();
-		$('#quantityDiscount_' + combination+',.quantityDiscount_' + combination).show();
-		$('#noQuantityDiscount').hide();
+		combinationsSpecificQuantityDiscount.show();
+		allQuantityDiscount.hide();
+		quantityDiscountTable.show();
+	}
+	else if(allQuantityDiscount.length != 0)
+	{
+		allQuantityDiscount.show();
+		$('tr', quantityDiscountTable).not('#quantityDiscount_0').hide();
+		quantityDiscountTable.show();
 	}
 	else
 	{
-		$('#quantityDiscount').parent().hide();
-		$('#noQuantityDiscount').show();
+		quantityDiscountTable.hide();
 	}
 }
 
@@ -956,14 +966,13 @@ function colorPickerClick(elt)
 	id_attribute = $(elt).attr('id').replace('color_', '');
 	$(elt).parent().parent().children().removeClass('selected');
 	$(elt).fadeTo('fast', 1, function(){
-								$(this).fadeTo('fast', 0, function(){
-									$(this).fadeTo('fast', 1, function(){
-										$(this).parent().addClass('selected');
-										});
-									});
-								});
+	$(this).fadeTo('fast', 0, function(){
+		$(this).fadeTo('fast', 1, function(){
+			$(this).parent().addClass('selected');
+			});
+		});
+	});
 	$(elt).parent().parent().parent().children('.color_pick_hidden').val(id_attribute);
-	findCombination();
 }
 
 
@@ -1007,12 +1016,6 @@ function getProductAttribute()
 	window.location = url + request;
 }
 
-function initLocationChange(time)
-{
-	if (!time) time = 500;
-		setInterval(checkUrl, time);
-}
-
 function checkUrl()
 {
 	if (original_url != window.location || first_url_check)
@@ -1043,15 +1046,21 @@ function checkUrl()
 
 						// add class 'selected' to the selected color
 						$('#color_' + attributesCombinations[a]['id_attribute']).addClass('selected').parent().addClass('selected');
-						$('input:radio[value=' + attributesCombinations[a]['id_attribute'] + ']').attr('checked', true);
+						$('input:radio[value=' + attributesCombinations[a]['id_attribute'] + ']').prop('checked', true);
 						$('input[type=hidden][name=group_' + attributesCombinations[a]['id_attribute_group'] + ']').val(attributesCombinations[a]['id_attribute']);
 						$('select[name=group_' + attributesCombinations[a]['id_attribute_group'] + ']').val(attributesCombinations[a]['id_attribute']);
+						if (!!$.prototype.uniform)
+							$.uniform.update('input[name=group_' + attributesCombinations[a]['id_attribute_group'] + '], select[name=group_' + attributesCombinations[a]['id_attribute_group'] + ']');
+
 					}
 			// find combination and select corresponding thumbs
-			if (count >= 0)
+			if (count)
 			{
-				firstTime = false;
-				findCombination();
+				if (firstTime)
+				{
+					firstTime = false;
+					findCombination();
+				}
 				original_url = url;
 				return true;
 			}

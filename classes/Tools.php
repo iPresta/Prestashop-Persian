@@ -245,8 +245,14 @@ class ToolsCore
 	*/
 	public static function getRemoteAddr()
 	{
-		// This condition is necessary when using CDN, don't remove it.
-		if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] && (!isset($_SERVER['REMOTE_ADDR'])
+		if (function_exists('apache_request_headers'))
+			$headers = apache_request_headers();
+		else
+			$headers = $_SERVER;
+
+		if (array_key_exists('X-Forwarded-For', $headers))
+			return $headers['X-Forwarded-For'];
+		elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] && (!isset($_SERVER['REMOTE_ADDR'])
 			|| preg_match('/^127\..*/i', trim($_SERVER['REMOTE_ADDR'])) || preg_match('/^172\.16.*/i', trim($_SERVER['REMOTE_ADDR']))
 			|| preg_match('/^192\.168\.*/i', trim($_SERVER['REMOTE_ADDR'])) || preg_match('/^10\..*/i', trim($_SERVER['REMOTE_ADDR']))))
 		{
@@ -258,7 +264,8 @@ class ToolsCore
 			else
 				return $_SERVER['HTTP_X_FORWARDED_FOR'];
 		}
-		return $_SERVER['REMOTE_ADDR'];
+		else
+			return $_SERVER['REMOTE_ADDR'];
 	}
 
 	/**
@@ -1159,36 +1166,48 @@ class ToolsCore
 	 */
 	public static function str2url($str)
 	{
+		static $array_str = array();
 		static $allow_accented_chars = null;
+		static $has_mb_strtolower = null;
 
-		if ($allow_accented_chars === null)
-			$allow_accented_chars = Configuration::get('PS_ALLOW_ACCENTED_CHARS_URL');
+		if ($has_mb_strtolower === null)
+			$has_mb_strtolower = function_exists('mb_strtolower');
+
+		if (isset($array_str[$str]))
+			return $array_str[$str];
 
 		if (!is_string($str))
 			return false;
 
-		$str = trim($str);
+		if ($str == '')
+			return '';
 
-		if (function_exists('mb_strtolower'))
-			$str = mb_strtolower($str, 'utf-8');
+		if ($allow_accented_chars === null)
+			$allow_accented_chars = Configuration::get('PS_ALLOW_ACCENTED_CHARS_URL');
+
+		$return_str = trim($str);
+
+		if ($has_mb_strtolower)
+			$return_str = mb_strtolower($return_str, 'utf-8');
 		if (!$allow_accented_chars)
-			$str = Tools::replaceAccentedChars($str);
+			$return_str = Tools::replaceAccentedChars($return_str);
 
 		// Remove all non-whitelist chars.
 		if ($allow_accented_chars)
-			$str = preg_replace('/[^a-zA-Z0-9\s\'\:\/\[\]\-\pL]/u', '', $str);
+			$return_str = preg_replace('/[^a-zA-Z0-9\s\'\:\/\[\]\-\p{L}]/u', '', $return_str);
 		else
-			$str = preg_replace('/[^a-zA-Z0-9\s\'\:\/\[\]\-]/','', $str);
+			$return_str = preg_replace('/[^a-zA-Z0-9\s\'\:\/\[\]\-]/','', $return_str);
 
-		$str = preg_replace('/[\s\'\:\/\[\]\-]+/', ' ', $str);
-		$str = str_replace(array(' ', '/'), '-', $str);
+		$return_str = preg_replace('/[\s\'\:\/\[\]\-]+/', ' ', $return_str);
+		$return_str = str_replace(array(' ', '/'), '-', $return_str);
 
 		// If it was not possible to lowercase the string with mb_strtolower, we do it after the transformations.
 		// This way we lose fewer special chars.
-		if (!function_exists('mb_strtolower'))
-			$str = Tools::strtolower($str);
+		if (!$has_mb_strtolower)
+			$return_str = Tools::strtolower($return_str);
 
-		return $str;
+		$array_str[$str] = $return_str;
+		return $return_str;
 	}
 
 	/**
@@ -1610,12 +1629,19 @@ class ToolsCore
 	 * @param int $precision
 	 * @return float
 	 */
-	public static function ps_round($value, $precision = 0)
+	public static function ps_round($value, $precision = 0, $round_mode = null)
 	{
-		if (Tools::$round_mode == null)
-			Tools::$round_mode = (int)Configuration::get('PS_PRICE_ROUND_MODE');
+		if ($round_mode === null)
+		{
+			if (Tools::$round_mode == null)
+			{
+				Tools::$round_mode = (int)Configuration::get('PS_PRICE_ROUND_MODE');
+			}
 
-		switch (Tools::$round_mode)
+			$round_mode = Tools::$round_mode;
+		}
+
+		switch ($round_mode)
 		{
 			case PS_ROUND_UP:
 				return Tools::ceilf($value, $precision);
@@ -1624,7 +1650,7 @@ class ToolsCore
 			case PS_ROUND_HALF_DOWN:
 			case PS_ROUND_HALF_EVEN:
 			case PS_ROUND_HALF_ODD:
-				return Tools::math_round($value, $precision, Tools::$round_mode);
+				return Tools::math_round($value, $precision, $round_mode);
 			case PS_ROUND_HALF_UP:
 			default:
 				return Tools::math_round($value, $precision, PS_ROUND_HALF_UP);
@@ -1859,6 +1885,9 @@ class ToolsCore
 
 	public static function getBrightness($hex)
 	{
+		if (Tools::strtolower($hex) == 'transparent')
+			return '129';
+
 		$hex = str_replace('#', '', $hex);
 		$r = hexdec(substr($hex, 0, 2));
 		$g = hexdec(substr($hex, 2, 2));
@@ -3136,7 +3165,7 @@ exit;
 
 	public static function changeFileMTime($file_name)
 	{
-		touch($file_name);
+		@touch($file_name);
 	}
 
 	public static function waitUntilFileIsModified($file_name, $timeout = 180)
@@ -3240,10 +3269,9 @@ exit;
 	}
 
 	/**
-	  * Allows to display the category description without HTML tags and slashes
-	  *
-	  * @return string
-	  */
+	 * Allows to display the category description without HTML tags and slashes
+	 * @return string
+	*/
 	public static function getDescriptionClean($description)
 	{
 		return strip_tags(stripslashes($description));
@@ -3285,7 +3313,7 @@ exit;
 				// http://developers.whatwg.org/the-video-element.html#the-video-element
 				if ($def = $config->maybeGetRawHTMLDefinition())
 				{
-				    $def->addElement('video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common', array(
+					$def->addElement('video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common', array(
 						'src' => 'URI',
 						'type' => 'Text',
 						'width' => 'Length',
@@ -3294,7 +3322,7 @@ exit;
 						'preload' => 'Enum#auto,metadata,none',
 						'controls' => 'Bool',
 					));
-				    $def->addElement('source', 'Block', 'Flow', 'Common', array(
+					$def->addElement('source', 'Block', 'Flow', 'Common', array(
 						'src' => 'URI',
 						'type' => 'Text',
 					));
@@ -3312,6 +3340,74 @@ exit;
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Check if a constant was already defined
+	 * @param string $constant Constant name
+	 * @param mixed $value Default value to set if not defined
+	*/
+	public static function safeDefine($constant, $value)
+	{
+		if (!defined($constant))
+			define($constant, $value);
+	}
+
+	/**
+	 * Spread an amount on lines, adjusting the $column field,
+	 * with the biggest adjustments going to the rows having the
+	 * highest $sort_column.
+	 *
+	 * E.g.:
+	 *
+	 * $rows = [['a' => 5.1], ['a' => 8.2]];
+	 *
+	 * spreadAmount(0.3, 1, $rows, 'a');
+	 *
+	 * => $rows is [['a' => 8.4], ['a' => 5.2]]
+	 *
+	 * @param $amount float  The amount to spread across the rows
+	 * @param $precision int Rounding precision
+	 *                       e.g. if $amount is 1, $precision is 0 and $rows = [['a' => 2], ['a' => 1]]
+	 *                       then the resulting $rows will be [['a' => 3], ['a' => 1]]
+	 *                       But if $precision were 1, then the resulting $rows would be [['a' => 2.5], ['a' => 1.5]]
+	 * @param &$rows array 	 An array, associative or not, containing arrays that have at least $column and $sort_column fields
+	 * @param $column string The column on which to perform adjustments
+	 */
+	public static function spreadAmount($amount, $precision, &$rows, $column)
+	{
+		if (!is_array($rows) || empty($rows))
+		{
+			return;
+		}
+
+		$sort_function = create_function('$a, $b', "return \$b['$column'] > \$a['$column'] ? 1 : -1;");
+
+		uasort($rows, $sort_function);
+
+		$unit = pow(10, $precision);
+
+		$int_amount = (int)round($unit * $amount);
+
+		$remainder = $int_amount % count($rows);
+		$amount_to_spread = ($int_amount - $remainder) / count($rows) / $unit;
+
+		$sign = ($amount >= 0 ? 1 : -1);
+		$position = 0;
+		foreach ($rows as &$row)
+		{
+			$adjustment_factor = $amount_to_spread;
+
+			if ($position < abs($remainder))
+			{
+				$adjustment_factor += $sign * 1 / $unit;
+			}
+
+			$row[$column] += $adjustment_factor;
+
+			++$position;
+		}
+		unset($row);
 	}
 }
 

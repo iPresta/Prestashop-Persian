@@ -990,7 +990,8 @@ class AdminImportControllerCore extends AdminController
 	 * @param int $id_entity id of product or category (set in entity)
 	 * @param int $id_image (default null) id of the image if watermark enabled.
 	 * @param string $url path or url to use
-	 * @param string entity 'products' or 'categories'
+	 * @param string $entity 'products' or 'categories'
+	 * @param bool $regenerate
 	 * @return boolean
 	 */
 	protected static function copyImg($id_entity, $id_image = null, $url, $entity = 'products', $regenerate = true)
@@ -1263,6 +1264,9 @@ class AdminImportControllerCore extends AdminController
 
 	public function productImport()
 	{
+		if (!defined('PS_MASS_PRODUCT_CREATION'))
+			define('PS_MASS_PRODUCT_CREATION', true);
+
 		$this->receiveTab();
 		$handle = $this->openCsvFile();
 		$default_language_id = (int)Configuration::get('PS_LANG_DEFAULT');
@@ -1355,9 +1359,14 @@ class AdminImportControllerCore extends AdminController
 				{
 					$manufacturer = new Manufacturer();
 					$manufacturer->name = $product->manufacturer;
+					$manufacturer->active = true;
+
 					if (($field_error = $manufacturer->validateFields(UNFRIENDLY_ERROR, true)) === true &&
 						($lang_field_error = $manufacturer->validateFieldsLang(UNFRIENDLY_ERROR, true)) === true && $manufacturer->add())
+					{
 						$product->id_manufacturer = (int)$manufacturer->id;
+						$manufacturer->associateTo($product->id_shop_list);
+					}
 					else
 					{
 						$this->errors[] = sprintf(

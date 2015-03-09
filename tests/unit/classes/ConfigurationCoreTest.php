@@ -20,10 +20,14 @@
 *
 *  @author PrestaShop SA <contact@prestashop.com>
 *  @copyright  2007-2015 PrestaShop SA
-*  @version  Release: $Revision$
 *  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
+namespace PrestaShop\PrestaShop\Tests\Unit\Classes;
+
+use PrestaShop\PrestaShop\Tests\TestCase\PrestaShopPHPUnit;
+use Configuration;
 
 class	ConfigurationCoreTest extends PrestaShopPHPUnit
 {
@@ -62,7 +66,7 @@ class	ConfigurationCoreTest extends PrestaShopPHPUnit
 		foreach ($id_shop_groups as $id_group)
 				$configuration['configuration'][0]['group'][$id_group]['PS_TEST_GROUP_SHOP_OVERRIDDEN'] = 'RESULT_GROUP_SHOP_OVERRIDDEN_GROUP_'.$id_group;
 		foreach ($id_shops as $id_shop)
-				$configuration['configuration'][0]['shop'][$id_shop]['PS_TEST_GROUP_SHOP_OVERRIDDEN'] = 'RESULT_GROUP_SHOP_OVERRIDDEN_SHOP_'.$id_shop;				
+				$configuration['configuration'][0]['shop'][$id_shop]['PS_TEST_GROUP_SHOP_OVERRIDDEN'] = 'RESULT_GROUP_SHOP_OVERRIDDEN_SHOP_'.$id_shop;
 
 		$this->setProperty(null, '_cache', $configuration);
 	}
